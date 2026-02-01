@@ -113,8 +113,8 @@ service cloud.firestore {
 
     // Audit Logs (Restricted)
     match /audit_logs/{logId} {
-      allow read: if isAdmin();
-      allow create: if isAdmin(); // Admins create logs on action
+      allow read: if isSuperAdmin() || isOrderManager() || isContentManager();
+      allow create: if isSuperAdmin() || isOrderManager() || isContentManager(); // Admins create logs on action
       allow update, delete: if false; // Logs are immutable
     }
 

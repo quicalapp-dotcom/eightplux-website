@@ -1,115 +1,207 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ShieldAlert, Search } from 'lucide-react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { Search, Eye, User } from 'lucide-react';
 import { db } from '@/lib/firebase/config';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 interface AuditLog {
   id: string;
   action: string;
-  admin: string;
+  userId: string;
+  userName: string;
+  ipAddress: string;
+  userAgent: string;
   timestamp: Date;
-  ip: string;
-  details: string;
+  resourceType?: string;
+  resourceId?: string;
+  details: Record<string, any>;
 }
 
 export default function AuditLogsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
   const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLogs, setLoadingLogs] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
   useEffect(() => {
-    const q = query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'));
+    if (!loading && !user) {
+      router.push('/login');
+      return;
+    }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const logsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate() : new Date()
-      })) as AuditLog[];
+    if (!user) return;
 
-      setLogs(logsData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching audit logs:", error);
-      setLoading(false);
-    });
+    const q = query(
+      collection(db, 'audit_logs'),
+      orderBy('timestamp', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const logsData: AuditLog[] = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            timestamp: data.timestamp?.toDate
+              ? data.timestamp.toDate()
+              : new Date(),
+          } as AuditLog;
+        });
+
+        setLogs(logsData);
+        setLoadingLogs(false);
+      },
+      (error) => {
+        console.error('Error fetching audit logs:', error);
+        setLoadingLogs(false);
+      }
+    );
 
     return () => unsubscribe();
-  }, []);
+  }, [user, loading, router]);
 
-  const filteredLogs = logs.filter(log =>
-    log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.admin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.ip.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLogs = logs.filter((log) => {
+    const matchesSearch =
+      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.ipAddress.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (filterType === 'all') return matchesSearch;
+    return matchesSearch && log.action.toLowerCase().includes(filterType.toLowerCase());
+  });
+
+  if (loading || loadingLogs) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0A0A0A]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
-    <div className="space-y-6 bg-white text-black">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-black">Audit Logs</h1>
-          <p className="text-sm text-gray-600">Security trail of all administrative actions.</p>
+    <div className="bg-white text-black min-h-screen pt-16 pb-20 px-6 font-sans">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 border-b border-gray-100 pb-6">
+          <h1 className="text-3xl md:text-4xl font-bold">Audit Logs</h1>
+          <p className="text-sm text-gray-600 mt-2">
+            Security trail of all administrative actions.
+          </p>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden text-black">
-        <div className="p-4 border-b border-gray-200 flex gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search logs..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none text-black"
-            />
+        <div className="space-y-8">
+          {/* Filters */}
+          <div className="p-6 rounded-lg border border-gray-200">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search logs by action, user, or IP..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none"
+                />
+              </div>
+
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none"
+              >
+                <option value="all">All Actions</option>
+                <option value="login">Login Events</option>
+                <option value="order">Order Changes</option>
+                <option value="product">Product Updates</option>
+                <option value="user">User Management</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold">
+                  <tr>
+                    <th className="px-6 py-4">Action</th>
+                    <th className="px-6 py-4">User</th>
+                    <th className="px-6 py-4">IP Address</th>
+                    <th className="px-6 py-4">Timestamp</th>
+                    <th className="px-6 py-4 text-right">Details</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {filteredLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                        No audit logs found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-semibold">{log.action}</div>
+                          {log.resourceType && log.resourceId && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {log.resourceType}: {log.resourceId}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                              <User className="w-4 h-4 text-gray-500" />
+                            </div>
+                            <div>
+                              <div className="font-medium">{log.userName}</div>
+                              <div className="text-xs text-gray-500">{log.userId}</div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="font-mono text-xs">{log.ipAddress}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-xs">
+                            {log.userAgent}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 text-xs text-gray-500">
+                          {log.timestamp.toLocaleString()}
+                        </td>
+
+                        <td className="px-6 py-4 text-right">
+                          <details>
+                            <summary className="cursor-pointer inline-flex justify-end">
+                              <Eye className="w-4 h-4 text-gray-500 hover:text-black" />
+                            </summary>
+                            <pre className="mt-2 p-4 bg-gray-50 rounded-md text-xs whitespace-pre-wrap max-w-md">
+                              {JSON.stringify(log.details, null, 2)}
+                            </pre>
+                          </details>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-gray-500 uppercase tracking-wider text-xs">
-            <tr>
-              <th className="px-6 py-4 font-medium">Timestamp</th>
-              <th className="px-6 py-4 font-medium">Action</th>
-              <th className="px-6 py-4 font-medium">Admin</th>
-              <th className="px-6 py-4 font-medium">Details</th>
-              <th className="px-6 py-4 font-medium text-right">IP Address</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 font-mono text-xs">
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">Loading audit logs...</td>
-              </tr>
-            ) : filteredLogs.length > 0 ? (
-              filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-gray-600">
-                    {log.timestamp.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 font-bold text-black">
-                    {log.action}
-                  </td>
-                  <td className="px-6 py-4 text-blue-600">
-                    {log.admin}
-                  </td>
-                  <td className="px-6 py-4 text-gray-700">
-                    {log.details}
-                  </td>
-                  <td className="px-6 py-4 text-right text-gray-600">
-                    {log.ip}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">No audit logs found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
       </div>
     </div>
   );

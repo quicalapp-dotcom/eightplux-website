@@ -117,7 +117,7 @@ export default function Navbar() {
                     {/* Center - Logo */}
                     <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 group">
                         <div className="flex flex-col items-center">
-                            <span className="font-logo text-2xl md:text-3xl tracking-widest font-semibold flex items-center gap-1">
+                            <span className="font-display text-2xl md:text-3xl tracking-widest font-semibold flex items-center gap-1">
                                 <Image
                                     src="/Copy of 8+ red logo.png"
                                     alt="Eightplux Logo"
@@ -189,7 +189,7 @@ export default function Navbar() {
                     >
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-12">
-                                <span className="font-logo text-xl flex items-center gap-1">
+                                <span className="font-display text-xl flex items-center gap-1">
                                     <Image
                                         src="/Copy of 8+ red logo.png"
                                         alt="Eightplux Logo"

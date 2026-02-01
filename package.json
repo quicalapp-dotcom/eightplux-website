@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/bodoni-moda": "^5.2.7",
+    "@fontsource/space-grotesk": "^5.2.10",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "firebase": "^12.8.0",

@@ -54,7 +54,7 @@ export default function AdminSidebar() {
             {/* Logo Area */}
             <div className="h-16 flex items-center px-6 border-b border-gray-100">
                 <span className="font-display font-bold text-xl tracking-widest">
-                    8<span className="text-red-600">+</span> ADMIN
+                    EightPlu<span className="text-red-600">+</span> ADMIN
                 </span>
             </div>
 
