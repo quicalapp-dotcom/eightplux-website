@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import CartDrawer from "@/components/layout/CartDrawer";
+import AppLayoutWrapper from "@/components/layout/AppLayoutWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 const cinzel = Cinzel({
@@ -44,10 +42,7 @@ export default function RootLayout({
       </head>
       <body className="bg-white dark:bg-[#0F0F0F] text-[#1a1a1a] dark:text-gray-100 font-body transition-colors duration-300" suppressHydrationWarning>
         <AuthProvider>
-          <Navbar />
-          <CartDrawer />
-          <main>{children}</main>
-          <Footer />
+          <AppLayoutWrapper>{children}</AppLayoutWrapper>
         </AuthProvider>
       </body>
     </html>

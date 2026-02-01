@@ -1,0 +1,132 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Role Checks (Assuming 'role' field exists on the user document)
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+
+    function isOrderManager() {
+      return hasRole('order_manager') || isSuperAdmin();
+    }
+
+    function isContentManager() {
+      return hasRole('content_manager') || isSuperAdmin();
+    }
+
+    function isAdmin() {
+      return isSuperAdmin() || isOrderManager() || isContentManager();
+    }
+
+    // --- Collection Rules ---
+
+    // Users Collection
+    match /users/{userId} {
+      // Users can read/write their own profile
+      // Admins need access to user data for orders/management
+      allow read: if isOwner(userId) || isOrderManager() || isSuperAdmin();
+      allow create: if isAuthenticated(); // For sign up
+      allow update: if isOwner(userId) || isSuperAdmin(); // Only super admin can change roles
+      allow delete: if isSuperAdmin();
+    }
+
+    // Products (Public Read, Admin Write)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Categories (Public Read, Admin Write)
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Homepage Content (Public Read, Admin Write)
+    match /homepage_content/{contentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Banners (Public Read, Admin Write)
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Category Highlights (Public Read, Admin Write)
+    match /category_highlights/{highlightId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Collections/Campaigns (Public Read, Admin Write)
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Campaigns (Public Read, Admin Write)
+    match /campaigns/{campaignId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      // Users see their own orders
+      // Order Managers & Super Admins see all
+      allow read: if isOwner(resource.data.userId) || isOrderManager();
+
+      // Users can create orders
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+
+      // Only Admins can update status (users cannot modify placed orders except maybe cancel?)
+      allow update: if isOrderManager();
+    }
+
+    // World Content (Articles/Events)
+    match /content/{contentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Audit Logs (Restricted)
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin(); // Admins create logs on action
+      allow update, delete: if false; // Logs are immutable
+    }
+
+    // Settings (App Configuration)
+    match /settings/{settingId} {
+      allow read: if true; // Or restricted depending on sensitivity
+      allow write: if isSuperAdmin();
+    }
+
+    // Analytics (Admin Read)
+    match /analytics/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

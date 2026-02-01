@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { auth, db } from '@/lib/firebase/config';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -28,6 +29,17 @@ export default function SignUpPage() {
             // Update display name
             await updateProfile(userCredential.user, {
                 displayName: name,
+            });
+
+            // Create user document in Firestore
+            await setDoc(doc(db, 'users', userCredential.user.uid), {
+                uid: userCredential.user.uid,
+                name: name,
+                email: email,
+                role: 'customer', // Default role for new signups
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                newsletter: newsletter,
             });
 
             router.push('/account'); // Redirect to account page after signup

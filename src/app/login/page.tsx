@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { auth, db } from '@/lib/firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -22,8 +23,24 @@ export default function LoginPage() {
         setError('');
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            router.push('/account'); // Redirect to account page after login
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Fetch user role to determine redirect
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const role = userData.role || 'customer';
+
+                if (['super_admin', 'order_manager', 'content_manager'].includes(role)) {
+                    router.push('/admin');
+                } else {
+                    router.push('/account');
+                }
+            } else {
+                // If no role found, assume customer
+                router.push('/account');
+            }
         } catch (err: any) {
             console.error('Login error:', err);
             // Determine user-friendly error message

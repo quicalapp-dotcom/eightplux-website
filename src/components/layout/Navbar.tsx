@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
 import { clsx } from 'clsx';
@@ -37,7 +37,7 @@ export default function Navbar() {
     const [searchOpen, setSearchOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    const { user, loading } = useAuth();
+    const { user, loading, isAdmin } = useAuth();
     const { toggleCart, getItemCount } = useCartStore();
     const itemCount = getItemCount();
 
@@ -135,9 +135,16 @@ export default function Navbar() {
                         {loading ? (
                             <div className="w-5 h-5 rounded-full bg-gray-200 animate-pulse hidden md:block"></div>
                         ) : user ? (
-                            <Link href="/account" className="hover:text-red-600 transition-colors hidden md:block" title="My Account">
-                                <User className="w-5 h-5" />
-                            </Link>
+                            <div className="flex items-center space-x-6 hidden md:flex">
+                                {isAdmin && (
+                                    <Link href="/admin" className="hover:text-red-600 transition-colors" title="Admin Dashboard">
+                                        <Shield className="w-5 h-5" />
+                                    </Link>
+                                )}
+                                <Link href="/account" className="hover:text-red-600 transition-colors" title="My Account">
+                                    <User className="w-5 h-5" />
+                                </Link>
+                            </div>
                         ) : (
                             <Link href="/login" className="hover:text-red-600 transition-colors hidden md:block">
                                 <User className="w-5 h-5" />
@@ -209,6 +216,15 @@ export default function Navbar() {
                             </div>
 
                             <div className="mt-12 pt-12 border-t border-gray-100 dark:border-gray-800 flex justify-between">
+                                {isAdmin && (
+                                    <Link
+                                        href="/admin"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#D32F2F]"
+                                    >
+                                        <Shield className="w-4 h-4" /> Admin
+                                    </Link>
+                                )}
                                 <Link
                                     href={user ? "/account" : "/login"}
                                     onClick={() => setMobileMenuOpen(false)}
