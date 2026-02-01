@@ -25,6 +25,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Eightplux | High-End Editorial Fashion",
   description: "A fashion-forward, community-driven e-commerce platform that blends editorial storytelling with premium shopping experiences.",
+  icons: {
+    icon: '/Copy of 8+ red logo.png',
+  },
 };
 
 export default function RootLayout({

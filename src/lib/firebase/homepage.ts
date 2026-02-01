@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, orderBy, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './config';
 
 export interface HomepageContent {
@@ -146,5 +146,125 @@ export const getHomepageContentById = async (id: string): Promise<HomepageConten
   } catch (error) {
     console.error('Error fetching homepage content by ID:', error);
     return null;
+  }
+};
+
+// Add new homepage content
+export const addHomepageContent = async (data: Omit<HomepageContent, 'id' | 'createdAt' | 'updatedAt'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'homepage_content'), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding homepage content:', error);
+    throw error;
+  }
+};
+
+// Update homepage content
+export const updateHomepageContent = async (id: string, data: Partial<HomepageContent>) => {
+  try {
+    const docRef = doc(db, 'homepage_content', id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating homepage content:', error);
+    throw error;
+  }
+};
+
+// Delete homepage content
+export const deleteHomepageContent = async (id: string) => {
+  try {
+    const docRef = doc(db, 'homepage_content', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting homepage content:', error);
+    throw error;
+  }
+};
+
+// Add new banner
+export const addBanner = async (data: Omit<Banner, 'id' | 'createdAt' | 'updatedAt'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'banners'), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding banner:', error);
+    throw error;
+  }
+};
+
+// Update banner
+export const updateBanner = async (id: string, data: Partial<Banner>) => {
+  try {
+    const docRef = doc(db, 'banners', id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating banner:', error);
+    throw error;
+  }
+};
+
+// Delete banner
+export const deleteBanner = async (id: string) => {
+  try {
+    const docRef = doc(db, 'banners', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    throw error;
+  }
+};
+
+// Add new category highlight
+export const addCategoryHighlight = async (data: Omit<CategoryHighlight, 'id' | 'createdAt' | 'updatedAt'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'category_highlights'), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding category highlight:', error);
+    throw error;
+  }
+};
+
+// Update category highlight
+export const updateCategoryHighlight = async (id: string, data: Partial<CategoryHighlight>) => {
+  try {
+    const docRef = doc(db, 'category_highlights', id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating category highlight:', error);
+    throw error;
+  }
+};
+
+// Delete category highlight
+export const deleteCategoryHighlight = async (id: string) => {
+  try {
+    const docRef = doc(db, 'category_highlights', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting category highlight:', error);
+    throw error;
   }
 };

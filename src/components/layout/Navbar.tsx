@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from 'lucide-react';
@@ -117,6 +118,13 @@ export default function Navbar() {
                     <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 group">
                         <div className="flex flex-col items-center">
                             <span className="font-logo text-2xl md:text-3xl tracking-widest font-semibold flex items-center gap-1">
+                                <Image
+                                    src="/Copy of 8+ red logo.png"
+                                    alt="Eightplux Logo"
+                                    width={45}
+                                    height={45}
+                                    className="object-contain"
+                                />
                                 EIGHTPLU<span className="text-[#D32F2F] text-3xl md:text-4xl">+</span>
                             </span>
                         </div>
@@ -181,7 +189,16 @@ export default function Navbar() {
                     >
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-12">
-                                <span className="font-logo text-xl">EIGHTPLU<span className="text-red-600">+</span></span>
+                                <span className="font-logo text-xl flex items-center gap-1">
+                                    <Image
+                                        src="/Copy of 8+ red logo.png"
+                                        alt="Eightplux Logo"
+                                        width={24}
+                                        height={24}
+                                        className="object-contain"
+                                    />
+                                    EIGHTPLU<span className="text-red-600">+</span>
+                                </span>
                                 <button onClick={() => setMobileMenuOpen(false)}>
                                     <X className="w-6 h-6" />
                                 </button>
