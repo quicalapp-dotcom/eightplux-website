@@ -13,8 +13,8 @@ const config: Config = {
                 primary: "#D32F2F", // Red accent from the logo
                 "background-light": "#F8F8F8",
                 "background-dark": "#0A0A0A",
-                "text-light": "#1A1A1A",
-                "text-dark": "#EDEDED",
+                "text-dark": "#1A1A1A",
+                "text-light": "#EDEDED",
                 "card-light": "#FFFFFF",
                 "card-dark": "#171717",
             },

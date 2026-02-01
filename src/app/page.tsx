@@ -330,6 +330,26 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Editorial Tagline Section */}
+      <section className="w-full bg-[#f8f8f8] dark:bg-[#0a0a0a] pt-12 pb-2 md:pt-24 flex flex-col items-center justify-end overflow-hidden">
+        <div className="relative w-full flex flex-col items-center">
+          <svg
+            className="text-black dark:text-white mb-6 w-24 h-24 md:w-32 md:h-32"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="0.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M18.8 8.6c-.6-.4-1.3-.6-2-.6-1.5 0-2.8.9-3.4 2.2-.4-.9-1.2-1.6-2.2-1.9-.3-.1-.7-.1-1-.1-2.4 0-4.3 1.9-4.3 4.3 0 .4.1.8.2 1.2l-.7.2c-.4.1-.7.5-.7.9s.3.8.7.9h.1l5.7-1.4c.5-.1.9-.6.8-1.1-.1-.5-.6-.9-1.1-.8l-3.3.8c-.2-1.8 1.2-3.4 3-3.4.6 0 1.2.2 1.6.6.4.4.7 1 .7 1.6 0 .5.4.9.9.9s.9-.4.9-.9c0-1.2.8-2.2 2-2.2.4 0 .8.1 1.1.4.3.3.5.7.5 1.1 0 .9-.5 1.7-1.3 2-.4.2-.6.7-.4 1.1.2.4.7.6 1.1.4 1.4-.6 2.3-1.9 2.3-3.5 0-1.4-.9-2.7-2.2-3.1z" />
+            <path d="M3 14s4-2 6 2" />
+          </svg>
+          <div className="mega-text font-display italic font-black text-center text-primary dark:text-white leading-[0.7] tracking-tighter w-full select-none pointer-events-none">
+            Let it fly
+          </div>
+        </div>
+      </section>
     </>
   );
 }

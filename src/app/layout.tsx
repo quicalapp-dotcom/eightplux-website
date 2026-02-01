@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/layout/CartDrawer";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -42,10 +43,12 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white dark:bg-[#0F0F0F] text-[#1a1a1a] dark:text-gray-100 font-body transition-colors duration-300" suppressHydrationWarning>
-        <Navbar />
-        <CartDrawer />
-        <main>{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <CartDrawer />
+          <main>{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
