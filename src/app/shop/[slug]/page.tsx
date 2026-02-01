@@ -46,12 +46,13 @@ export default function ProductDetailPage() {
 
     const handleAddToBag = () => {
         addItem({
-            id: product.id,
+            productId: product.id,
             name: product.name,
             price: product.price,
             image: product.images[0],
             size: selectedSize,
             color: selectedColor.name,
+            quantity: 1,
         });
     };
 
@@ -140,8 +141,8 @@ export default function ProductDetailPage() {
                                         key={color.name}
                                         onClick={() => setSelectedColor(color)}
                                         className={`w-8 h-8 rounded-full hover:scale-110 transition-transform ${selectedColor.name === color.name
-                                                ? 'ring-2 ring-offset-2 ring-black dark:ring-white'
-                                                : 'border border-gray-300'
+                                            ? 'ring-2 ring-offset-2 ring-black dark:ring-white'
+                                            : 'border border-gray-300'
                                             }`}
                                         style={{ backgroundColor: color.hex }}
                                     />
@@ -163,8 +164,8 @@ export default function ProductDetailPage() {
                                         key={size}
                                         onClick={() => setSelectedSize(size)}
                                         className={`h-10 border flex items-center justify-center text-xs transition-colors ${selectedSize === size
-                                                ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-bold'
-                                                : 'border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white'
+                                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-bold'
+                                            : 'border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white'
                                             }`}
                                     >
                                         {size}
