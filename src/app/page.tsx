@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { getBanners, getWhatsNewItems, getPaletteItems, getHighlightItems } from '@/lib/firebase/homepage';
 
-// Image URLs from the original design
+// Image URLs from the original design (fallback)
 const images = {
   hero: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
   collection: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyZlC9BvXQOC0fXsdORuBsOosfqGKQkRGJwU4739Gryc4Mbv3GGyulPtr8TvXu1ncep1G-pSj9XMPwq1d2-_u3drJyZiIYIosY5h-N4TAqNBbIYIGXmlyBGjkcVeFN0Fg_nftkxsshtR6bssd8GQkQwKAIri00LtT13W9OLKqQpBTKbhcGyA8g9w2EEoj1DYrBe3sgJ3yw2riXATCnitBBxTjM0As_3FK5AbY5UuLLpR19ZamN0emnW1FNY-TRKY8g0qiHHVKdPm9D',
@@ -13,71 +14,97 @@ const images = {
   voidCollection: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA_Ot2c9vv5-mlJg9eapl412CP3uc1hDlHsDk4iUZZFD1pskjJVXTBP6Pr_hvlhIonNV1Lkgna5xDhGnXv3mj6hP-nZJDkzXS3cWtB3eFUbROxCJXt744Dt7K2-QWGjxaeWd7se0fBjZF-OPm7moUbEqKCQy_m957iaf4Z12mWkIPxioQoVvt4uOQZtuk7pgmBUYYSF1mevinOAGl9x7zBF_fUgVGnEYBJhdsbfqjG_nsuVFFOMKD-hAmIY00eZlW4QgzJNVYedfGfz',
 };
 
-const whatsNew = [
-  { name: 'The Trench', image: images.product1 },
-  { name: 'Studio', image: images.product1 },
-  { name: 'Leather', image: images.product2 },
-  { name: 'Knitwear', image: images.product3 },
+// Fallback data
+const fallbackWhatsNew = [
+  { name: 'The Trench', imageUrl: images.product1, linkUrl: "/shop" },
+  { name: 'Studio', imageUrl: images.product1, linkUrl: "/shop" },
+  { name: 'Leather', imageUrl: images.product2, linkUrl: "/shop" },
+  { name: 'Knitwear', imageUrl: images.product3, linkUrl: "/shop" },
 ];
 
-const occasions = [
-  { name: 'Atelier', image: images.product5 },
-  { name: 'Transit', image: images.product4 },
-  { name: 'Repose', image: images.product3 },
-  { name: 'Nocturne', image: images.product2 },
-  { name: 'Exterior', image: images.product1 },
+const fallbackPalettes = [
+  { name: 'Charcoal', color: '#2a2a2a', imageUrl: images.product2, overlay: true, linkUrl: "/shop?color=charcoal" },
+  { name: 'Mist', color: '#e5e5e5', imageUrl: images.product3, overlay: false, linkUrl: "/shop?color=mist" },
+  { name: 'Oxblood', color: '#8b0000', imageUrl: images.product1, overlay: true, linkUrl: "/shop?color=oxblood" },
+  { name: 'Camel', color: '#d2b48c', imageUrl: images.product4, overlay: false, linkUrl: "/shop?color=camel" },
+  { name: 'Obsidian', color: '#000000', imageUrl: images.product5, overlay: true, linkUrl: "/shop?color=obsidian" },
+  { name: 'Plaster', color: '#f5f5f5', imageUrl: images.voidCollection, overlay: false, linkUrl: "/shop?color=plaster" },
 ];
 
-const newProducts = [
-  { name: 'Silk Trouser', subtitle: 'Relaxed Fit', price: 1100, image: images.product4 },
-  { name: 'Cashmere Hoodie', subtitle: 'Heavyweight', price: 890, image: images.product3 },
-  { name: 'Calfskin Jacket', subtitle: 'Structured', price: 2450, image: images.product2 },
-  { name: 'Derby Boot', subtitle: 'Polished Leather', price: 1350, image: images.product5 },
-];
-
-const palettes = [
-  { name: 'Charcoal', color: '#2a2a2a', image: images.product2 },
-  { name: 'Mist', color: '#e5e5e5', image: images.product3 },
-  { name: 'Oxblood', color: '#8b0000', image: images.product1, overlay: true },
-  { name: 'Camel', color: '#d2b48c', image: images.product4 },
-  { name: 'Obsidian', color: '#000000', image: images.product5 },
-  { name: 'Plaster', color: '#f5f5f5', image: images.voidCollection },
-];
-
-const highlights = [
+const fallbackHighlights = [
   {
     title: "That last set doesn't feel possible. Yet.",
     description: "In ultra-supportive gear, your hardest sessions finish as strong as they start.",
-    link: "Explore Tech",
-    image: images.product1,
+    linkText: "Explore Tech",
+    imageUrl: images.product1,
+    linkUrl: "/world",
   },
   {
     title: "Cut from the cold.",
     description: "Now online in the USA: the limited-edition Team Canada Milano Cortina 2026 collection.",
-    link: "Read The Journal",
-    image: images.hero,
+    linkText: "Read The Journal",
+    imageUrl: images.hero,
+    linkUrl: "/world",
   },
   {
     title: "Get a feel for all our fabrics.",
     description: "Compare textures, weights, and finishes to find the fabric for you.",
-    link: "Explore Materials",
-    image: images.voidCollection,
+    linkText: "Explore Materials",
+    imageUrl: images.voidCollection,
+    linkUrl: "/world",
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const banners = await getBanners();
+  const whatsNew = await getWhatsNewItems();
+  const palettes = await getPaletteItems();
+  const highlights = await getHighlightItems();
+
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-[95vh] w-full overflow-hidden bg-black">
-        <Image
-          src={images.hero}
-          alt="Cinematic fashion editorial visual"
-          fill
-          className="object-cover"
-          priority
-        />
-      </section>
+      {banners.length > 0 ? (
+        <section className="relative h-[95vh] w-full overflow-hidden bg-black">
+          <Image
+            src={banners[0].imageUrl}
+            alt={banners[0].title}
+            fill
+            className="object-cover"
+            priority
+          />
+          {banners[0].title && (
+            <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6">
+              <h2 className="text-white text-4xl md:text-6xl font-display mb-6 tracking-wide drop-shadow-lg">
+                {banners[0].title}
+              </h2>
+              {banners[0].description && (
+                <p className="text-white text-lg font-light mb-8 max-w-lg drop-shadow-md">
+                  {banners[0].description}
+                </p>
+              )}
+              {banners[0].linkUrl && banners[0].linkText && (
+                <Link 
+                  href={banners[0].linkUrl}
+                  className="bg-white/90 backdrop-blur text-black px-8 py-3 rounded-full text-xs uppercase tracking-widest font-bold hover:bg-white transition-colors"
+                >
+                  {banners[0].linkText}
+                </Link>
+              )}
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className="relative h-[95vh] w-full overflow-hidden bg-black">
+          <Image
+            src={images.hero}
+            alt="Cinematic fashion editorial visual"
+            fill
+            className="object-cover"
+            priority
+          />
+        </section>
+      )}
 
       {/* Two Column Collection Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-0 w-full">
@@ -122,11 +149,11 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {whatsNew.map((item) => (
-            <Link key={item.name} href="/shop" className="group cursor-pointer relative block">
+          {(whatsNew.length > 0 ? whatsNew : fallbackWhatsNew as unknown as typeof whatsNew).map((item) => (
+            <Link key={item.name} href={item.linkUrl || "/shop"} className="group cursor-pointer relative block">
               <div className="aspect-[4/5] overflow-hidden bg-gray-100 relative mb-4">
                 <Image
-                  src={item.image}
+                  src={item.imageUrl}
                   alt={item.name}
                   fill
                   className="object-cover image-hover-zoom"
@@ -201,14 +228,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <h3 className="text-3xl font-display mb-10">Shop by Palette</h3>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            {palettes.map((palette) => (
-              <Link key={palette.name} href={`/shop?color=${palette.name.toLowerCase()}`} className="group text-center block">
+            {(palettes.length > 0 ? palettes : fallbackPalettes).map((palette) => (
+              <Link key={palette.name} href={palette.linkUrl || `/shop?color=${palette.name.toLowerCase()}`} className="group text-center block">
                 <div className="h-48 mb-3 relative overflow-hidden" style={{ backgroundColor: palette.color }}>
-                  {palette.overlay && (
-                    <div className="absolute inset-0 bg-red-900 mix-blend-multiply z-10" />
-                  )}
                   <Image
-                    src={palette.image}
+                    src={palette.imageUrl}
                     alt={palette.name}
                     fill
                     className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
@@ -225,11 +249,11 @@ export default function HomePage() {
       <section className="py-24 px-6 md:px-12 bg-white dark:bg-[#0F0F0F]">
         <h2 className="text-4xl font-display mb-12">Catch the Highlights</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {highlights.map((item) => (
-            <Link key={item.title} href="/world" className="group block">
+          {(highlights.length > 0 ? highlights : fallbackHighlights).map((item) => (
+            <Link key={item.title} href={item.linkUrl || "/world"} className="group block">
               <div className="aspect-square overflow-hidden mb-6 relative">
                 <Image
-                  src={item.image}
+                  src={item.imageUrl}
                   alt={item.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -241,7 +265,7 @@ export default function HomePage() {
               </h3>
               <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>
               <span className="text-[10px] uppercase font-bold mt-4 block border-b border-black dark:border-white w-max pb-1">
-                {item.link}
+                {item.linkText}
               </span>
             </Link>
           ))}
@@ -298,3 +322,4 @@ export default function HomePage() {
     </>
   );
 }
+

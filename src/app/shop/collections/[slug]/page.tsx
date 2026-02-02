@@ -3,81 +3,91 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
-import { Product } from '@/types';
-import { getNewReleasesProducts } from '@/lib/firebase/collections';
+import { Product, Collection } from '@/types';
+import { getCollectionBySlug, getProductsByCollection } from '@/lib/firebase/collections';
 
-const categories = ['All', 'Women', 'Men', 'Outerwear', 'Knitwear', 'Accessories'];
-
-export default function NewReleasesPage() {
-    const [activeCategory, setActiveCategory] = useState('All');
+export default function CollectionPage() {
+    const params = useParams();
+    const router = useRouter();
+    const [collection, setCollection] = useState<Collection | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeCategory, setActiveCategory] = useState('All');
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
-                const newReleases = await getNewReleasesProducts();
-                setProducts(newReleases);
+                const fetchedCollection = await getCollectionBySlug(params.slug as string);
+                if (!fetchedCollection) {
+                    router.push('/shop');
+                    return;
+                }
+                setCollection(fetchedCollection);
+                
+                const fetchedProducts = await getProductsByCollection(fetchedCollection.id);
+                setProducts(fetchedProducts);
             } catch (error) {
-                console.error('Error fetching new releases:', error);
+                console.error('Error fetching collection data:', error);
+                router.push('/shop');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProducts();
-    }, []);
+        fetchData();
+    }, [params.slug, router]);
 
-    // Fallback data
+    // Fallback data if collection not found or no products
     const fallbackProducts: Product[] = [
         {
             id: '1',
-            name: 'Silk Trouser',
-            slug: 'silk-trouser',
-            price: 1100,
-            fabric: 'Relaxed Fit',
+            name: 'The Trench',
+            slug: 'the-trench',
+            price: 1250,
+            fabric: 'Technical Cotton Blend',
             images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H',
                 'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
             ],
             colors: [{ name: 'Black', hex: '#000000' }, { name: 'Gray', hex: '#808080' }],
             isNew: true,
             isBestSeller: false,
             isSale: false,
             compareAtPrice: undefined,
-            category: 'Bottoms',
+            category: 'Outerwear',
             currency: 'USD',
-            description: 'Silk relaxed fit trouser',
-            inventory: 15,
+            description: 'Technical cotton blend trench coat',
+            inventory: 10,
             sizes: ['XS', 'S', 'M', 'L', 'XL'],
             tags: [],
-            gender: 'women',
+            gender: 'unisex',
             createdAt: new Date(),
             updatedAt: new Date(),
         },
         {
             id: '2',
-            name: 'Cashmere Hoodie',
-            slug: 'cashmere-hoodie',
+            name: 'Studio Blouson',
+            slug: 'studio-blouson',
             price: 890,
-            fabric: 'Heavyweight',
+            fabric: 'Archival Fit',
             images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
             ],
-            colors: [{ name: 'Gray', hex: '#808080' }],
-            isNew: true,
+            colors: [{ name: 'Black', hex: '#000000' }],
+            isNew: false,
             isBestSeller: true,
             isSale: false,
             compareAtPrice: undefined,
-            category: 'Tops',
+            category: 'Outerwear',
             currency: 'USD',
-            description: 'Heavyweight cashmere hoodie',
-            inventory: 8,
+            description: 'Archival fit blouson jacket',
+            inventory: 5,
             sizes: ['S', 'M', 'L', 'XL'],
             tags: [],
-            gender: 'unisex',
+            gender: 'men',
             createdAt: new Date(),
             updatedAt: new Date(),
         },
@@ -85,22 +95,30 @@ export default function NewReleasesPage() {
 
     const displayProducts = products.length > 0 ? products : fallbackProducts;
 
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white" />
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100">
             {/* Hero Section */}
             <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden bg-black flex items-center justify-center">
                 <Image
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_"
-                    alt="New Releases Collection"
+                    src={collection?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_'}
+                    alt={collection?.name || 'Collection'}
                     fill
                     className="object-cover opacity-80"
                 />
                 <div className="relative z-10 text-center text-white">
                     <h1 className="text-5xl md:text-8xl font-display uppercase tracking-widest mb-4">
-                        New Releases
+                        {collection?.name || 'Collection'}
                     </h1>
                     <p className="text-xs md:text-sm font-light tracking-[0.3em] uppercase opacity-80">
-                        Fall / Winter 2024 Collection
+                        {collection?.description || 'Discover our latest collection'}
                     </p>
                 </div>
             </section>
@@ -109,18 +127,33 @@ export default function NewReleasesPage() {
             <section className="sticky top-[81px] z-40 bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur border-b border-gray-100 dark:border-gray-800 transition-all duration-300">
                 <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex overflow-x-auto gap-8 md:gap-12 w-full md:w-auto justify-center md:justify-start hide-scrollbar">
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveCategory(category)}
-                                className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === category
-                                        ? 'font-bold border-b border-black dark:border-white pb-1'
-                                        : 'text-gray-500 hover:text-black dark:hover:text-white'
-                                    }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
+                        <button
+                            onClick={() => setActiveCategory('All')}
+                            className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === 'All'
+                                    ? 'font-bold border-b border-black dark:border-white pb-1'
+                                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                                }`}
+                        >
+                            All
+                        </button>
+                        <button
+                            onClick={() => setActiveCategory('Women')}
+                            className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === 'Women'
+                                    ? 'font-bold border-b border-black dark:border-white pb-1'
+                                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                                }`}
+                        >
+                            Women
+                        </button>
+                        <button
+                            onClick={() => setActiveCategory('Men')}
+                            className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === 'Men'
+                                    ? 'font-bold border-b border-black dark:border-white pb-1'
+                                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                                }`}
+                        >
+                            Men
+                        </button>
                     </div>
                     <button className="flex items-center gap-2 bg-black text-white px-6 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-gray-800 transition-colors w-full md:w-auto justify-center">
                         <SlidersHorizontal className="w-4 h-4" />
@@ -136,7 +169,7 @@ export default function NewReleasesPage() {
                         <div
                             key={product.id}
                             className={`group relative bg-white dark:bg-[#141414] overflow-hidden ${index === 7 ? 'col-span-1 md:col-span-2 row-span-2' : ''
-                                }`}
+                                    }`}
                         >
                             {/* Editorial Break */}
                             {index === 7 ? (
@@ -155,7 +188,7 @@ export default function NewReleasesPage() {
                                     </div>
                                 </div>
                             ) : (
-                                <Link href={`/shop/${product.id}`}>
+                                <Link href={`/shop/${product.slug}`}>
                                     <div className="aspect-[3/4] overflow-hidden relative">
                                         <Image
                                             src={product.images[0]}
@@ -177,10 +210,10 @@ export default function NewReleasesPage() {
                                                 </span>
                                             </div>
                                         )}
-                                        {product.isExclusive && (
+                                        {product.isBestSeller && (
                                             <div className="absolute top-2 left-2 z-20">
                                                 <span className="bg-black text-white px-2 py-1 text-[9px] uppercase tracking-widest font-bold">
-                                                    Exclusive
+                                                    Best Seller
                                                 </span>
                                             </div>
                                         )}
@@ -211,14 +244,14 @@ export default function NewReleasesPage() {
             </section>
 
             <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .hide-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
         </div>
     );
 }

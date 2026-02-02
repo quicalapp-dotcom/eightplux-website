@@ -1,31 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Play, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { getProductBySlug } from '@/lib/firebase/products';
+import { Product, ProductColor } from '@/types';
 
-// Mock product data - in production this would come from a database
-const product = {
-    id: 'void-trench',
-    name: 'The Void Trench',
-    price: 3200,
-    description: 'Oversized silhouette constructed from bonded technical cotton. Features dropped shoulders, concealed placket, and exaggerated lapels. Finished with our signature raw-hem detailing and internal carry straps.',
-    ref: '8P-2024-VT',
-    images: [
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCyZlC9BvXQOC0fXsdORuBsOosfqGKQkRGJwU4739Gryc4Mbv3GGyulPtr8TvXu1ncep1G-pSj9XMPwq1d2-_u3drJyZiIYIosY5h-N4TAqNBbIYIGXmlyBGjkcVeFN0Fg_nftkxsshtR6bssd8GQkQwKAIri00LtT13W9OLKqQpBTKbhcGyA8g9w2EEoj1DYrBe3sgJ3yw2riXATCnitBBxTjM0As_3FK5AbY5UuLLpR19ZamN0emnW1FNY-TRKY8g0qiHHVKdPm9D',
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
-    ],
-    colors: [
-        { name: 'Obsidian', hex: '#000000' },
-        { name: 'Charcoal', hex: '#3e3e3e' },
-        { name: 'Khaki', hex: '#5c5346' },
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    category: 'Outerwear',
-};
-
+// Mock data for styled with and recently viewed
 const styledWith = [
     { name: 'Silk Trouser', price: 1100, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H', slug: 'silk-trouser' },
     { name: 'Derby Boot', price: 1350, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAONEJr7Tczt0KHlX1SSC9TPyHy2oS3b72tPHuAS0ER6awAcq-6kkbN36jPGiG4WzwDRBhjH84FI2lV32n962QW--eTAWvIU1nnnlri9LpQVFjLD5xYTH0Hjp1EgQzdtrm8va5qtpWj9jmdup6kCg7p_LmXTfIvLPvKwlIknIr9gLVfklOK-SAeH9LVaVZ_ZA-4TCSXJXw7PMpXhX54cb8MOqCkXc_hBklTupZwxfdw2po52GXAv7n-fPaRgHl5QqTCQhb7niuSZVDR', slug: 'derby-boot' },
@@ -39,12 +25,40 @@ const recentlyViewed = [
 ];
 
 export default function ProductDetailPage() {
-    const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+    const params = useParams();
+    const slug = params.slug as string;
+    const [product, setProduct] = useState<Product | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
     const [selectedSize, setSelectedSize] = useState('M');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { addItem } = useCartStore();
+    const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const fetchedProduct = await getProductBySlug(slug);
+                setProduct(fetchedProduct);
+                if (fetchedProduct && fetchedProduct.colors.length > 0) {
+                    setSelectedColor(fetchedProduct.colors[0]);
+                }
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (slug) {
+            fetchProduct();
+        }
+    }, [slug]);
 
     const handleAddToBag = () => {
+        if (!product || !selectedColor) return;
+
         addItem({
             productId: product.id,
             name: product.name,
@@ -56,19 +70,56 @@ export default function ProductDetailPage() {
         });
     };
 
+    const handleWishlistToggle = () => {
+        if (!product || !user) return;
+
+        if (isInWishlist(product.id)) {
+            removeFromWishlist(product.id, user.uid);
+        } else {
+            addToWishlist(product.id, user.uid);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-black dark:border-white mx-auto mb-4"></div>
+                    <p className="text-sm uppercase tracking-widest text-gray-500">Loading product</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-4">Product Not Found</h1>
+                    <p className="text-gray-500 mb-8">The product you are looking for does not exist or has been removed.</p>
+                    <Link href="/shop" className="inline-block px-8 py-4 bg-black dark:bg-white text-white dark:text-black uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity">
+                        Continue Shopping
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen">
             {/* Main Product Section */}
             <main className="w-full flex flex-col lg:flex-row min-h-screen">
                 {/* Image Gallery - Sticky on Desktop */}
                 <div className="w-full lg:w-[62%] h-[80vh] lg:h-screen lg:sticky lg:top-0 overflow-hidden bg-gray-100 dark:bg-gray-900 relative">
-                    <Image
-                        src={product.images[currentImageIndex]}
-                        alt={product.name}
-                        fill
-                        className="object-cover object-top"
-                        priority
-                    />
+                    {product.images.length > 0 && (
+                        <Image
+                            src={product.images[currentImageIndex]}
+                            alt={product.name}
+                            fill
+                            className="object-cover object-top"
+                            priority
+                        />
+                    )}
 
                     {/* Image Navigation */}
                     {product.images.length > 1 && (
@@ -90,12 +141,17 @@ export default function ProductDetailPage() {
 
                     {/* Reference Number */}
                     <div className="absolute bottom-8 left-8 z-10 hidden lg:block">
-                        <p className="text-[10px] uppercase tracking-widest text-white/70">Ref. {product.ref}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-white/70">Ref. {product.id}</p>
                     </div>
 
                     {/* Wishlist Button */}
-                    <button className="absolute top-24 right-6 w-10 h-10 bg-white/80 dark:bg-black/80 flex items-center justify-center hover:bg-white dark:hover:bg-black transition-colors">
-                        <Heart className="w-5 h-5" />
+                    <button 
+                        onClick={handleWishlistToggle}
+                        className="absolute top-24 right-6 w-10 h-10 bg-white/80 dark:bg-black/80 flex items-center justify-center hover:bg-white dark:hover:bg-black transition-colors"
+                    >
+                        <Heart 
+                            className={`w-5 h-5 transition-colors ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-800 dark:text-gray-200'}`} 
+                        />
                     </button>
                 </div>
 
@@ -105,7 +161,7 @@ export default function ProductDetailPage() {
                     <div className="flex items-center space-x-2 text-[10px] uppercase tracking-widest text-gray-400 mb-8">
                         <Link href="/shop" className="hover:text-black dark:hover:text-white">Shop</Link>
                         <span>/</span>
-                        <Link href="/shop?category=outerwear" className="hover:text-black dark:hover:text-white">{product.category}</Link>
+                        <Link href={`/shop?category=${product.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{product.category}</Link>
                         <span>/</span>
                         <span className="text-black dark:text-white">{product.name.split(' ')[1]}</span>
                     </div>
@@ -115,7 +171,9 @@ export default function ProductDetailPage() {
                         <h1 className="text-4xl md:text-5xl font-display font-bold uppercase tracking-wide leading-tight mb-2">
                             {product.name}
                         </h1>
-                        <p className="text-xl font-light tracking-wide">${product.price.toLocaleString()}</p>
+                        <p className="text-xl font-light tracking-wide">
+                            {product.currency === 'USD' ? `$${product.price.toLocaleString()}` : `₦${product.price.toLocaleString()}`}
+                        </p>
                     </div>
 
                     {/* Description */}
@@ -131,54 +189,59 @@ export default function ProductDetailPage() {
                     {/* Options */}
                     <div className="space-y-8 mb-12">
                         {/* Color Selection */}
-                        <div>
-                            <span className="block text-[10px] uppercase tracking-widest font-bold mb-3">
-                                Color — {selectedColor.name}
-                            </span>
-                            <div className="flex space-x-3">
-                                {product.colors.map((color) => (
-                                    <button
-                                        key={color.name}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`w-8 h-8 rounded-full hover:scale-110 transition-transform ${selectedColor.name === color.name
-                                            ? 'ring-2 ring-offset-2 ring-black dark:ring-white'
-                                            : 'border border-gray-300'
-                                            }`}
-                                        style={{ backgroundColor: color.hex }}
-                                    />
-                                ))}
+                        {product.colors && product.colors.length > 0 && (
+                            <div>
+                                <span className="block text-[10px] uppercase tracking-widest font-bold mb-3">
+                                    Color — {selectedColor?.name || 'Select Color'}
+                                </span>
+                                <div className="flex space-x-3">
+                                    {product.colors.map((color) => (
+                                        <button
+                                            key={color.name}
+                                            onClick={() => setSelectedColor(color)}
+                                            className={`w-8 h-8 rounded-full hover:scale-110 transition-transform ${selectedColor?.name === color.name
+                                                ? 'ring-2 ring-offset-2 ring-black dark:ring-white'
+                                                : 'border border-gray-300'
+                                                }`}
+                                            style={{ backgroundColor: color.hex }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Size Selection */}
-                        <div>
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-[10px] uppercase tracking-widest font-bold">Size</span>
-                                <button className="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white underline decoration-dotted">
-                                    Size Guide
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-4 gap-2">
-                                {product.sizes.map((size) => (
-                                    <button
-                                        key={size}
-                                        onClick={() => setSelectedSize(size)}
-                                        className={`h-10 border flex items-center justify-center text-xs transition-colors ${selectedSize === size
-                                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-bold'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white'
-                                            }`}
-                                    >
-                                        {size}
+                        {product.sizes && product.sizes.length > 0 && (
+                            <div>
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-[10px] uppercase tracking-widest font-bold">Size</span>
+                                    <button className="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white underline decoration-dotted">
+                                        Size Guide
                                     </button>
-                                ))}
+                                </div>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {product.sizes.map((size) => (
+                                        <button
+                                            key={size}
+                                            onClick={() => setSelectedSize(size)}
+                                            className={`h-10 border flex items-center justify-center text-xs transition-colors ${selectedSize === size
+                                                ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-bold'
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white'
+                                                }`}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Add to Bag */}
                     <button
                         onClick={handleAddToBag}
-                        className="w-full bg-black dark:bg-white text-white dark:text-black py-4 uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity mb-4"
+                        disabled={!selectedColor}
+                        className="w-full bg-black dark:bg-white text-white dark:text-black py-4 uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Add to Bag
                     </button>

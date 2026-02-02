@@ -9,8 +9,10 @@ import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from '
 import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
 import { clsx } from 'clsx';
+import { Collection } from '@/types';
+import { subscribeToCollections } from '@/lib/firebase/admin';
 
-const navLinks = [
+const baseNavLinks = [
     { name: 'Home', href: '/' },
     {
         name: 'Shop',
@@ -37,6 +39,7 @@ export default function Navbar() {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [collections, setCollections] = useState<Collection[]>([]);
 
     const { user, loading, isAdmin } = useAuth();
     const { toggleCart, getItemCount } = useCartStore();
@@ -48,8 +51,32 @@ export default function Navbar() {
             setScrolled(window.scrollY > 20);
         };
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        
+        // Fetch collections
+        const unsubscribe = subscribeToCollections(setCollections);
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            unsubscribe();
+        };
     }, []);
+
+    // Generate nav links with dynamic collections
+    const navLinks = baseNavLinks.map(link => {
+        if (link.name === 'Shop' && link.dropdown) {
+            return {
+                ...link,
+                dropdown: [
+                    ...link.dropdown,
+                    ...collections.map(collection => ({
+                        name: collection.name,
+                        href: `/shop/collections/${collection.slug}`
+                    })).filter(item => !link.dropdown.some(linkItem => linkItem.name === item.name))
+                ]
+            };
+        }
+        return link;
+    });
 
     if (!mounted) return null;
 

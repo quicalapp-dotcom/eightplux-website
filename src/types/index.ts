@@ -16,6 +16,7 @@ export interface Product {
     colors: ProductColor[];
     tags: string[];
     collectionId?: string;
+    isExclusive?: boolean;
     campaignId?: string;
     fabric?: string;
     care?: string;
@@ -134,6 +135,16 @@ export interface Payment {
     createdAt: Date;
 }
 
+export interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface WorldContent {
     id: string;
     type: 'story' | 'event' | 'press' | 'popup';
@@ -153,4 +164,40 @@ export interface UserProfile {
     email: string;
     name?: string;
     createdAt: Date;
+}
+
+export interface WhatsNewItem {
+    id: string;
+    name: string;
+    imageUrl: string;
+    linkUrl?: string;
+    sortOrder: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface PaletteItem {
+    id: string;
+    name: string;
+    color: string;
+    imageUrl: string;
+    linkUrl?: string;
+    sortOrder: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface HighlightItem {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    linkUrl?: string;
+    linkText?: string;
+    sortOrder: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }

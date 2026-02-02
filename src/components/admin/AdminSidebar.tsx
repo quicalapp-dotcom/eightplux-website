@@ -13,7 +13,10 @@ import {
     BarChart3,
     Settings,
     ShieldAlert,
-    LogOut
+    LogOut,
+    Star,
+    Palette,
+    Zap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext'; // We'll need to extend this or create a separate AdminAuthContext later if permissions get complex
 
@@ -26,6 +29,9 @@ const adminLinks = [
     { name: 'Homepage Content', href: '/admin/homepage', icon: LayoutDashboard },
     { name: 'Banners', href: '/admin/banners', icon: Megaphone },
     { name: 'Category Highlights', href: '/admin/category-highlights', icon: Layers },
+    { name: 'What\'s New at 8+', href: '/admin/whats-new', icon: Zap },
+    { name: 'Shop by Palettes', href: '/admin/palettes', icon: Palette },
+    { name: 'Catch the Highlights', href: '/admin/highlights', icon: Star },
     { name: 'Collections', href: '/admin/collections', icon: Layers },
     { name: 'Campaigns', href: '/admin/campaigns', icon: Megaphone },
     { name: 'World Content', href: '/admin/world', icon: Globe },
