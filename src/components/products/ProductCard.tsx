@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Product } from '@/types';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductCardProps {
     product: Product;
@@ -13,7 +15,23 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, showQuickAdd = true }: ProductCardProps) {
     const [isHovered, setIsHovered] = useState(false);
-    const [isWishlisted, setIsWishlisted] = useState(false);
+    const { user } = useAuth();
+    const { isInWishlist, addItem, removeItem } = useWishlistStore();
+    const isWishlisted = isInWishlist(product.id);
+
+    const handleWishlistToggle = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!user) {
+            // Redirect to login or show a modal
+            return;
+        }
+        if (isWishlisted) {
+            removeItem(product.id, user.uid);
+        } else {
+            addItem(product.id, user.uid);
+        }
+    };
 
     const primaryImage = product.images[0];
     const hoverImage = product.images[1] || product.images[0];
@@ -68,10 +86,7 @@ export default function ProductCard({ product, showQuickAdd = true }: ProductCar
 
                     {/* Wishlist Button */}
                     <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setIsWishlisted(!isWishlisted);
-                        }}
+                        onClick={handleWishlistToggle}
                         className={`absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:scale-110 transition-all ${isHovered ? 'opacity-100' : 'opacity-0'
                             }`}
                     >
