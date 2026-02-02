@@ -7,34 +7,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
-
-// Mock Wishlist Data (since we don't have backend storage for it yet)
-const MOCK_WISHLIST_ITEMS = [
-    {
-        id: '1',
-        name: 'Oversized Graphic Tee',
-        price: 45,
-        image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2836&auto=format&fit=crop',
-        color: 'Black',
-        size: 'L',
-        inStock: true
-    },
-    {
-        id: '2',
-        name: 'Wide Leg Cargo Pants',
-        price: 85,
-        image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=2797&auto=format&fit=crop',
-        color: 'Olive',
-        size: '32',
-        inStock: false
-    }
-];
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { useWishlistSync } from '@/lib/firebase/wishlist';
+import { getProduct } from '@/lib/firebase/products';
+import { Product } from '@/types';
 
 export default function WishlistPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
-    const { addItem } = useCartStore();
-    const [wishlistItems, setWishlistItems] = useState(MOCK_WISHLIST_ITEMS);
+    const { addItem: addToCart } = useCartStore();
+    const { items: wishlistItemIds, removeItem: removeFromWishlist } = useWishlistStore();
+    const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
+
+    useWishlistSync();
 
     useEffect(() => {
         if (!loading && !user) {
@@ -42,21 +27,35 @@ export default function WishlistPage() {
         }
     }, [user, loading, router]);
 
-    const removeItem = (id: string) => {
-        setWishlistItems(prev => prev.filter(item => item.id !== id));
+    useEffect(() => {
+        const fetchWishlistProducts = async () => {
+            if (user) {
+                const products = await Promise.all(
+                    wishlistItemIds.map(item => getProduct(item.productId))
+                );
+                setWishlistProducts(products.filter(p => p !== null) as Product[]);
+            }
+        };
+
+        fetchWishlistProducts();
+    }, [wishlistItemIds, user]);
+
+    const handleRemoveItem = (productId: string) => {
+        if (user) {
+            removeFromWishlist(productId, user.uid);
+        }
     };
 
-    const handleAddToCart = (item: any) => {
-        addItem({
+    const handleAddToCart = (item: Product) => {
+        addToCart({
             productId: item.id,
             name: item.name,
             price: item.price,
-            image: item.image,
+            image: item.images[0],
             quantity: 1,
-            size: item.size,
-            color: item.color
+            size: 'L', // Default size, you might want to change this
+            color: 'Black' // Default color, you might want to change this
         });
-        // Optionally show toast or feedback
     };
 
     if (loading || !user) {
@@ -72,10 +71,10 @@ export default function WishlistPage() {
             <div className="max-w-6xl mx-auto">
                 <h1 className="font-display text-4xl md:text-5xl mb-2 text-center">Your Wishlist</h1>
                 <p className="text-gray-500 text-center uppercase tracking-widest text-xs mb-12">
-                    {wishlistItems.length} Items Saved
+                    {wishlistProducts.length} Items Saved
                 </p>
 
-                {wishlistItems.length === 0 ? (
+                {wishlistProducts.length === 0 ? (
                     <div className="text-center py-24 border border-dashed border-gray-200 dark:border-gray-800 rounded-lg">
                         <Heart className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-700 mb-4" />
                         <h2 className="text-xl font-medium mb-3">Your wishlist is empty</h2>
@@ -86,30 +85,24 @@ export default function WishlistPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-                        {wishlistItems.map((item) => (
+                        {wishlistProducts.map((item) => (
                             <div key={item.id} className="group relative">
                                 <div className="relative aspect-[3/4] bg-gray-100 dark:bg-[#141414] mb-4 overflow-hidden">
                                     <Image
-                                        src={item.image}
+                                        src={item.images[0]}
                                         alt={item.name}
                                         fill
                                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                     <button
-                                        onClick={() => removeItem(item.id)}
+                                        onClick={() => handleRemoveItem(item.id)}
                                         className="absolute top-2 right-2 bg-white/80 dark:bg-black/50 p-2 rounded-full hover:bg-white dark:hover:bg-black transition-colors z-10"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
 
-                                    {!item.inStock && (
-                                        <div className="absolute inset-0 bg-white/60 dark:bg-black/60 flex items-center justify-center backdrop-blur-[1px]">
-                                            <span className="bg-black text-white px-3 py-1 text-[10px] uppercase tracking-widest font-bold">Sold Out</span>
-                                        </div>
-                                    )}
-
                                     {/* Quick Add Overlay */}
-                                    {item.inStock && (
+                                    { (
                                         <button
                                             onClick={() => handleAddToCart(item)}
                                             className="absolute bottom-4 left-4 right-4 bg-white text-black py-3 text-xs font-bold uppercase tracking-widest translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-black hover:text-white"
@@ -124,7 +117,7 @@ export default function WishlistPage() {
                                         <h3 className="font-bold text-sm">{item.name}</h3>
                                         <span className="text-sm font-medium">${item.price}</span>
                                     </div>
-                                    <p className="text-xs text-gray-500 mb-2">{item.color} / {item.size}</p>
+                                    <p className="text-xs text-gray-500 mb-2">{item.category}</p>
                                 </div>
                             </div>
                         ))}

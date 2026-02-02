@@ -131,9 +131,7 @@ export default function HomePage() {
                   fill
                   className="object-cover image-hover-zoom"
                 />
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 text-xs uppercase tracking-widest font-bold">
-                  {item.name}
-                </div>
+                
               </div>
             </Link>
           ))}
@@ -167,28 +165,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Curated By Occasion */}
-      <section className="py-20 px-6 bg-white dark:bg-[#0F0F0F]">
-        <h3 className="text-2xl font-display text-center mb-12">Curated By Occasion</h3>
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-          {occasions.map((occasion) => (
-            <Link key={occasion.name} href="/shop" className="group flex flex-col items-center gap-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border border-gray-200 group-hover:border-[#1a1a1a] transition-all">
-                <Image
-                  src={occasion.image}
-                  alt={occasion.name}
-                  width={160}
-                  height={160}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <span className="text-xs uppercase tracking-widest font-medium border-b border-transparent group-hover:border-[#1a1a1a] pb-1">
-                {occasion.name}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+
 
       {/* Full Width Banner */}
       <section className="relative h-[70vh] w-full overflow-hidden">
@@ -217,41 +194,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What's New Products Slider */}
-      <section className="py-24 px-6 md:px-12 bg-white dark:bg-[#0F0F0F] overflow-hidden">
-        <div className="flex justify-between items-end mb-12 max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-display text-[#1a1a1a] dark:text-white leading-tight">
-            What&apos;s new? <br /><span className="text-gray-400">So glad you asked.</span>
-          </h2>
-          <Link href="/shop?filter=new" className="bg-black text-white px-6 py-2 text-xs uppercase tracking-widest hover:opacity-80 transition-opacity rounded-full">
-            Shop New
-          </Link>
-        </div>
-        <div className="flex overflow-x-auto hide-scroll gap-6 pb-8 snap-x pl-6 md:pl-[calc((100vw-1280px)/2)]">
-          {newProducts.map((product) => (
-            <div key={product.name} className="min-w-[280px] md:min-w-[320px] snap-center group">
-              <div className="relative aspect-[3/4] mb-4 overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700"
-                />
-                <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:scale-110 transition-transform opacity-0 group-hover:opacity-100">
-                  <span className="material-symbols-outlined text-sm">favorite</span>
-                </button>
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-bold text-sm">{product.name}</h4>
-                  <p className="text-xs text-gray-500">{product.subtitle}</p>
-                </div>
-                <span className="text-sm">${product.price.toLocaleString()}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Shop by Palette */}
       <section className="py-16 px-6 bg-[#fafafa] dark:bg-[#111]">
@@ -331,10 +274,10 @@ export default function HomePage() {
         </div>
       </section>
       {/* Editorial Tagline Section */}
-      <section className="w-full bg-[#f8f8f8] dark:bg-[#0a0a0a] pt-12 pb-2 md:pt-24 flex flex-col items-center justify-end overflow-hidden">
+      <section className="w-full bg-white dark:bg-white pt-4 pb-1 md:pt-15 flex flex-col items-center justify-end overflow-hidden">
         <div className="relative w-full flex flex-col items-center">
           <svg
-            className="text-black dark:text-white mb-6 w-24 h-24 md:w-32 md:h-32"
+            className="text-black dark:text-white mb-6 w-24 h-24 md:w-32 md:h-32 invisible opacity-0"
             fill="none"
             stroke="currentColor"
             strokeLinecap="round"
@@ -345,9 +288,11 @@ export default function HomePage() {
             <path d="M18.8 8.6c-.6-.4-1.3-.6-2-.6-1.5 0-2.8.9-3.4 2.2-.4-.9-1.2-1.6-2.2-1.9-.3-.1-.7-.1-1-.1-2.4 0-4.3 1.9-4.3 4.3 0 .4.1.8.2 1.2l-.7.2c-.4.1-.7.5-.7.9s.3.8.7.9h.1l5.7-1.4c.5-.1.9-.6.8-1.1-.1-.5-.6-.9-1.1-.8l-3.3.8c-.2-1.8 1.2-3.4 3-3.4.6 0 1.2.2 1.6.6.4.4.7 1 .7 1.6 0 .5.4.9.9.9s.9-.4.9-.9c0-1.2.8-2.2 2-2.2.4 0 .8.1 1.1.4.3.3.5.7.5 1.1 0 .9-.5 1.7-1.3 2-.4.2-.6.7-.4 1.1.2.4.7.6 1.1.4 1.4-.6 2.3-1.9 2.3-3.5 0-1.4-.9-2.7-2.2-3.1z" />
             <path d="M3 14s4-2 6 2" />
           </svg>
-          <div className="mega-text font-display italic font-black text-center text-primary dark:text-white leading-[0.7] tracking-tighter w-full select-none pointer-events-none">
-            Let it fly
-          </div>
+          <img
+              src="/fly-dove.png"
+              alt="Flying dove"
+              className="w-auto h-[45vw] max-h-[600px] object-contain mega-image"
+          />
         </div>
       </section>
     </>
