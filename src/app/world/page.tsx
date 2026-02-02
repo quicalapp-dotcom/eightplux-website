@@ -217,11 +217,13 @@ export default function WorldPage() {
             </section>
 
             {/* Let It Fly */}
-            <section className="bg-black text-white py-32 flex flex-col items-center justify-center text-center overflow-hidden relative">
-                <h2 className="text-[15vw] leading-none font-display font-bold tracking-tighter select-none italic">
-                    Let it fly
-                </h2>
-                <p className="text-sm uppercase tracking-[0.3em] mt-4">Beyond Boundaries • Est. 2022</p>
+            <section className="bg-white text-black py-32 flex flex-col items-center justify-center text-center overflow-hidden relative">
+                <img
+                    src="/fly-dove.png"
+                    alt="Flying dove"
+                    className="w-auto h-[25vw] max-h-[300px] object-contain mb-4"
+                />
+                <p className="text-sm uppercase tracking-[0.3em] mt-4 text-black">Beyond Boundaries • Est. 2022</p>
             </section>
         </div>
     );
