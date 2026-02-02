@@ -111,7 +111,10 @@ export default function CustomersPage() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-xs text-gray-600">
-                                        {customer.createdAt ? format(new Date(customer.createdAt), 'MMM dd, yyyy') : 'N/A'}
+                                        {customer.createdAt && !isNaN(new Date(customer.createdAt).getTime()) 
+                                            ? format(new Date(customer.createdAt), 'MMM dd, yyyy') 
+                                            : 'N/A'
+                                        }
                                     </td>
                                     <td className="px-6 py-4 font-mono text-xs text-black">
                                         ₦0.00

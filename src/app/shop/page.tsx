@@ -1,159 +1,127 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SlidersHorizontal, X } from 'lucide-react';
-
-// Mock product data
-const products = [
-    {
-        id: '1',
-        name: 'The Trench',
-        slug: 'the-trench',
-        price: 1250,
-        fabric: 'Technical Cotton Blend',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
-        ],
-        colors: [{ name: 'Black', hex: '#000000' }, { name: 'Gray', hex: '#808080' }],
-        isNew: true,
-    },
-    {
-        id: '2',
-        name: 'Studio Blouson',
-        slug: 'studio-blouson',
-        price: 890,
-        fabric: 'Archival Fit',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
-        ],
-        colors: [{ name: 'Black', hex: '#000000' }],
-    },
-    {
-        id: '3',
-        name: 'Moto Leather',
-        slug: 'moto-leather',
-        price: 2450,
-        fabric: 'Calfskin',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCTtHbdm_uh4PzaWhffvpZfH6T4OlMtLtiZLI9nkSZowQ4PN0KqqEDFTugGiWDWmFv0q2ckQQ39RJ01_o0Bk3UinM2fC0VeBSp64oGl0YMdblfZkTa8AQuHVo_p8-q4v60zF8qBvXnc5GHiul-ojGqeMd93h4dF0pYrmbOJ7ZYoUX5MZmOTg5FMnxuCP5oyiSiBRRCQMDiffRAL_tAMEMJR7PXQujRX3knaDXwKUy4NHz8MQmURl-jfFN5evwFUyaKx0tTiK5adRpFW',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuA_Ot2c9vv5-mlJg9eapl412CP3uc1hDlHsDk4iUZZFD1pskjJVXTBP6Pr_hvlhIonNV1Lkgna5xDhGnXv3mj6hP-nZJDkzXS3cWtB3eFUbROxCJXt744Dt7K2-QWGjxaeWd7se0fBjZF-OPm7moUbEqKCQy_m957iaf4Z12mWkIPxioQoVvt4uOQZtuk7pgmBUYYSF1mevinOAGl9x7zBF_fUgVGnEYBJhdsbfqjG_nsuVFFOMKD-hAmIY00eZlW4QgzJNVYedfGfz',
-        ],
-        colors: [{ name: 'Black', hex: '#000000' }],
-        isBestSeller: true,
-    },
-    {
-        id: '4',
-        name: 'Core Hoodie',
-        slug: 'core-hoodie',
-        price: 450,
-        fabric: 'Heavyweight Cotton',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuA_Ot2c9vv5-mlJg9eapl412CP3uc1hDlHsDk4iUZZFD1pskjJVXTBP6Pr_hvlhIonNV1Lkgna5xDhGnXv3mj6hP-nZJDkzXS3cWtB3eFUbROxCJXt744Dt7K2-QWGjxaeWd7se0fBjZF-OPm7moUbEqKCQy_m957iaf4Z12mWkIPxioQoVvt4uOQZtuk7pgmBUYYSF1mevinOAGl9x7zBF_fUgVGnEYBJhdsbfqjG_nsuVFFOMKD-hAmIY00eZlW4QgzJNVYedfGfz',
-        ],
-        colors: [{ name: 'Gray', hex: '#808080' }, { name: 'Black', hex: '#000000' }],
-    },
-    {
-        id: '5',
-        name: 'Silk Trouser',
-        slug: 'silk-trouser',
-        price: 1100,
-        fabric: 'Relaxed Pleat',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H',
-        ],
-        colors: [{ name: 'Camel', hex: '#d2b48c' }],
-    },
-    {
-        id: '6',
-        name: 'Luxury Zip',
-        slug: 'luxury-zip',
-        price: 890,
-        fabric: 'Cashmere Blend',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-        ],
-        colors: [{ name: 'Gray', hex: '#808080' }, { name: 'Black', hex: '#000000' }, { name: 'White', hex: '#f5f5f5' }],
-    },
-    {
-        id: '7',
-        name: 'Combat Derby',
-        slug: 'combat-derby',
-        price: 1350,
-        fabric: 'Polished Leather',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAONEJr7Tczt0KHlX1SSC9TPyHy2oS3b72tPHuAS0ER6awAcq-6kkbN36jPGiG4WzwDRBhjH84FI2lV32n962QW--eTAWvIU1nnnlri9LpQVFjLD5xYTH0Hjp1EgQzdtrm8va5qtpWj9jmdup6kCg7p_LmXTfIvLPvKwlIknIr9gLVfklOK-SAeH9LVaVZ_ZA-4TCSXJXw7PMpXhX54cb8MOqCkXc_hBklTupZwxfdw2po52GXAv7n-fPaRgHl5QqTCQhb7niuSZVDR',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCTtHbdm_uh4PzaWhffvpZfH6T4OlMtLtiZLI9nkSZowQ4PN0KqqEDFTugGiWDWmFv0q2ckQQ39RJ01_o0Bk3UinM2fC0VeBSp64oGl0YMdblfZkTa8AQuHVo_p8-q4v60zF8qBvXnc5GHiul-ojGqeMd93h4dF0pYrmbOJ7ZYoUX5MZmOTg5FMnxuCP5oyiSiBRRCQMDiffRAL_tAMEMJR7PXQujRX3knaDXwKUy4NHz8MQmURl-jfFN5evwFUyaKx0tTiK5adRpFW',
-        ],
-        colors: [{ name: 'Black', hex: '#000000' }],
-    },
-    {
-        id: '8',
-        name: 'Racer Jacket',
-        slug: 'racer-jacket',
-        price: 1950,
-        compareAtPrice: 2450,
-        fabric: 'Structured',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCTtHbdm_uh4PzaWhffvpZfH6T4OlMtLtiZLI9nkSZowQ4PN0KqqEDFTugGiWDWmFv0q2ckQQ39RJ01_o0Bk3UinM2fC0VeBSp64oGl0YMdblfZkTa8AQuHVo_p8-q4v60zF8qBvXnc5GHiul-ojGqeMd93h4dF0pYrmbOJ7ZYoUX5MZmOTg5FMnxuCP5oyiSiBRRCQMDiffRAL_tAMEMJR7PXQujRX3knaDXwKUy4NHz8MQmURl-jfFN5evwFUyaKx0tTiK5adRpFW',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAONEJr7Tczt0KHlX1SSC9TPyHy2oS3b72tPHuAS0ER6awAcq-6kkbN36jPGiG4WzwDRBhjH84FI2lV32n962QW--eTAWvIU1nnnlri9LpQVFjLD5xYTH0Hjp1EgQzdtrm8va5qtpWj9jmdup6kCg7p_LmXTfIvLPvKwlIknIr9gLVfklOK-SAeH9LVaVZ_ZA-4TCSXJXw7PMpXhX54cb8MOqCkXc_hBklTupZwxfdw2po52GXAv7n-fPaRgHl5QqTCQhb7niuSZVDR',
-        ],
-        colors: [{ name: 'Black', hex: '#000000' }, { name: 'Oxblood', hex: '#3b0d0d' }],
-        isSale: true,
-    },
-    {
-        id: '9',
-        name: 'Lounge Pant',
-        slug: 'lounge-pant',
-        price: 320,
-        fabric: 'Organic Cotton',
-        images: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-        ],
-        colors: [{ name: 'White', hex: '#f5f5f5' }, { name: 'Black', hex: '#000000' }],
-    },
-];
-
-const categories = ['All Products', 'Outerwear', 'Tops', 'Bottoms', 'Accessories'];
-const genders = ['Men', 'Women', 'Unisex'];
-const sizes = ['XS', 'S', 'M', 'L', 'XL'];
-const colorOptions = [
-    { name: 'Black', hex: '#000000' },
-    { name: 'White', hex: '#ffffff' },
-    { name: 'Gray', hex: '#808080' },
-    { name: 'Navy', hex: '#1e3a5f' },
-    { name: 'Oxblood', hex: '#722f37' },
-];
-
-const subcategories = [
-    { name: 'New Releases', href: '/new-releases' },
-    { name: 'Women', href: '/shop/women' },
-    { name: 'Men', href: '/shop/men' },
-    { name: 'Hoodies', href: '/shop?category=hoodies' },
-    { name: 'Shirts', href: '/shop?category=shirts' },
-    { name: 'Pants', href: '/shop?category=pants' },
-    { name: 'Accessories', href: '/shop?category=accessories' },
-    { name: 'Shop Looks', href: '/shop/looks' },
-];
+import { Product, Collection, Category } from '@/types';
+import { subscribeToProducts, subscribeToCollections, subscribeToCategories } from '@/lib/firebase/admin';
 
 export default function ShopPage() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState(2000);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+
+    // Fetch real-time data
+    useEffect(() => {
+        const unsubscribeProducts = subscribeToProducts(setProducts);
+        const unsubscribeCollections = subscribeToCollections(setCollections);
+        const unsubscribeCategories = subscribeToCategories(setCategories);
+
+        return () => {
+            unsubscribeProducts();
+            unsubscribeCollections();
+            unsubscribeCategories();
+        };
+    }, []);
+
+    // Fallback data
+    const fallbackProducts: Product[] = [
+        {
+            id: '1',
+            name: 'The Trench',
+            slug: 'the-trench',
+            price: 1250,
+            fabric: 'Technical Cotton Blend',
+            images: [
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
+            ],
+            colors: [{ name: 'Black', hex: '#000000' }, { name: 'Gray', hex: '#808080' }],
+            isNew: true,
+            isBestSeller: false,
+            isSale: false,
+            compareAtPrice: undefined,
+            category: 'Outerwear',
+            currency: 'USD',
+            description: 'Technical cotton blend trench coat',
+            inventory: 10,
+            sizes: ['XS', 'S', 'M', 'L', 'XL'],
+            tags: [],
+            gender: 'unisex',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+        {
+            id: '2',
+            name: 'Studio Blouson',
+            slug: 'studio-blouson',
+            price: 890,
+            fabric: 'Archival Fit',
+            images: [
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_',
+            ],
+            colors: [{ name: 'Black', hex: '#000000' }],
+            isNew: false,
+            isBestSeller: true,
+            isSale: false,
+            compareAtPrice: undefined,
+            category: 'Outerwear',
+            currency: 'USD',
+            description: 'Archival fit blouson jacket',
+            inventory: 5,
+            sizes: ['S', 'M', 'L', 'XL'],
+            tags: [],
+            gender: 'men',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+    ];
+
+    const fallbackCollections = [
+        { name: 'New Releases', href: '/new-releases' },
+        { name: 'Women', href: '/shop/women' },
+        { name: 'Men', href: '/shop/men' },
+        { name: 'Hoodies', href: '/shop?category=hoodies' },
+        { name: 'Shirts', href: '/shop?category=shirts' },
+        { name: 'Pants', href: '/shop?category=pants' },
+        { name: 'Accessories', href: '/shop?category=accessories' },
+        { name: 'Shop Looks', href: '/shop/looks' },
+    ];
+
+    const fallbackCategories = ['All Products', 'Outerwear', 'Tops', 'Bottoms', 'Accessories'];
+    const fallbackGenders = ['Men', 'Women', 'Unisex'];
+    const fallbackSizes = ['XS', 'S', 'M', 'L', 'XL'];
+    const fallbackColors = [
+        { name: 'Black', hex: '#000000' },
+        { name: 'White', hex: '#ffffff' },
+        { name: 'Gray', hex: '#808080' },
+        { name: 'Navy', hex: '#1e3a5f' },
+        { name: 'Oxblood', hex: '#722f37' },
+    ];
 
     const clearFilters = () => {
         setSelectedCategories([]);
         setSelectedGenders([]);
         setPriceRange(2000);
     };
+
+    // Determine which data to use
+    const subcategories = (collections.length > 0 ? collections.map(c => ({
+        name: c.name,
+        href: `/shop/collections/${c.slug}`
+    })) : fallbackCollections);
+
+    const productsToDisplay = (products.length > 0 ? products : fallbackProducts);
+    const categoriesToDisplay = (categories.length > 0 ? categories.map(c => c.name) : fallbackCategories);
+    const genders = fallbackGenders;
+    const sizes = fallbackSizes;
+    const colorOptions = fallbackColors;
 
     return (
         <div className="pt-[81px]">
@@ -194,7 +162,7 @@ export default function ShopPage() {
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-widest mb-4">Category</h4>
                                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                                    {categories.map((category) => (
+                                    {categoriesToDisplay.map((category) => (
                                         <li key={category}>
                                             <label className="flex items-center space-x-2 cursor-pointer hover:text-black dark:hover:text-white">
                                                 <input
@@ -322,7 +290,7 @@ export default function ShopPage() {
 
                         {/* Product Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
-                            {products.map((product) => (
+                            {(products.length > 0 ? products : fallbackProducts).map((product) => (
                                 <div key={product.id} className="group product-card cursor-pointer">
                                     <Link href={`/shop/${product.slug}`} className="block">
                                         <div className="relative aspect-[3/4] mb-4 bg-gray-100 dark:bg-gray-900 overflow-hidden">

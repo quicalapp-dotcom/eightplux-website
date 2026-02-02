@@ -20,7 +20,7 @@ import {
     deleteObject
 } from 'firebase/storage';
 import { db, storage } from './config';
-import { Product, Order, Collection, Campaign, UserProfile, WorldContent } from '@/types';
+import { Product, Order, Collection, Campaign, UserProfile, WorldContent, Category } from '@/types';
 
 // --- Products ---
 
@@ -83,9 +83,34 @@ export const updateOrderStatus = async (orderId: string, status: Order['orderSta
 // --- Storage (Images) ---
 
 export const uploadAdminImage = async (file: File, path: string) => {
-    const storageRef = ref(storage, `${path}/${Date.now()}_${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    return getDownloadURL(snapshot.ref);
+    // Convert File to base64
+    const reader = new FileReader();
+    const base64File = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+
+    // Upload to Cloudinary
+    const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            file: base64File,
+            folder: `eightplux/${path}`,
+            resource_type: 'image',
+        }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        return result.data.secure_url;
+    } else {
+        throw new Error(result.error || 'Upload failed');
+    }
 };
 
 export const deleteAdminImage = async (url: string) => {
@@ -237,6 +262,14 @@ export const updateWorldContent = async (id: string, data: Partial<WorldContent>
     return updateDoc(ref, {
         ...data,
         updatedAt: serverTimestamp()
+    });
+};
+
+export const subscribeToCategories = (callback: (categories: Category[]) => void) => {
+    const q = query(collection(db, 'categories'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+        const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+        callback(categories);
     });
 };
 

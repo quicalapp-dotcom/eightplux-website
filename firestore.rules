@@ -79,11 +79,29 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Category Highlights (Public Read, Admin Write)
-    match /category_highlights/{highlightId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
+     // Category Highlights (Public Read, Admin Write)
+     match /category_highlights/{highlightId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
+
+     // What's New Items (Public Read, Admin Write)
+     match /whats_new/{itemId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
+
+     // Palette Items (Public Read, Admin Write)
+     match /palettes/{itemId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
+
+     // Highlight Items (Public Read, Admin Write)
+     match /highlights/{itemId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
 
     // Collections/Campaigns (Public Read, Admin Write)
     match /collections/{collectionId} {
