@@ -87,6 +87,14 @@ export default function Navbar() {
                 scrolled ? 'bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'
             )}>
                 <div className="max-w-[1920px] mx-auto px-6 md:px-12 flex items-center justify-between">
+                    
+                    {/* Mobile Menu Button */}
+                    <button
+                        className="md:hidden"
+                        onClick={() => setMobileMenuOpen(true)}
+                    >
+                        <Menu className="w-6 h-6 text-red-500" />
+                    </button>
 
                     {/* Left - Menu (Desktop) */}
                     <div className="hidden md:flex items-center space-x-8">
@@ -113,14 +121,14 @@ export default function Navbar() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 10 }}
                                             transition={{ duration: 0.2 }}
-                                            className="absolute top-full left-0 mt-4 bg-gray-100 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-50 border border-gray-200 dark:border-gray-800 shadow-lg min-w-[200px]"
+                                            className="absolute top-full left-0 mt-4 bg-white border border-gray-200 shadow-lg min-w-[200px]"
                                         >
                                             <div className="py-4">
                                                 {link.dropdown.map((item) => (
                                                     <Link
                                                         key={item.name}
                                                         href={item.href}
-                                                        className="block px-6 py-2 text-[10px] uppercase tracking-widest text-black dark:text-white hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                                                        className="block px-6 py-2 text-[10px] uppercase tracking-widest text-black hover:text-black hover:bg-gray-50 transition-colors"
                                                     >
                                                         {item.name}
                                                     </Link>
@@ -133,32 +141,27 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden"
-                        onClick={() => setMobileMenuOpen(true)}
-                    >
-                        <Menu className="w-6 h-6 text-red-500" />
-                    </button>
-
                     {/* Center - Logo */}
-                    <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 group">
+                    <Link href="/" className={clsx(
+                        'group',
+                        'md:absolute md:left-1/2 md:transform md:-translate-x-1/2'
+                    )}>
                         <div className="flex flex-col items-center">
-                            <span className="font-display text-2xl md:text-3xl tracking-widest font-semibold flex items-center gap-1">
+                            <span className="font-display text-xl md:text-2xl lg:text-3xl tracking-widest font-semibold flex items-center gap-1">
                                 <Image
                                     src="/Copy of 8+ red logo.png"
                                     alt="Eightplux Logo"
-                                    width={45}
-                                    height={45}
-                                    className="object-contain"
+                                    width={30}
+                                    height={30}
+                                    className="object-contain md:w-[45px] md:h-[45px]"
                                 />
-                                EIGHTPLU<span className="text-[#D32F2F] text-3xl md:text-4xl">+</span>
+                                EIGHTPLU<span className="text-[#D32F2F] text-2xl md:text-3xl lg:text-4xl">+</span>
                             </span>
                         </div>
                     </Link>
 
                     {/* Right - Icons */}
-                    <div className="flex items-center space-x-6">
+                    <div className="flex items-center space-x-4 md:space-x-6">
                         <button
                             onClick={() => setSearchOpen(true)}
                             className="text-red-500 hover:text-red-600 transition-colors"
@@ -212,7 +215,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '-100%' }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-50 bg-gray-100 dark:bg-gray-900 md:hidden overflow-y-auto"
+                        className="fixed inset-0 z-50 bg-[#CCCCCC] md:hidden overflow-y-auto"
                     >
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-12">
@@ -242,13 +245,13 @@ export default function Navbar() {
                                             {link.name}
                                         </Link>
                                         {link.dropdown && (
-                                            <div className="pl-4 space-y-3 border-l-2 border-gray-100 dark:border-gray-800 bg-gray-200 dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70">
+                                            <div className="pl-4 space-y-3 border-l-2 border-[#F4F1E9] bg-[#F4F1E9]">
                                                 {link.dropdown.map((item) => (
                                                     <Link
                                                         key={item.name}
                                                         href={item.href}
                                                         onClick={() => setMobileMenuOpen(false)}
-                                                        className="block text-sm text-red-500 hover:text-red-600 transition-colors uppercase tracking-widest"
+                                                        className="block text-sm text-black hover:text-red-600 transition-colors uppercase tracking-widest"
                                                     >
                                                         {item.name}
                                                     </Link>
@@ -259,7 +262,7 @@ export default function Navbar() {
                                 ))}
                             </div>
 
-                            <div className="mt-12 pt-12 border-t border-gray-100 dark:border-gray-800 flex justify-between">
+                            <div className="mt-12 pt-12 border-t border-[#F4F1E9] flex justify-between">
                                 {isAdmin && (
                                     <Link
                                         href="/admin"

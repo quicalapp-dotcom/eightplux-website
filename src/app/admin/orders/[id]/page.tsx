@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Order } from '@/types';
 import { updateOrderStatus } from '@/lib/firebase/admin';
@@ -34,7 +34,8 @@ export default function OrderDetailPage() {
         setUpdating(true);
         try {
             await updateOrderStatus(order.id, newStatus);
-            setOrder({ ...order, orderStatus: newStatus });
+            // Update the local state to reflect the change immediately
+            setOrder(prevOrder => prevOrder ? { ...prevOrder, orderStatus: newStatus, updatedAt: new Date() } : null);
         } catch (error) {
             console.error('Failed to update status', error);
         } finally {
@@ -45,7 +46,13 @@ export default function OrderDetailPage() {
     const handleTrackingUpdate = async (trackingNumber: string) => {
         if (!order) return;
         try {
-            await updateDoc(doc(db, 'orders', order.id), { trackingNumber, updatedAt: serverTimestamp() });
+            await updateDoc(doc(db, 'orders', order.id), {
+                trackingNumber,
+                updatedAt: serverTimestamp()
+            });
+
+            // Update the local state to reflect the change immediately
+            setOrder(prevOrder => prevOrder ? { ...prevOrder, trackingNumber, updatedAt: new Date() } : null);
         } catch (error) {
             console.error('Failed to update tracking', error);
         }
@@ -64,12 +71,16 @@ export default function OrderDetailPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Link href="/admin/orders" className="p-2 hover:bg-gray-100 dark:hover:bg-[#222] rounded-full transition-colors">
+                    <Link href="/admin/orders" className="p-2 hover:bg-gray-100 dark:hover:bg-grey-200 rounded-full transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
                         <h1 className="text-2xl font-bold font-mono">Order #{order.id.slice(0, 8)}</h1>
-                        <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500">Placed on {
+                            order.createdAt instanceof Timestamp
+                                ? order.createdAt.toDate().toLocaleDateString()
+                                : new Date(order.createdAt).toLocaleDateString()
+                        }</p>
                     </div>
                 </div>
 
@@ -83,7 +94,7 @@ export default function OrderDetailPage() {
                                 value={order.trackingNumber || ''}
                                 onChange={(e) => setOrder({ ...order, trackingNumber: e.target.value })}
                                 onBlur={(e) => handleTrackingUpdate(e.target.value)}
-                                className="px-3 py-1.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded text-xs font-mono focus:outline-none focus:ring-1 focus:ring-red-500 w-40"
+                                className="px-3 py-1.5 bg-gray-50 dark:bg-grey-200 border border-gray-200 dark:border-gray-800 rounded text-xs font-mono focus:outline-none focus:ring-1 focus:ring-red-500 w-40"
                             />
                         </div>
                     </div>
@@ -93,7 +104,7 @@ export default function OrderDetailPage() {
                             value={order.orderStatus}
                             onChange={(e) => handleStatusUpdate(e.target.value as Order['orderStatus'])}
                             disabled={updating}
-                            className="px-4 py-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-md text-sm font-medium focus:outline-none focus:ring-1 focus:ring-black"
+                            className="px-4 py-2 bg-white dark:bg-grey-200 border border-gray-200 dark:border-gray-800 rounded-md text-sm font-medium focus:outline-none focus:ring-1 focus:ring-black"
                         >
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
@@ -109,7 +120,7 @@ export default function OrderDetailPage() {
                 {/* Left Column: Items & Payment */}
                 <div className="md:col-span-2 space-y-8">
                     {/* Order Items */}
-                    <div className="bg-white dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div className="bg-white dark:bg-grey-200 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
                             <Box className="w-4 h-4 text-gray-500" />
                             <h2 className="font-bold text-sm uppercase tracking-wide">Order Items</h2>
@@ -117,7 +128,7 @@ export default function OrderDetailPage() {
                         <div className="divide-y divide-gray-100 dark:divide-gray-800">
                             {order.items.map((item, index) => (
                                 <div key={index} className="p-6 flex items-center gap-4">
-                                    <div className="w-16 h-20 bg-gray-100 dark:bg-[#222] rounded-md overflow-hidden relative flex-shrink-0">
+                                    <div className="w-16 h-20 bg-gray-100 dark:bg-grey-400 rounded-md overflow-hidden relative flex-shrink-0">
                                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1">
@@ -133,7 +144,7 @@ export default function OrderDetailPage() {
                                 </div>
                             ))}
                         </div>
-                        <div className="px-6 py-4 bg-gray-50 dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 space-y-2">
+                        <div className="px-6 py-4 bg-gray-50 dark:bg-grey-400 border-t border-gray-100 dark:border-gray-800 space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">Subtotal</span>
                                 <span>{order.currency === 'USD' ? '$' : '₦'}{order.subtotal.toLocaleString()}</span>
@@ -150,7 +161,7 @@ export default function OrderDetailPage() {
                     </div>
 
                     {/* Payment Details */}
-                    <div className="bg-white dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div className="bg-white dark:bg-grey-200 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-gray-500" />
                             <h2 className="font-bold text-sm uppercase tracking-wide">Payment Information</h2>
@@ -187,7 +198,7 @@ export default function OrderDetailPage() {
                 {/* Right Column: Customer & Actions */}
                 <div className="space-y-8">
                     {/* Customer Info */}
-                    <div className="bg-white dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div className="bg-white dark:bg-grey-200 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-gray-500" />
                             <h2 className="font-bold text-sm uppercase tracking-wide">Customer & Delivery</h2>
@@ -197,7 +208,7 @@ export default function OrderDetailPage() {
                                 <h3 className="font-bold">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</h3>
                                 <p className="text-sm text-gray-500">{order.shippingAddress.phone}</p>
                             </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                            <div className="text-sm text-gray-400 dark:text-gray-300">
                                 <p>{order.shippingAddress.address1}</p>
                                 {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
                                 <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
@@ -207,7 +218,7 @@ export default function OrderDetailPage() {
                     </div>
 
                     {/* Fraud Check (Mock) */}
-                    <div className="bg-white dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div className="bg-white dark:bg-grey-200 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4 text-gray-500" />
                             <h2 className="font-bold text-sm uppercase tracking-wide">Risk Analysis</h2>

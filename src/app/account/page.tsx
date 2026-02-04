@@ -105,7 +105,7 @@ export default function AccountPage() {
   const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
 
   return (
-    <div className="bg-white dark:bg-[#0A0A0A] text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
+    <div className="bg-white dark:bg-[#CCCCCC] text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 border-b border-gray-100 dark:border-gray-800 pb-8">

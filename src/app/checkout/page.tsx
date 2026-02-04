@@ -6,6 +6,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, ChevronLeft, CreditCard, Lock, Check } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { useAuth } from '@/contexts/AuthContext';
 
 const steps = ['Information', 'Shipping', 'Payment'];
 
@@ -26,6 +29,7 @@ export default function CheckoutPage() {
         postalCode: '',
         phone: '',
         shippingMethod: 'standard',
+        paymentMethod: 'paystack_card', // Added payment method selection
     });
 
     // Calculate totals
@@ -57,10 +61,13 @@ export default function CheckoutPage() {
         )
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+    // Call useAuth at the top level to follow React Hook rules
+    const { user, loading: authLoading } = useAuth();
 
     const handleNextStep = (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,11 +80,86 @@ export default function CheckoutPage() {
 
     const handlePlaceOrder = async () => {
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Check if user is authenticated
+            if (!user) {
+                throw new Error('You must be logged in to place an order');
+            }
+
+            // Create order in Firestore
+            const orderData = {
+                userId: user.uid, // Use authenticated user's uid
+                items: items.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    image: item.image,
+                    price: item.price,
+                    quantity: item.quantity,
+                    size: item.size,
+                    color: item.color
+                })),
+                subtotal: subtotal,
+                shipping: shippingCost, // Changed from shippingCost to shipping to match Order type
+                tax: 0, // Added tax field to match Order type
+                total: total,
+                orderStatus: 'pending', // pending → confirmed → processing → shipped → delivered → cancelled
+                paymentMethod: formData.paymentMethod, // Use the selected payment method from form
+                paymentStatus: 'pending', // Added paymentStatus to match Order type
+                currency: 'USD',
+                shippingAddress: {
+                    id: '', // Placeholder ID - will be auto-generated
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    address1: formData.address, // Changed from address to address1 to match Address type
+                    address2: '', // Added address2 to match Address type
+                    city: formData.city,
+                    state: '', // Added state to match Address type
+                    country: formData.country,
+                    postalCode: formData.postalCode,
+                    phone: formData.phone || '',
+                    isDefault: false // Added isDefault to match Address type
+                },
+                billingAddress: {
+                    id: '', // Placeholder ID - will be auto-generated
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    address1: formData.address, // Changed from address to address1 to match Address type
+                    address2: '', // Added address2 to match Address type
+                    city: formData.city,
+                    state: '', // Added state to match Address type
+                    country: formData.country,
+                    postalCode: formData.postalCode,
+                    phone: formData.phone || '',
+                    isDefault: false // Added isDefault to match Address type
+                },
+                shippingMethod: formData.shippingMethod,
+                email: formData.email,
+                trackingNumber: '', // Added trackingNumber to match Order type
+                paymentReference: '', // Added paymentReference to match Order type
+                cryptoTransactionHash: '', // Added cryptoTransactionHash to match Order type
+                notes: '', // Added notes to match Order type
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            // Add order to Firestore
+            const orderRef = doc(collection(db, 'orders'));
+            await setDoc(orderRef, {
+                ...orderData,
+                id: orderRef.id, // Store the document ID in the order object
+                createdAt: serverTimestamp(), // Use server timestamp for consistency
+                updatedAt: serverTimestamp()  // Use server timestamp for consistency
+            });
+
+            // Clear cart and redirect to success
             clearCart();
-            router.push('/checkout/success'); // Create this page next
-        }, 2000);
+            router.push('/checkout/success');
+        } catch (error) {
+            console.error('Error placing order:', error);
+            setLoading(false);
+            // Show error message to user
+            alert('Failed to place order. Please try again.');
+        }
     };
 
     return (
@@ -272,21 +354,82 @@ export default function CheckoutPage() {
 
                             <div>
                                 <h2 className="text-lg font-display uppercase tracking-widest mb-4">Payment</h2>
-                                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 p-8 text-center rounded">
-                                    <Lock className="w-8 h-8 mx-auto mb-4 text-gray-400" />
-                                    <p className="text-sm text-gray-500 mb-4">
-                                        All transactions are secure and encrypted.
-                                    </p>
-                                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-                                        <button type="button" className="bg-[#111] text-white py-3 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                                            <CreditCard className="w-4 h-4" /> Pay with Card
-                                        </button>
-                                        <button type="button" className="bg-[#5433FF] text-white py-3 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                                            Paystack / Flutterwave
-                                        </button>
-                                        <button type="button" className="bg-[#F7931A] text-white py-3 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                                            Pay with Crypto
-                                        </button>
+                                <div className="space-y-4">
+                                    <div className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 p-6 rounded">
+                                        <p className="text-sm text-gray-500 mb-4">
+                                            All transactions are secure and encrypted. (Note: Payment is simulated for demo purposes)
+                                        </p>
+                                        <div className="space-y-3">
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_card' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value="paystack_card"
+                                                        checked={formData.paymentMethod === 'paystack_card'}
+                                                        onChange={handleInputChange}
+                                                        className="text-black focus:ring-black"
+                                                    />
+                                                    <span className="text-sm font-medium">Credit/Debit Card (Paystack)</span>
+                                                </div>
+                                            </label>
+
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_transfer' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value="paystack_transfer"
+                                                        checked={formData.paymentMethod === 'paystack_transfer'}
+                                                        onChange={handleInputChange}
+                                                        className="text-black focus:ring-black"
+                                                    />
+                                                    <span className="text-sm font-medium">Bank Transfer (Paystack)</span>
+                                                </div>
+                                            </label>
+
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_usdt' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value="crypto_usdt"
+                                                        checked={formData.paymentMethod === 'crypto_usdt'}
+                                                        onChange={handleInputChange}
+                                                        className="text-black focus:ring-black"
+                                                    />
+                                                    <span className="text-sm font-medium">Tether (USDT)</span>
+                                                </div>
+                                            </label>
+
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_btc' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value="crypto_btc"
+                                                        checked={formData.paymentMethod === 'crypto_btc'}
+                                                        onChange={handleInputChange}
+                                                        className="text-black focus:ring-black"
+                                                    />
+                                                    <span className="text-sm font-medium">Bitcoin (BTC)</span>
+                                                </div>
+                                            </label>
+
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_eth' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value="crypto_eth"
+                                                        checked={formData.paymentMethod === 'crypto_eth'}
+                                                        onChange={handleInputChange}
+                                                        className="text-black focus:ring-black"
+                                                    />
+                                                    <span className="text-sm font-medium">Ethereum (ETH)</span>
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

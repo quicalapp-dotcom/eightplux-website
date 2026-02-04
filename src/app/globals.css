@@ -7,7 +7,7 @@
   --background-light: #F5F5F5;
   --background-dark: #0F0F0F;
   --accent-gray: #666666;
-  --brand-red: #b91c1c;
+  --brand-red: #C72F32;
   
   /* Light mode defaults */
   --background: #ffffff;
@@ -121,4 +121,33 @@ body {
   position: sticky;
   top: 120px;
   height: fit-content;
+}
+
+/* Nav link styles */
+.nav-link {
+  position: relative;
+  padding-left: 1rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link.active {
+  font-weight: 500;
+  color: #060708;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #C72F32;
+  border-radius: 50%;
+}
+
+.nav-link:not(.active):hover {
+  color: #C72F32;
+  padding-left: 1.25rem;
 }

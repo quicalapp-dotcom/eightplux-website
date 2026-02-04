@@ -129,6 +129,9 @@ export const subscribeToCollections = (callback: (collections: Collection[]) => 
     return onSnapshot(q, (snapshot) => {
         const collections = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Collection));
         callback(collections);
+    }, (error) => {
+        console.error('Error fetching collections:', error);
+        callback([]); // Return empty array on error
     });
 };
 

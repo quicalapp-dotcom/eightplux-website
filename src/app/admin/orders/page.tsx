@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { subscribeToOrders, updateOrderStatus } from '@/lib/firebase/admin';
 import { Order } from '@/types';
 import { format } from 'date-fns';
+import { Timestamp } from 'firebase/firestore';
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -118,7 +119,16 @@ export default function OrdersPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-gray-600 font-medium text-xs">
-                                        {format(order.createdAt instanceof Date ? order.createdAt : new Date(), 'MMM dd, yyyy')}
+                                        {order.createdAt ? format(
+                                            order.createdAt instanceof Timestamp
+                                                ? order.createdAt.toDate()
+                                                : typeof order.createdAt === 'string'
+                                                    ? new Date(order.createdAt)
+                                                    : order.createdAt instanceof Date
+                                                        ? order.createdAt
+                                                        : new Date(),
+                                            'MMM dd, yyyy'
+                                        ) : 'N/A'}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.orderStatus === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
