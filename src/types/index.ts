@@ -118,8 +118,8 @@ export interface Order {
     paymentReference?: string;
     cryptoTransactionHash?: string;
     notes?: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | import('firebase/firestore').Timestamp;
+    updatedAt: Date | import('firebase/firestore').Timestamp;
 }
 
 export interface Payment {

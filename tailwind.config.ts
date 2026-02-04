@@ -10,7 +10,13 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: "#D32F2F", // Red accent from the logo
+                primary: "#C72F32", // Updated red color
+                brand: {
+                    cream: "#F4F1E9",
+                    charcoal: "#060708",
+                    red: "#C72F32",
+                    grey: "#CCCCCC",
+                },
                 "background-light": "#F8F8F8",
                 "background-dark": "#0A0A0A",
                 "text-dark": "#1A1A1A",

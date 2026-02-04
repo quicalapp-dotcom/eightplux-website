@@ -103,11 +103,11 @@ service cloud.firestore {
        allow write: if isAdmin();
      }
 
-    // Collections/Campaigns (Public Read, Admin Write)
-    match /collections/{collectionId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
+     // Collections (Public Read, Admin Write)
+     match /collections/{collectionId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
 
     // Campaigns (Public Read, Admin Write)
     match /campaigns/{campaignId} {
@@ -115,18 +115,18 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Orders
-    match /orders/{orderId} {
-      // Users see their own orders
-      // Order Managers & Super Admins see all
-      allow read: if isOwner(resource.data.userId) || isOrderManager();
+     // Orders
+     match /orders/{orderId} {
+       // Users see their own orders
+       // Order Managers & Super Admins see all
+       allow read: if isOwner(resource.data.userId) || isOrderManager();
 
-      // Users can create orders
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+       // Users can create orders (must be authenticated)
+       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
 
-      // Only Admins can update status (users cannot modify placed orders except maybe cancel?)
-      allow update: if isOrderManager();
-    }
+       // Only Admins can update status (users cannot modify placed orders except maybe cancel?)
+       allow update: if isOrderManager();
+     }
 
     // World Content (Articles/Events)
     match /content/{contentId} {
