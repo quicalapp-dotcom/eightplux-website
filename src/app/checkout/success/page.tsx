@@ -23,14 +23,14 @@ export default function OrderSuccessPage() {
                 <p className="text-gray-500 mb-2">Thank you for your purchase.</p>
                 <p className="text-sm font-bold tracking-widest uppercase mb-8">Order # {orderNumber}</p>
 
-                <div className="bg-gray-50 dark:bg-[#141414] p-8 rounded mb-8 text-left border border-gray-100 dark:border-gray-800">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <div className="bg-gray-50 dark:bg-gray-200 p-8 rounded mb-8 text-left border border-gray-100 dark:border-gray-800">
+                    <p className="text-sm text-gray-600 dark:text-black mb-4">
                         We have received your order and are getting it ready to be shipped. We will notify you when it has been sent.
                     </p>
                     <div className="flex flex-col gap-2 text-sm">
                         <div className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-                            <span className="text-gray-500">Estimated Delivery</span>
-                            <span className="font-medium">3-7 Business Days</span>
+                            <span className="text-black">Estimated Delivery</span>
+                            <span className="font-medium text-red-600">3-7 Business Days</span>
                         </div>
                     </div>
                 </div>

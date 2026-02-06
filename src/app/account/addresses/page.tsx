@@ -155,20 +155,20 @@ export default function AddressesPage() {
 
   if (loading || loadingAddresses) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0A0A0A]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-gray-200">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-[#0A0A0A] text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
+    <div className="bg-gray-200 dark:bg-gray-200 text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">My Account</p>
-            <h1 className="font-display text-4xl md:text-5xl">Addresses</h1>
+            <h1 className="font-display text-red-600 md:text-5xl">Addresses</h1>
           </div>
           <Link href="/account" className="mt-6 md:mt-0 text-sm font-bold text-red-600 hover:text-red-500 transition-colors">
             ← Back to Account
@@ -179,37 +179,37 @@ export default function AddressesPage() {
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3 space-y-1">
             <nav className="flex flex-col gap-1">
-              <Link href="/account/orders" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
+              <Link href="/account/orders" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-                  <span>Orders</span>
+                  <span className="text-red-600">Orders</span>
                 </div>
               </Link>
-              <Link href="/account/addresses" className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#141414] rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors text-left group">
+              <Link href="/account/addresses" className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-200 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-white transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Addresses</span>
+                  <MapPin className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                  <span className="text-red-600">Addresses</span>
                 </div>
               </Link>
-              <Link href="/account/payment-methods" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
+              <Link href="/account/payment-methods" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
                     <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                   </svg>
-                  <span>Payment Methods</span>
+                  <span className="text-red-600">Payment Methods</span>
                 </div>
               </Link>
-              <Link href="/account/profile" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
+              <Link href="/account/profile" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-white dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-                  <span>Profile Details</span>
+                  <span className="text-red-600">Profile Details</span>
                 </div>
               </Link>
             </nav>
@@ -219,7 +219,7 @@ export default function AddressesPage() {
           <div className="lg:col-span-9 space-y-8">
             {/* Add New Address Form */}
             <section>
-              <h2 className="font-display text-2xl mb-6">Add New Address</h2>
+              <h2 className="font-display text-red-600 mb-6">Add New Address</h2>
               <div className="border border-gray-200 dark:border-gray-800 p-6 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -228,7 +228,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.firstName}
                       onChange={(e) => setNewAddress({...newAddress, firstName: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="John"
                     />
                   </div>
@@ -238,7 +238,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.lastName}
                       onChange={(e) => setNewAddress({...newAddress, lastName: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="Doe"
                     />
                   </div>
@@ -248,7 +248,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.address1}
                       onChange={(e) => setNewAddress({...newAddress, address1: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="Street address"
                     />
                   </div>
@@ -258,7 +258,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.address2}
                       onChange={(e) => setNewAddress({...newAddress, address2: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="Apartment, suite, etc."
                     />
                   </div>
@@ -268,7 +268,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.city}
                       onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="City"
                     />
                   </div>
@@ -278,7 +278,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.state}
                       onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="State"
                     />
                   </div>
@@ -287,7 +287,7 @@ export default function AddressesPage() {
                     <select
                       value={newAddress.country}
                       onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                     >
                       <option value="Nigeria">Nigeria</option>
                       <option value="United States">United States</option>
@@ -301,7 +301,7 @@ export default function AddressesPage() {
                       type="text"
                       value={newAddress.postalCode}
                       onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray-200 text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="Postal code"
                     />
                   </div>
@@ -311,7 +311,7 @@ export default function AddressesPage() {
                       type="tel"
                       value={newAddress.phone}
                       onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
+                      className="w-full p-3 bg-gray-50 dark:bg-gray-200 text-black border border-gray-200 dark:border-gray-800 rounded-md focus:outline-none"
                       placeholder="Phone number"
                     />
                   </div>
