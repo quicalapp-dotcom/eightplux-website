@@ -92,7 +92,7 @@ export default function AccountPage() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0A0A0A]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-gray-200">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white"></div>
       </div>
     );
@@ -105,13 +105,13 @@ export default function AccountPage() {
   const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
 
   return (
-    <div className="bg-white dark:bg-[#CCCCCC] text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
+    <div className="bg-gray-200 dark:bg-gray-200 text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">My Account</p>
-            <h1 className="font-display text-4xl md:text-5xl">Welcome, {user.displayName || 'Member'}</h1>
+            <h1 className="font-display text-red-600 md:text-5xl">Welcome, {user.displayName || 'Member'}</h1>
             <p className="text-sm text-gray-500 mt-2">{user.email}</p>
           </div>
           <button
@@ -126,45 +126,38 @@ export default function AccountPage() {
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3 space-y-1">
             <nav className="flex flex-col gap-1">
-              <Link
-                href="/account/orders"
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#141414] rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors text-left group"
-              >
+              <Link href="/account/orders" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <Package className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Orders</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span className="text-red-600">Orders</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
-              <Link
-                href="/account/addresses"
-                className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group"
-              >
+              <Link href="/account/addresses" className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-200 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-white transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Addresses</span>
+                  <MapPin className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                  <span className="text-red-600">Addresses</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
-              <Link
-                href="/account/payment-methods"
-                className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group"
-              >
+              <Link href="/account/payment-methods" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <CreditCard className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Payment Methods</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
+                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span className="text-red-600">Payment Methods</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
-              <Link
-                href="/account/profile"
-                className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group"
-              >
+              <Link href="/account/profile" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-white dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <User className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Profile Details</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span className="text-red-600">Profile Details</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
             </nav>
           </div>
@@ -173,7 +166,7 @@ export default function AccountPage() {
           <div className="lg:col-span-9 space-y-8">
             {/* Recent Orders */}
             <section>
-              <h2 className="font-display text-2xl mb-6">Recent Orders</h2>
+              <h2 className="font-display text-red-600 mb-6">Recent Orders</h2>
 
               {recentOrders.length === 0 ? (
                 <div className="border border-dashed border-gray-300 dark:border-gray-800 rounded-lg p-12 text-center">
@@ -206,7 +199,7 @@ export default function AccountPage() {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <p className="font-bold">{order.currency}{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-black">{order.currency}{order.total.toLocaleString()}</p>
                         <div className="flex items-center gap-2 text-xs text-gray-500">
                           <span>{order.items.length} items</span>
                           <ChevronRight className="w-3 h-3" />
@@ -222,7 +215,7 @@ export default function AccountPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="border border-gray-200 dark:border-gray-800 p-6 rounded-lg">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold text-sm uppercase tracking-widest">Default Address</h3>
+                  <h3 className="font-bold text-black uppercase tracking-widest">Default Address</h3>
                   <Link href="/account/addresses" className="text-[10px] text-gray-500 hover:text-black dark:hover:text-white underline">Edit</Link>
                 </div>
                 {defaultAddress ? (
@@ -246,7 +239,7 @@ export default function AccountPage() {
 
               <div className="border border-gray-200 dark:border-gray-800 p-6 rounded-lg">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold text-sm uppercase tracking-widest">Newsletter</h3>
+                  <h3 className="font-bold text-black uppercase tracking-widest">Newsletter</h3>
                   <Link href="/account/profile" className="text-[10px] text-gray-500 hover:text-black dark:hover:text-white underline">Edit</Link>
                 </div>
                 <p className="text-sm text-gray-500 leading-relaxed">

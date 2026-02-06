@@ -124,13 +124,13 @@ export default function OrderDetailPage() {
   const StatusIcon = getStatusInfo(order.orderStatus).icon;
 
   return (
-    <div className="bg-white dark:bg-[#0A0A0A] text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
+    <div className="bg-white dark:bg-gray-200 text-black dark:text-gray-100 min-h-screen pt-32 pb-20 px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">My Account</p>
-            <h1 className="font-display text-4xl md:text-5xl">Order Details</h1>
+            <h1 className="font-display text-red-600 md:text-5xl">Order Details</h1>
           </div>
           <Link href="/account/orders" className="mt-6 md:mt-0 text-sm font-bold text-red-600 hover:text-red-500 transition-colors">
             ← Back to Orders
@@ -141,44 +141,51 @@ export default function OrderDetailPage() {
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3 space-y-1">
             <nav className="flex flex-col gap-1">
-              <Link href="/account/orders" className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#141414] rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors text-left group">
+              <Link href="/account/orders" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
                 <div className="flex items-center gap-3">
-                  <Package className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Orders</span>
-                </div>
-              </Link>
-              <Link href="/account/addresses" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Addresses</span>
-                </div>
-              </Link>
-              <Link href="/account/payment-methods" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
-                <div className="flex items-center gap-3">
-                  <CreditCard className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                  <span>Payment Methods</span>
-                </div>
-              </Link>
-              <Link href="/account/profile" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#141414] rounded-lg transition-colors text-left group">
-                <div className="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-                  <span>Profile Details</span>
+                  <span className="text-red-600">Orders</span>
+                </div>
+              </Link>
+              <Link href="/account/addresses" className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-200 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-white transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                  <span className="text-red-600">Addresses</span>
+                </div>
+              </Link>
+              <Link href="/account/payment-methods" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white rounded-lg transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
+                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span className="text-red-600">Payment Methods</span>
+                </div>
+              </Link>
+              <Link href="/account/profile" className="flex items-center justify-between p-4 text-sm font-medium hover:bg-white dark:hover:bg-white rounded-lg transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-600 group-hover:text-black dark:group-hover:text-white transition-colors">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span className="text-red-600">Profile Details</span>
                 </div>
               </Link>
             </nav>
           </div>
 
+
           {/* Main Content Area */}
           <div className="lg:col-span-9 space-y-8">
             {/* Order Summary */}
             <section className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-              <div className="p-6 bg-gray-50 dark:bg-[#111] flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="p-6 bg-gray-50 dark:bg-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-4">
-                    <h3 className="font-bold text-sm uppercase tracking-widest text-gray-500">Order # {order.id.slice(0, 8).toUpperCase()}</h3>
+                    <h3 className="font-bold text-sm uppercase tracking-widest text-black">Order # {order.id.slice(0, 8).toUpperCase()}</h3>
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                       order.orderStatus === 'delivered' ? 'bg-green-50 text-green-600 border border-green-100' :
                       order.orderStatus === 'shipped' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
@@ -189,21 +196,21 @@ export default function OrderDetailPage() {
                       {order.orderStatus}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-black mt-1">
                     Placed on {order.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">Total</p>
-                    <p className="font-bold text-lg">{order.currency}{order.total.toLocaleString()}</p>
+                    <p className="text-sm text-black">Total</p>
+                    <p className="font-bold text-black">{order.currency}{order.total.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
 
               {/* Order Items */}
               <div className="p-6">
-                <h4 className="font-bold text-sm uppercase tracking-widest text-gray-500 mb-4">Items</h4>
+                <h4 className="font-bold text-black uppercase tracking-widest text-gray-500 mb-4">Items</h4>
                 <div className="space-y-4">
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-center gap-6 py-4 border-b border-gray-100 dark:border-gray-800 last:border-0">
@@ -212,17 +219,17 @@ export default function OrderDetailPage() {
                           <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-md" />
                         ) : (
                           <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
-                            <Package className="w-6 h-6 text-gray-400" />
+                            <Package className="w-6 h-6 text-black" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold">{item.name}</h5>
-                        <p className="text-sm text-gray-500">{item.size}, {item.color}</p>
+                        <h5 className="font-bold text-red-600">{item.name}</h5>
+                        <p className="text-sm text-black">{item.size}, {item.color}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold">{order.currency}{item.price.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        <p className="font-bold text-black">{order.currency}{item.price.toLocaleString()}</p>
+                        <p className="text-sm text-black">Qty: {item.quantity}</p>
                       </div>
                     </div>
                   ))}
@@ -232,15 +239,15 @@ export default function OrderDetailPage() {
 
             {/* Order Status Timeline */}
             <section>
-              <h2 className="font-display text-2xl mb-6">Order Status</h2>
+              <h2 className="font-display text-red-600 mb-6">Order Status</h2>
               <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full ${getStatusInfo(order.orderStatus).bg} ${getStatusInfo(order.orderStatus).border} border`}>
                     <StatusIcon className={`w-6 h-6 ${getStatusInfo(order.orderStatus).color}`} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg capitalize">{order.orderStatus}</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="font-bold text-black capitalize">{order.orderStatus}</h3>
+                    <p className="text-sm text-black">
                       {order.orderStatus === 'pending' && 'Your order is being processed'}
                       {order.orderStatus === 'confirmed' && 'Your order has been confirmed'}
                       {order.orderStatus === 'processing' && 'Your order is being prepared for shipment'}
@@ -253,7 +260,7 @@ export default function OrderDetailPage() {
                 
                 {order.trackingNumber && (
                   <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-                    <h4 className="font-bold text-sm uppercase tracking-widest text-gray-500 mb-2">Tracking Information</h4>
+                    <h4 className="font-bold text-sm uppercase tracking-widest text-black mb-2">Tracking Information</h4>
                     <p className="text-sm">Tracking Number: {order.trackingNumber}</p>
                     <button className="mt-2 text-sm font-bold text-red-600 hover:text-red-500">Track Package</button>
                   </div>
@@ -266,10 +273,10 @@ export default function OrderDetailPage() {
               {/* Shipping Address */}
               <div className="border border-gray-200 dark:border-gray-800 p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-gray-400" />
-                  <h3 className="font-bold text-sm uppercase tracking-widest">Shipping Address</h3>
+                  <MapPin className="w-5 h-5 text-red-600" />
+                  <h3 className="font-bold text-red-600 uppercase tracking-widest">Shipping Address</h3>
                 </div>
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-sm text-black leading-relaxed">
                   {order.shippingAddress.firstName} {order.shippingAddress.lastName}<br />
                   {order.shippingAddress.address1}<br />
                   {order.shippingAddress.address2 && `${order.shippingAddress.address2}<br />`}
@@ -282,31 +289,31 @@ export default function OrderDetailPage() {
               {/* Payment Information */}
               <div className="border border-gray-200 dark:border-gray-800 p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-4">
-                  <CreditCard className="w-5 h-5 text-gray-400" />
-                  <h3 className="font-bold text-sm uppercase tracking-widest">Payment Information</h3>
+                  <CreditCard className="w-5 h-5 text-red-600" />
+                  <h3 className="font-bold text-red-600 uppercase tracking-widest">Payment Information</h3>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Subtotal</span>
-                    <span className="text-sm font-bold">{order.currency}{order.subtotal.toLocaleString()}</span>
+                    <span className="text-black text-sm font-bold">{order.currency}{order.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Shipping</span>
-                    <span className="text-sm font-bold">{order.currency}{order.shipping.toLocaleString()}</span>
+                    <span className="text-black text-sm font-bold">{order.currency}{order.shipping.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Tax</span>
-                    <span className="text-sm font-bold">{order.currency}{order.tax.toLocaleString()}</span>
+                    <span className="text-black text-sm font-bold">{order.currency}{order.tax.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <span className="text-sm font-bold">Total</span>
-                    <span className="text-sm font-bold">{order.currency}{order.total.toLocaleString()}</span>
+                    <span className="text-sm font-bold text-red-600">Total</span>
+                    <span className="text-sm text-black font-bold">{order.currency}{order.total.toLocaleString()}</span>
                   </div>
                   <div className="pt-4">
-                    <p className="text-sm text-gray-500">Payment Method: {order.paymentMethod.replace('_', ' ')}</p>
-                    <p className="text-sm text-gray-500">Payment Status: <span className="capitalize">{order.paymentStatus}</span></p>
+                    <p className="text-sm text-black">Payment Method: {order.paymentMethod.replace('_', ' ')}</p>
+                    <p className="text-sm text-black">Payment Status: <span className="capitalize">{order.paymentStatus}</span></p>
                     {order.paymentReference && (
-                      <p className="text-sm text-gray-500">Reference: {order.paymentReference}</p>
+                      <p className="text-sm text-black">Reference: {order.paymentReference}</p>
                     )}
                   </div>
                 </div>

@@ -84,7 +84,7 @@ export default function Navbar() {
         <>
             <nav className={clsx(
                 'fixed w-full z-50 transition-all duration-500',
-                scrolled ? 'bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'
+                scrolled ? 'bg-white/90 dark:bg-gray-200/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'
             )}>
                 <div className="max-w-[1920px] mx-auto px-6 md:px-12 flex items-center justify-between">
                     

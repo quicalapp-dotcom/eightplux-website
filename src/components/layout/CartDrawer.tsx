@@ -29,7 +29,7 @@ export default function CartDrawer() {
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: 'tween', duration: 0.3 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-[#0F0F0F] z-50 flex flex-col"
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-gray-200 dark:bg-gray-400 z-50 flex flex-col"
                     >
                         {/* Header */}
                         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-200 dark:border-gray-800">
@@ -49,7 +49,7 @@ export default function CartDrawer() {
                                     <Link
                                         href="/shop"
                                         onClick={closeCart}
-                                        className="bg-black text-white dark:bg-white dark:text-black px-8 py-3 text-xs uppercase tracking-widest font-bold"
+                                        className="bg-gray-500 text-white dark:bg-gray-600 dark:text-white px-8 py-3 text-xs uppercase tracking-widest font-bold"
                                     >
                                         Continue Shopping
                                     </Link>
@@ -68,7 +68,7 @@ export default function CartDrawer() {
                                             </div>
                                             <div className="flex-1">
                                                 <h3 className="font-display text-sm mb-1">{item.name}</h3>
-                                                <p className="text-xs text-gray-500 mb-2">
+                                                <p className="text-xs text-gray-00 mb-3">
                                                     {item.size} / {item.color}
                                                 </p>
                                                 <p className="text-sm font-medium">${item.price.toLocaleString()}</p>
@@ -82,7 +82,7 @@ export default function CartDrawer() {
                                                                 item.color,
                                                                 item.quantity - 1
                                                             )}
-                                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-00"
                                                         >
                                                             <Minus className="w-3 h-3" />
                                                         </button>
@@ -94,7 +94,7 @@ export default function CartDrawer() {
                                                                 item.color,
                                                                 item.quantity + 1
                                                             )}
-                                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-00"
                                                         >
                                                             <Plus className="w-3 h-3" />
                                                         </button>
@@ -120,13 +120,13 @@ export default function CartDrawer() {
                                     <span className="text-sm uppercase tracking-widest">Subtotal</span>
                                     <span className="text-lg font-display">${subtotal.toLocaleString()}</span>
                                 </div>
-                                <p className="text-[10px] text-gray-500 text-center mb-4">
+                                <p className="text-[12px] text-lg text-center mb-4">
                                     Shipping & taxes calculated at checkout
                                 </p>
                                 <Link
                                     href="/checkout"
                                     onClick={closeCart}
-                                    className="block w-full bg-black text-white dark:bg-white dark:text-black py-4 text-center text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-opacity"
+                                    className="block w-full bg-gray-500 text-grey-400 dark:bg-gray-100 dark:text-grey-400 py-4 text-center text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-opacity"
                                 >
                                     Checkout
                                 </Link>

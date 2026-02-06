@@ -163,7 +163,7 @@ export default function CheckoutPage() {
     };
 
     return (
-        <div className="bg-white dark:bg-[#0A0A0A] text-black dark:text-gray-100 min-h-screen flex flex-col lg:flex-row font-sans">
+        <div className="bg-gray-200 dark:bg-gray-200 text-black dark:text-gray-100 min-h-screen flex flex-col lg:flex-row font-sans">
             {/* Left Column - Main Content */}
             <div className="w-full lg:w-[58%] px-6 py-8 lg:px-20 lg:py-16 order-2 lg:order-1">
                 {/* Header */}
@@ -178,7 +178,7 @@ export default function CheckoutPage() {
                         <ChevronRight className="w-3 h-3" />
                         {steps.map((step, index) => (
                             <div key={step} className="flex items-center">
-                                <span className={`${index === currentStep ? 'text-black dark:text-white font-bold' : ''} ${index < currentStep ? 'text-red-600' : ''}`}>
+                                <span className={`${index === currentStep ? 'text-black dark:text-red-600 font-bold' : ''} ${index < currentStep ? 'text-red-600' : ''}`}>
                                     {step}
                                 </span>
                                 {index < steps.length - 1 && <ChevronRight className="w-3 h-3 mx-2" />}
@@ -192,7 +192,7 @@ export default function CheckoutPage() {
                     {currentStep === 0 && (
                         <div className="space-y-8 animate-fade-in-up">
                             <div>
-                                <h2 className="text-lg font-display uppercase tracking-widest mb-4">Contact</h2>
+                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Contact</h2>
                                 <input
                                     type="email"
                                     name="email"
@@ -200,12 +200,12 @@ export default function CheckoutPage() {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                    className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <h2 className="text-lg font-display uppercase tracking-widest mb-4">Shipping Address</h2>
+                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Shipping Address</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     <input
                                         type="text"
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
                                         value={formData.firstName}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                     <input
                                         type="text"
@@ -223,7 +223,7 @@ export default function CheckoutPage() {
                                         value={formData.lastName}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                     <input
                                         type="text"
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
                                         value={formData.address}
                                         onChange={handleInputChange}
                                         required
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                     <input
                                         type="text"
@@ -241,7 +241,7 @@ export default function CheckoutPage() {
                                         value={formData.city}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                     <input
                                         type="text"
@@ -250,13 +250,13 @@ export default function CheckoutPage() {
                                         value={formData.postalCode}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                     <select
                                         name="country"
                                         value={formData.country}
                                         onChange={handleInputChange}
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     >
                                         <option value="United States">United States</option>
                                         <option value="United Kingdom">United Kingdom</option>
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                                         placeholder="Phone (optional)"
                                         value={formData.phone}
                                         onChange={handleInputChange}
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-sm focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
+                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
                                     />
                                 </div>
                             </div>
@@ -283,21 +283,21 @@ export default function CheckoutPage() {
                         <div className="space-y-8 animate-fade-in-up">
                             <div className="border border-gray-200 dark:border-gray-800 rounded p-4 mb-6 text-sm">
                                 <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-gray-500">Contact</span>
-                                    <span>{formData.email}</span>
+                                    <span className="text-black">Contact</span>
+                                    <span className="text-black">{formData.email}</span>
                                     <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                                 <div className="flex justify-between py-2 pt-4">
-                                    <span className="text-gray-500">Ship to</span>
-                                    <span className="truncate max-w-[200px]">{formData.address}, {formData.city}</span>
+                                    <span className="text-black ">Ship to</span>
+                                    <span className="text-black truncate max-w-[200px]">{formData.address}, {formData.city}</span>
                                     <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                             </div>
 
                             <div>
-                                <h2 className="text-lg font-display uppercase tracking-widest mb-4">Shipping Method</h2>
+                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Shipping Method</h2>
                                 <div className="space-y-3">
-                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'standard' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'standard' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                         <div className="flex items-center gap-3">
                                             <input
                                                 type="radio"
@@ -307,12 +307,12 @@ export default function CheckoutPage() {
                                                 onChange={handleInputChange}
                                                 className="text-black focus:ring-black"
                                             />
-                                            <span className="text-sm font-medium">Standard Shipping (3-7 Business Days)</span>
+                                            <span className="text-black font-medium">Standard Shipping (3-7 Business Days)</span>
                                         </div>
-                                        <span className="text-sm font-bold">Free</span>
+                                        <span className="text-black font-bold">Free</span>
                                     </label>
 
-                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'express' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'express' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                         <div className="flex items-center gap-3">
                                             <input
                                                 type="radio"
@@ -322,9 +322,9 @@ export default function CheckoutPage() {
                                                 onChange={handleInputChange}
                                                 className="text-black focus:ring-black"
                                             />
-                                            <span className="text-sm font-medium">Express Shipping (1-3 Business Days)</span>
+                                            <span className="text-black font-medium">Express Shipping (1-3 Business Days)</span>
                                         </div>
-                                        <span className="text-sm font-bold">$25.00</span>
+                                        <span className="text-black font-bold">$25.00</span>
                                     </label>
                                 </div>
                             </div>
@@ -336,31 +336,31 @@ export default function CheckoutPage() {
                         <div className="space-y-8 animate-fade-in-up">
                             <div className="border border-gray-200 dark:border-gray-800 rounded p-4 mb-6 text-sm">
                                 <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-gray-500">Contact</span>
-                                    <span>{formData.email}</span>
+                                    <span className="text-black">Contact</span>
+                                    <span className="text-black">{formData.email}</span>
                                     <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-gray-500">Ship to</span>
-                                    <span className="truncate max-w-[200px]">{formData.address}, {formData.city}</span>
+                                    <span className="text-black">Ship to</span>
+                                    <span className="text-black truncate max-w-[200px]">{formData.address}, {formData.city}</span>
                                     <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                                 <div className="flex justify-between py-2 pt-4">
-                                    <span className="text-gray-500">Method</span>
-                                    <span>{formData.shippingMethod === 'standard' ? 'Standard · Free' : 'Express · $25.00'}</span>
+                                    <span className="text-black">Method</span>
+                                    <span className="text-black">{formData.shippingMethod === 'standard' ? 'Standard · Free' : 'Express · $25.00'}</span>
                                     <button type="button" onClick={() => setCurrentStep(1)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                             </div>
 
                             <div>
-                                <h2 className="text-lg font-display uppercase tracking-widest mb-4">Payment</h2>
+                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Payment</h2>
                                 <div className="space-y-4">
-                                    <div className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 p-6 rounded">
-                                        <p className="text-sm text-gray-500 mb-4">
+                                    <div className="bg-gray-200 dark:bg-grey-200 border border-gray-200 dark:border-gray-800 p-6 rounded">
+                                        <p className="text-black  mb-4">
                                             All transactions are secure and encrypted. (Note: Payment is simulated for demo purposes)
                                         </p>
                                         <div className="space-y-3">
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_card' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_card' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="radio"
@@ -370,11 +370,11 @@ export default function CheckoutPage() {
                                                         onChange={handleInputChange}
                                                         className="text-black focus:ring-black"
                                                     />
-                                                    <span className="text-sm font-medium">Credit/Debit Card (Paystack)</span>
+                                                    <span className="text-black font-medium">Credit/Debit Card (Paystack)</span>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_transfer' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_transfer' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="radio"
@@ -384,11 +384,11 @@ export default function CheckoutPage() {
                                                         onChange={handleInputChange}
                                                         className="text-black focus:ring-black"
                                                     />
-                                                    <span className="text-sm font-medium">Bank Transfer (Paystack)</span>
+                                                    <span className="text-black font-medium">Bank Transfer (Paystack)</span>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_usdt' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_usdt' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="radio"
@@ -398,11 +398,11 @@ export default function CheckoutPage() {
                                                         onChange={handleInputChange}
                                                         className="text-black focus:ring-black"
                                                     />
-                                                    <span className="text-sm font-medium">Tether (USDT)</span>
+                                                    <span className="text-black font-medium">Tether (USDT)</span>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_btc' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_btc' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="radio"
@@ -412,11 +412,11 @@ export default function CheckoutPage() {
                                                         onChange={handleInputChange}
                                                         className="text-black focus:ring-black"
                                                     />
-                                                    <span className="text-sm font-medium">Bitcoin (BTC)</span>
+                                                    <span className="text-black font-medium">Bitcoin (BTC)</span>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_eth' ? 'border-black dark:border-white ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
+                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_eth' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="radio"
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
                                                         onChange={handleInputChange}
                                                         className="text-black focus:ring-black"
                                                     />
-                                                    <span className="text-sm font-medium">Ethereum (ETH)</span>
+                                                    <span className="text-black font-medium">Ethereum (ETH)</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -464,7 +464,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Right Column - Order Summary */}
-            <div className="w-full lg:w-[42%] bg-gray-50 dark:bg-[#141414] px-6 py-8 lg:px-12 lg:py-16 order-1 lg:order-2 border-l border-gray-200 dark:border-gray-800">
+            <div className="w-full lg:w-[42%] bg-gray-50 dark:bg-black px-6 py-8 lg:px-12 lg:py-16 order-1 lg:order-2 border-l border-gray-200 dark:border-gray-800">
                 <div className="sticky top-10">
                     <h2 className="text-lg font-display uppercase tracking-widest mb-6">Order Summary</h2>
                     <div className="space-y-4 mb-8 max-h-[40vh] overflow-y-auto pr-2">
@@ -483,7 +483,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="text-sm font-medium">{item.name}</h3>
-                                    <p className="text-xs text-gray-500">{item.size} / {item.color}</p>
+                                    <p className="text-xs text-white">{item.size} / {item.color}</p>
                                 </div>
                                 <p className="text-sm font-medium">${(item.price * item.quantity).toLocaleString()}</p>
                             </div>
@@ -492,11 +492,11 @@ export default function CheckoutPage() {
 
                     <div className="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">Subtotal</span>
+                            <span className="text-red-600">Subtotal</span>
                             <span>${subtotal.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">Shipping</span>
+                            <span className="text-red-600">Shipping</span>
                             <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toLocaleString()}`}</span>
                         </div>
                     </div>
