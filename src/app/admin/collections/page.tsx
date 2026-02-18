@@ -43,10 +43,10 @@ export default function CollectionsManagementPage() {
     );
 
     return (
-        <div className="space-y-6 bg-white text-black">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-4 sm:space-y-6 bg-white text-black">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-black">Collections</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-black">Collections</h1>
                     <p className="text-sm text-gray-600">Organize your products into curations and drops.</p>
                 </div>
                 <Link
@@ -58,7 +58,7 @@ export default function CollectionsManagementPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {loading ? (
                     <div className="col-span-full py-20 flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>
                 ) : filteredCollections.map((collection) => (
@@ -79,11 +79,11 @@ export default function CollectionsManagementPage() {
                                 </button>
                             </div>
                         </div>
-                        <div className="p-6">
-                            <h3 className="font-bold text-lg mb-1 text-black">{collection.name}</h3>
+                        <div className="p-4 sm:p-6">
+                            <h3 className="font-bold text-base sm:text-lg mb-1 text-black">{collection.name}</h3>
                             <p className="text-xs text-gray-600 mb-4">{collection.products?.length || 0} Products</p>
 
-                            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 sm:pt-6 border-t border-gray-100 gap-2 sm:gap-0">
                                 <div className="flex gap-2 text-gray-400">
                                     <Link href={`/admin/collections/edit/${collection.id}`} className="p-2 hover:text-blue-500 transition-colors">
                                         <Edit className="w-4 h-4" />
@@ -101,7 +101,7 @@ export default function CollectionsManagementPage() {
                     </div>
                 ))}
                 {!loading && filteredCollections.length === 0 && (
-                    <div className="col-span-full py-24 text-center bg-white rounded-lg border border-gray-200">
+                    <div className="col-span-full py-16 sm:py-24 text-center bg-white rounded-lg border border-gray-200">
                         <Grid className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-black">No collections found</h3>
                         <p className="text-gray-600 mt-2">Create drops to organize your inventory better.</p>

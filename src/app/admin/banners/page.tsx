@@ -93,18 +93,18 @@ export default function BannersPage() {
   };
 
   return (
-    <div className="space-y-6 bg-white text-black">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6 bg-white text-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-black">Banners</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-black">Banners</h1>
           <p className="text-sm text-gray-600">Manage homepage banners and promotional content.</p>
         </div>
       </div>
 
       {/* Add New Banner Form */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm text-black">
+      <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm text-black">
         <h2 className="text-lg font-medium mb-4">Add New Banner</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase text-gray-500">Title</label>
             <input
@@ -144,7 +144,7 @@ export default function BannersPage() {
               className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
             />
           </div>
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2">
             <label className="text-xs font-bold uppercase text-gray-500">Description</label>
             <textarea
               value={newBanner.description}
@@ -175,12 +175,12 @@ export default function BannersPage() {
             />
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-4">
           <button
             onClick={() => setNewBanner({...newBanner, isActive: !newBanner.isActive})}
             className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-widest ${
-              newBanner.isActive 
-                ? 'bg-green-500 text-white' 
+              newBanner.isActive
+                ? 'bg-green-500 text-white'
                 : 'bg-gray-500 text-white'
             }`}
           >
@@ -198,35 +198,35 @@ export default function BannersPage() {
 
       {/* Banners List */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden text-black">
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-3 sm:p-4 border-b border-gray-200">
           <h2 className="text-lg font-medium">Banners</h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-500 uppercase tracking-widest text-[10px] font-bold">
+            <thead className="bg-gray-50 text-gray-500 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
               <tr>
-                <th className="px-6 py-4">Title</th>
-                <th className="px-6 py-4">Sort Order</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Title</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Sort Order</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Status</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">Loading banners...</td>
+                  <td colSpan={4} className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-500">Loading banners...</td>
                 </tr>
               ) : banners.length > 0 ? (
                 banners.map((banner) => (
                   <tr key={banner.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <div>
                         <div className="font-bold text-black">{banner.title}</div>
-                        <div className="text-xs text-gray-600 truncate max-w-xs">{banner.description}</div>
+                        <div className="text-xs sm:text-sm text-gray-600 truncate max-w-xs">{banner.description}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       {editingId === banner.id ? (
                         <input
                           type="number"
@@ -238,30 +238,30 @@ export default function BannersPage() {
                         <span className="text-gray-600">{banner.sortOrder}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                        banner.isActive 
-                          ? 'bg-green-50 text-green-600 border border-green-100' 
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${
+                        banner.isActive
+                          ? 'bg-green-50 text-green-600 border border-green-100'
                           : 'bg-gray-50 text-gray-600 border border-gray-100'
                       }`}>
                         {banner.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => 
+                          onClick={() =>
                             handleUpdateBanner(banner.id, { isActive: !banner.isActive })
                           }
                           className={`p-2 rounded-full transition-colors ${
-                            banner.isActive 
-                              ? 'hover:bg-red-50 text-red-500' 
+                            banner.isActive
+                              ? 'hover:bg-red-50 text-red-500'
                               : 'hover:bg-green-50 text-green-500'
                           }`}
                         >
                           {banner.isActive ? 'Disable' : 'Enable'}
                         </button>
-                        
+
                         {editingId === banner.id ? (
                           <button
                             onClick={() => setEditingId(null)}
@@ -277,7 +277,7 @@ export default function BannersPage() {
                             <Edit className="w-4 h-4 text-gray-400" />
                           </button>
                         )}
-                        
+
                         <button
                           onClick={() => handleDeleteBanner(banner.id)}
                           className="p-2 hover:bg-red-50 rounded-full transition-colors"
@@ -290,7 +290,7 @@ export default function BannersPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">No banners found.</td>
+                  <td colSpan={4} className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-500">No banners found.</td>
                 </tr>
               )}
             </tbody>
