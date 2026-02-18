@@ -57,7 +57,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-white dark:bg-[#0F0F0F] text-[#1a1a1a] dark:text-gray-100 font-body transition-colors duration-300" suppressHydrationWarning>
+      <body className="bg-white text-[#1a1a1a] font-body" suppressHydrationWarning>
         <AuthProvider>
           <AppLayoutWrapper>{children}</AppLayoutWrapper>
         </AuthProvider>

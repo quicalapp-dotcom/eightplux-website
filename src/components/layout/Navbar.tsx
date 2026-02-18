@@ -14,8 +14,9 @@ import { subscribeToCollections } from '@/lib/firebase/admin';
 
 const baseNavLinks = [
     { name: 'Home', href: '/' },
+    { name: 'New Drop', href: '/shop?filter=new' },
     {
-        name: 'Shop',
+        name: 'Collections',
         href: '/shop',
         dropdown: [
             { name: 'New Releases', href: '/shop?filter=new' },
@@ -25,7 +26,6 @@ const baseNavLinks = [
             { name: 'Shirts', href: '/shop?category=shirts' },
             { name: 'Pants', href: '/shop?category=pants' },
             { name: 'Accessories', href: '/shop?category=accessories' },
-            { name: 'Shop Looks', href: '/shop/looks' },
         ]
     },
     { name: 'Campaign', href: '/campaigns' },
@@ -63,7 +63,7 @@ export default function Navbar() {
 
     // Generate nav links with dynamic collections
     const navLinks = baseNavLinks.map(link => {
-        if (link.name === 'Shop' && link.dropdown) {
+        if (link.name === 'Collections' && link.dropdown) {
             return {
                 ...link,
                 dropdown: [
@@ -82,22 +82,18 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className={clsx(
-                'fixed w-full z-50 transition-all duration-500',
-                scrolled ? 'bg-white/90 dark:bg-gray-200/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'
-            )}>
-                <div className="max-w-[1920px] mx-auto px-6 md:px-12 flex items-center justify-between">
-                    
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden"
-                        onClick={() => setMobileMenuOpen(true)}
-                    >
-                        <Menu className="w-6 h-6 text-red-500" />
-                    </button>
+            <nav className="fixed  top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-[1440px] z-50 bg-black py-4 shadow-2xl">
+                <div className="mx-auto px-6 md:px-12 flex items-center justify-between">
 
-                    {/* Left - Menu (Desktop) */}
-                    <div className="hidden md:flex items-center space-x-8">
+                    {/* Left - Logo */}
+                    <Link href="/" className="flex items-center flex-shrink-0">
+                        <span className="font-display text-xl md:text-2xl tracking-widest font-bold text-white flex items-center">
+                            EIGHTPLU<span className="text-[#D32F2F] text-2xl md:text-3xl">+</span>
+                        </span>
+                    </Link>
+
+                    {/* Center - Nav Links (Desktop) */}
+                    <div className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
                         {navLinks.map((link) => (
                             <div
                                 key={link.name}
@@ -107,7 +103,7 @@ export default function Navbar() {
                             >
                                 <Link
                                     href={link.href}
-                                    className="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
+                                    className="text-xs font-medium tracking-widest text-white/80 hover:text-white transition-colors flex items-center gap-1"
                                 >
                                     {link.name}
                                     {link.dropdown && <ChevronDown className="w-3 h-3" />}
@@ -121,14 +117,14 @@ export default function Navbar() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 10 }}
                                             transition={{ duration: 0.2 }}
-                                            className="absolute top-full left-0 mt-4 bg-white border border-gray-200 shadow-lg min-w-[200px]"
+                                            className="absolute top-full left-0 mt-4 bg-black border border-white/10 shadow-lg min-w-[200px]"
                                         >
                                             <div className="py-4">
                                                 {link.dropdown.map((item) => (
                                                     <Link
                                                         key={item.name}
                                                         href={item.href}
-                                                        className="block px-6 py-2 text-[10px] uppercase tracking-widest text-black hover:text-black hover:bg-gray-50 transition-colors"
+                                                        className="block px-6 py-2 text-[10px] uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                                                     >
                                                         {item.name}
                                                     </Link>
@@ -141,67 +137,63 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* Center - Logo */}
-                    <Link href="/" className={clsx(
-                        'group',
-                        'md:absolute md:left-1/2 md:transform md:-translate-x-1/2'
-                    )}>
-                        <div className="flex flex-col items-center">
-                            <span className="font-display text-xl md:text-2xl lg:text-3xl tracking-widest font-semibold flex items-center gap-1">
-                                <Image
-                                    src="/Copy of 8+ red logo.png"
-                                    alt="Eightplux Logo"
-                                    width={30}
-                                    height={30}
-                                    className="object-contain md:w-[45px] md:h-[45px]"
-                                />
-                                EIGHTPLU<span className="text-[#D32F2F] text-2xl md:text-3xl lg:text-4xl">+</span>
-                            </span>
-                        </div>
-                    </Link>
-
                     {/* Right - Icons */}
-                    <div className="flex items-center space-x-4 md:space-x-6">
+                    <div className="flex items-center space-x-4 md:space-x-5">
+                        {/* Search */}
                         <button
                             onClick={() => setSearchOpen(true)}
-                            className="text-red-500 hover:text-red-600 transition-colors"
+                            className="text-white/80 hover:text-white transition-colors"
                         >
                             <Search className="w-5 h-5" />
                         </button>
 
                         {/* User Account / Login */}
                         {loading ? (
-                            <div className="w-5 h-5 rounded-full bg-gray-200 animate-pulse hidden md:block"></div>
+                            <div className="w-5 h-5 rounded-full bg-white/20 animate-pulse hidden md:block"></div>
                         ) : user ? (
-                            <div className="flex items-center space-x-6 hidden md:flex">
+                            <div className="hidden md:flex items-center space-x-4">
                                 {isAdmin && (
-                                    <Link href="/admin" className="text-red-500 hover:text-red-600 transition-colors" title="Admin Dashboard">
+                                    <Link href="/admin" className="text-white/80 hover:text-white transition-colors" title="Admin Dashboard">
                                         <Shield className="w-5 h-5" />
                                     </Link>
                                 )}
-                                <Link href="/account" className="text-red-500 hover:text-red-600 transition-colors" title="My Account">
+                                <Link href="/account" className="text-white/80 hover:text-white transition-colors" title="My Account">
                                     <User className="w-5 h-5" />
                                 </Link>
                             </div>
                         ) : (
-                            <Link href="/login" className="text-red-500 hover:text-red-600 transition-colors hidden md:block">
+                            <Link href="/login" className="text-white/80 hover:text-white transition-colors hidden md:block">
                                 <User className="w-5 h-5" />
                             </Link>
                         )}
 
                         {/* Wishlist */}
-                        <Link href="/wishlist" className="text-red-500 hover:text-red-600 transition-colors hidden md:block">
+                        <Link href="/wishlist" className="text-white/80 hover:text-white transition-colors hidden md:block">
                             <Heart className="w-5 h-5" />
                         </Link>
 
                         {/* Cart */}
-                        <button onClick={toggleCart} className="relative text-red-500 hover:text-red-600 transition-colors group">
+                        <button onClick={toggleCart} className="relative text-white/80 hover:text-white transition-colors group">
                             <ShoppingBag className="w-5 h-5" />
                             {itemCount > 0 && (
                                 <span className="absolute -top-1 -right-2 bg-red-600 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full group-hover:scale-110 transition-transform">
                                     {itemCount}
                                 </span>
                             )}
+                        </button>
+
+                        {/* Currency */}
+                        <div className="hidden md:flex items-center gap-1.5 text-white/80 text-xs font-medium tracking-widest">
+                            <span>🇳🇬</span>
+                            <span>NGN</span>
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="md:hidden text-white"
+                            onClick={() => setMobileMenuOpen(true)}
+                        >
+                            <Menu className="w-6 h-6" />
                         </button>
                     </div>
                 </div>
