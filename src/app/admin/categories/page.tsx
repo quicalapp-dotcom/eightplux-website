@@ -82,18 +82,18 @@ export default function CategoriesPage() {
   );
 
   return (
-    <div className="space-y-6 bg-white text-black">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6 bg-white text-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-black">Categories</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-black">Categories</h1>
           <p className="text-sm text-gray-600">Manage product categories for your store.</p>
         </div>
       </div>
 
       {/* Add New Category Form */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm text-black">
+      <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm text-black">
         <h2 className="text-lg font-medium mb-4">Add New Category</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase text-gray-500">Category Name</label>
             <input
@@ -128,8 +128,8 @@ export default function CategoriesPage() {
 
       {/* Categories List */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden text-black">
-        <div className="p-4 border-b border-gray-200 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="p-3 sm:p-4 border-b border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="relative flex-1 max-w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
@@ -143,23 +143,23 @@ export default function CategoriesPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-500 uppercase tracking-widest text-[10px] font-bold">
+            <thead className="bg-gray-50 text-gray-500 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
               <tr>
-                <th className="px-6 py-4">Name</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Name</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Description</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Status</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">Loading categories...</td>
+                  <td colSpan={4} className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-500">Loading categories...</td>
                 </tr>
               ) : filteredCategories.length > 0 ? (
                 filteredCategories.map((category) => (
                   <tr key={category.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       {editingId === category.id ? (
                         <input
                           type="text"
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
                         <span className="font-bold text-black">{category.name}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       {editingId === category.id ? (
                         <input
                           type="text"
@@ -183,30 +183,30 @@ export default function CategoriesPage() {
                         <span className="text-gray-600">{category.description || '-'}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                        category.isActive 
-                          ? 'bg-green-50 text-green-600 border border-green-100' 
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${
+                        category.isActive
+                          ? 'bg-green-50 text-green-600 border border-green-100'
                           : 'bg-gray-50 text-gray-600 border border-gray-100'
                       }`}>
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => 
+                          onClick={() =>
                             handleUpdateCategory(category.id, { isActive: !category.isActive })
                           }
                           className={`p-2 rounded-full transition-colors ${
-                            category.isActive 
-                              ? 'hover:bg-red-50 text-red-500' 
+                            category.isActive
+                              ? 'hover:bg-red-50 text-red-500'
                               : 'hover:bg-green-50 text-green-500'
                           }`}
                         >
                           {category.isActive ? 'Disable' : 'Enable'}
                         </button>
-                        
+
                         {editingId === category.id ? (
                           <button
                             onClick={() => setEditingId(null)}
@@ -222,7 +222,7 @@ export default function CategoriesPage() {
                             <Edit className="w-4 h-4 text-gray-400" />
                           </button>
                         )}
-                        
+
                         <button
                           onClick={() => handleDeleteCategory(category.id)}
                           className="p-2 hover:bg-red-50 rounded-full transition-colors"
@@ -235,7 +235,7 @@ export default function CategoriesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">No categories found.</td>
+                  <td colSpan={4} className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-500">No categories found.</td>
                 </tr>
               )}
             </tbody>
