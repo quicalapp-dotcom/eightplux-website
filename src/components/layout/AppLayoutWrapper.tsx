@@ -12,14 +12,16 @@ interface AppLayoutWrapperProps {
 
 export default function AppLayoutWrapper({ children }: AppLayoutWrapperProps) {
   const pathname = usePathname();
+  const isAuthRoute = pathname === '/login' || pathname === '/signup';
   const isAdminRoute = pathname?.startsWith('/admin');
+  const hideLayout = isAdminRoute || isAuthRoute;
 
   return (
     <>
-      {!isAdminRoute && <Navbar />}
+      {!hideLayout && <Navbar />}
       <CartDrawer />
       <main>{children}</main>
-      {!isAdminRoute && <Footer />}
+      {!hideLayout && <Footer />}
     </>
   );
 }

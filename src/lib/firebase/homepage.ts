@@ -46,6 +46,8 @@ export interface WhatsNewItem {
   name: string;
   imageUrl: string;
   linkUrl?: string;
+  price?: string;
+  isSale?: boolean;
   sortOrder: number;
   isActive: boolean;
   createdAt: Date;
@@ -308,6 +310,8 @@ export const getWhatsNewItems = async (): Promise<WhatsNewItem[]> => {
       name: doc.data().name || '',
       imageUrl: doc.data().imageUrl || '',
       linkUrl: doc.data().linkUrl || '',
+      price: doc.data().price || '$129',
+      isSale: doc.data().isSale || false,
       sortOrder: doc.data().sortOrder || 0,
       isActive: doc.data().isActive || false,
       createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : new Date(),
