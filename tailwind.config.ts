@@ -10,28 +10,40 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: "#C72F32", // Updated red color
+                primary: "#FF0000", // Bright Red seen in the text
+                "background-light": "#FFFFFF",
+                "background-dark": "#0A0A0A",
+                "secondary-dark": "#1A1A1A",
                 brand: {
                     cream: "#F4F1E9",
                     charcoal: "#060708",
-                    red: "#C72F32",
+                    red: "#FF0000",
                     grey: "#CCCCCC",
                 },
-                "background-light": "#F8F8F8",
-                "background-dark": "#0A0A0A",
                 "text-dark": "#1A1A1A",
                 "text-light": "#EDEDED",
                 "card-light": "#FFFFFF",
                 "card-dark": "#171717",
             },
             fontFamily: {
+                sans: ['Montserrat', 'sans-serif'],
+                serif: ['Playfair Display', 'serif'],
+                script: ['Dancing Script', 'cursive'],
                 display: ["var(--font-playfair)", "serif"],
-                sans: ["var(--font-inter)", "sans-serif"],
                 logo: ["var(--font-cinzel)", "serif"],
             },
-            borderRadius: {
-                DEFAULT: "0px",
+            fontSize: {
+                '10xl': '10rem',
+                '11xl': '12rem',
             },
+            borderRadius: {
+                DEFAULT: "0px", // The design is very sharp/boxy
+                'sm': '2px',
+            },
+            letterSpacing: {
+                widest: '.15em',
+                tighter: '-.04em',
+            }
         },
     },
     plugins: [
