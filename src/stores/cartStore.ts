@@ -15,10 +15,18 @@ interface CartState {
     openCart: () => void;
     closeCart: () => void;
     toggleCart: () => void;
+    
+    // Notification Actions
+    showNotification: (item: CartItem) => void;
+    hideNotification: () => void;
 
     // Computed
     getItemCount: () => number;
     getSubtotal: () => number;
+
+    // State
+    lastAddedItem: CartItem | null;
+    isNotificationOpen: boolean;
 }
 
 export const useCartStore = create<CartState>()(
@@ -26,6 +34,8 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             items: [],
             isOpen: false,
+            lastAddedItem: null,
+            isNotificationOpen: false,
 
             addItem: (item) => {
                 set((state) => {
@@ -75,6 +85,9 @@ export const useCartStore = create<CartState>()(
             openCart: () => set({ isOpen: true }),
             closeCart: () => set({ isOpen: false }),
             toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
+
+            showNotification: (item) => set({ lastAddedItem: item, isNotificationOpen: true }),
+            hideNotification: () => set({ isNotificationOpen: false }),
 
             getItemCount: () => {
                 return get().items.reduce((total, item) => total + item.quantity, 0);
