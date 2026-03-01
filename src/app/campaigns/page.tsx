@@ -5,6 +5,8 @@ import CampaignHero from '@/components/campaign/CampaignHero';
 import CampaignFeatureRow from '@/components/campaign/CampaignFeatureRow';
 import CampaignInteractiveHero from '@/components/campaign/CampaignInteractiveHero';
 import CampaignBanner from '@/components/campaign/CampaignBanner';
+import CampaignStageSection from '@/components/campaign/CampaignStageSection';
+import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function CampaignsPage() {
   return (
@@ -31,10 +33,25 @@ export default function CampaignsPage() {
         rightImage="/tops.jpg" 
       />
 
-      {/* 5. Bottom Banner */}
+      {/* 5. Interactive Banner */}
       <CampaignBanner 
-        image="/rt.jpg" 
+        image="/bb.jpg" 
+        showButtons={true}
       />
+
+      {/* 6. Third Feature Row (Orange Collection) */}
+      <CampaignFeatureRow 
+        leftImage="/mn.jpg" 
+        rightImage="/rt.jpg" 
+      />
+
+      {/* 7. Stage Section */}
+      <CampaignStageSection 
+        image="/lb.jpg"
+      />
+
+      {/* 8. Newsletter Section */}
+      <NewsletterSection />
     </main>
   );
 }
