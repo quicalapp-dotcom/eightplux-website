@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Space_Grotesk } from "next/font/google";
-import { Cinzel, Inter, Playfair_Display } from "next/font/google"; // Keep existing fonts for now
+import { Montserrat, Playfair_Display, Dancing_Script } from "next/font/google";
+import { Cinzel, Inter } from "next/font/google"; // Keep existing fonts for backward compatibility
 import "./globals.css";
 import AppLayoutWrapper from "@/components/layout/AppLayoutWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-const bodoniModa = Bodoni_Moda({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  variable: "--font-bodoni-moda",
+  variable: "--font-montserrat",
   display: "swap",
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-playfair",
   display: "swap",
+  style: ['italic'],
+});
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  variable: "--font-dancing-script",
+  display: "swap",
+  weight: ['700'],
 });
 
 // Keep existing fonts for backward compatibility
@@ -30,15 +39,9 @@ const inter = Inter({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Eightplux | High-End Editorial Fashion",
-  description: "A fashion-forward, community-driven e-commerce platform that blends editorial storytelling with premium shopping experiences.",
+  title: "EIGHTPLU+ | Street Fashion",
+  description: "EIGHTPLU+ - Urban fashion and streetwear. Play beyond limits.",
   icons: {
     icon: '/Copy of 8+ red logo.png',
   },
@@ -50,14 +53,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bodoniModa.variable} ${spaceGrotesk.variable} ${cinzel.variable} ${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${playfair.variable} ${dancingScript.variable} ${cinzel.variable} ${inter.variable}`}>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+          rel="stylesheet"
+        />
       </head>
-      <body className="bg-white text-[#1a1a1a] font-body" suppressHydrationWarning>
+      <body className="bg-white text-[#1a1a1a] font-sans scroll-smooth" suppressHydrationWarning>
         <AuthProvider>
           <AppLayoutWrapper>{children}</AppLayoutWrapper>
         </AuthProvider>
