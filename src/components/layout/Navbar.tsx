@@ -8,33 +8,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
-import { clsx } from 'clsx';
 import { Collection } from '@/types';
 import { subscribeToCollections } from '@/lib/firebase/admin';
 
 const baseNavLinks = [
     { name: 'Home', href: '/' },
-    { name: 'New Drop', href: '/shop?filter=new' },
-    {
-        name: 'Collections',
-        href: '/shop',
-        dropdown: [
-            { name: 'New Releases', href: '/shop?filter=new' },
-            { name: 'Women', href: '/shop/women' },
-            { name: 'Men', href: '/shop/men' },
-            { name: 'Hoodies', href: '/shop?category=hoodies' },
-            { name: 'Shirts', href: '/shop?category=shirts' },
-            { name: 'Pants', href: '/shop?category=pants' },
-            { name: 'Accessories', href: '/shop?category=accessories' },
-        ]
-    },
+    { name: 'Shop', href: '/shop', dropdown: [
+        { name: 'New Releases', href: '/shop?filter=new' },
+        { name: 'Women', href: '/shop/women' },
+        { name: 'Men', href: '/shop/men' },
+        { name: 'Hoodies', href: '/shop?category=hoodies' },
+        { name: 'Shirts', href: '/shop?category=shirts' },
+        { name: 'Pants', href: '/shop?category=pants' },
+        { name: 'Accessories', href: '/shop?category=accessories' },
+    ]},
     { name: 'Campaign', href: '/campaigns' },
-    { name: 'World of 8+', href: '/world' },
+    { name: 'The World Of 8+', href: '/world', dropdown: [
+        { name: 'Eightplux World', href: '/world' },
+    ]},
 ];
 
 export default function Navbar() {
     const pathname = usePathname();
-    const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -42,36 +37,24 @@ export default function Navbar() {
     const [collections, setCollections] = useState<Collection[]>([]);
 
     const { user, loading, isAdmin } = useAuth();
-    const { toggleCart, getItemCount } = useCartStore();
+    const { getItemCount } = useCartStore();
     const itemCount = getItemCount();
 
     useEffect(() => {
         setMounted(true);
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener('scroll', handleScroll);
-        
-        // Fetch collections
         const unsubscribe = subscribeToCollections(setCollections);
-        
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            unsubscribe();
-        };
+        return () => unsubscribe();
     }, []);
 
-    // Generate nav links with dynamic collections
     const navLinks = baseNavLinks.map(link => {
-        if (link.name === 'Collections' && link.dropdown) {
+        if (link.name === 'Shop' && link.dropdown) {
             return {
                 ...link,
                 dropdown: [
                     ...link.dropdown,
-                    ...collections.map(collection => ({
-                        name: collection.name,
-                        href: `/shop/collections/${collection.slug}`
-                    })).filter(item => !link.dropdown.some(linkItem => linkItem.name === item.name))
+                    ...collections
+                        .map(c => ({ name: c.name, href: `/shop/collections/${c.slug}` }))
+                        .filter(item => !link.dropdown!.some(l => l.name === item.name))
                 ]
             };
         }
@@ -82,115 +65,114 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="fixed  top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-[1440px] z-50 bg-black py-4 shadow-2xl">
-                <div className="mx-auto px-6 md:px-12 flex items-center justify-between">
+            {/* ── Desktop Navbar ───────────────────────────────────────────── */}
+            <nav className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
+                <div className="mx-auto px-6 md:px-10 h-[60px] flex items-center relative">
 
-                    {/* Left - Logo */}
-                    <Link href="/" className="flex items-center flex-shrink-0">
-                        <span className="font-display text-xl md:text-2xl tracking-widest font-bold text-white flex items-center">
-                            EIGHTPLU<span className="text-[#D32F2F] text-2xl md:text-3xl">+</span>
-                        </span>
-                    </Link>
-
-                    {/* Center - Nav Links (Desktop) */}
-                    <div className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
-                        {navLinks.map((link) => (
-                            <div
-                                key={link.name}
-                                className="relative"
-                                onMouseEnter={() => link.dropdown && setActiveDropdown(link.name)}
-                                onMouseLeave={() => setActiveDropdown(null)}
-                            >
-                                <Link
-                                    href={link.href}
-                                    className="text-xs font-medium tracking-widest text-white/80 hover:text-white transition-colors flex items-center gap-1"
+                    {/* LEFT — Nav links */}
+                    <div className="hidden md:flex items-center gap-7 flex-1">
+                        {navLinks.map((link) => {
+                            const isActive = pathname === link.href;
+                            return (
+                                <div
+                                    key={link.name}
+                                    className="relative"
+                                    onMouseEnter={() => link.dropdown && setActiveDropdown(link.name)}
+                                    onMouseLeave={() => setActiveDropdown(null)}
                                 >
-                                    {link.name}
-                                    {link.dropdown && <ChevronDown className="w-3 h-3" />}
-                                </Link>
+                                    <Link
+                                        href={link.href}
+                                        className={`text-[11px] font-semibold tracking-widest uppercase flex items-center gap-0.5 transition-colors ${
+                                            isActive ? 'text-[#FF0000]' : 'text-black hover:text-[#FF0000]'
+                                        }`}
+                                    >
+                                        {link.name}
+                                        {link.dropdown && <ChevronDown className="w-3 h-3" />}
+                                    </Link>
 
-                                {/* Dropdown Menu */}
-                                <AnimatePresence>
-                                    {link.dropdown && activeDropdown === link.name && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="absolute top-full left-0 mt-4 bg-black border border-white/10 shadow-lg min-w-[200px]"
-                                        >
-                                            <div className="py-4">
-                                                {link.dropdown.map((item) => (
-                                                    <Link
-                                                        key={item.name}
-                                                        href={item.href}
-                                                        className="block px-6 py-2 text-[10px] uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                                                    >
-                                                        {item.name}
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        ))}
+                                    <AnimatePresence>
+                                        {link.dropdown && activeDropdown === link.name && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 8 }}
+                                                transition={{ duration: 0.18 }}
+                                                className="absolute top-full left-0 mt-3 bg-white border border-gray-100 shadow-lg min-w-[200px]"
+                                            >
+                                                <div className="py-3">
+                                                    {link.dropdown.map((item) => (
+                                                        <Link
+                                                            key={item.name}
+                                                            href={item.href}
+                                                            className="block px-5 py-2 text-[10px] uppercase tracking-widest text-gray-600 hover:text-[#FF0000] hover:bg-gray-50 transition-colors"
+                                                        >
+                                                            {item.name}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            );
+                        })}
                     </div>
 
-                    {/* Right - Icons */}
-                    <div className="flex items-center space-x-4 md:space-x-5">
+                    {/* CENTER — Logo (absolute so it's truly centred) */}
+                    <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
+                        <Image
+                            src="/Eightplus logo.png"
+                            alt="Eightplux Logo"
+                            width={
+143}
+                            height={17.09}
+                            className="object-contain"
+                        />
+                    </Link>
+
+                    {/* RIGHT — Icons */}
+                    <div className="flex items-center gap-5 ml-auto">
                         {/* Search */}
                         <button
                             onClick={() => setSearchOpen(true)}
-                            className="text-white/80 hover:text-white transition-colors"
+                            className="text-black hover:text-[#FF0000] transition-colors"
                         >
-                            <Search className="w-5 h-5" />
+                            <Search className="w-[18px] h-[18px]" />
                         </button>
 
-                        {/* User Account / Login */}
-                        {loading ? (
-                            <div className="w-5 h-5 rounded-full bg-white/20 animate-pulse hidden md:block"></div>
-                        ) : user ? (
-                            <div className="hidden md:flex items-center space-x-4">
-                                {isAdmin && (
-                                    <Link href="/admin" className="text-white/80 hover:text-white transition-colors" title="Admin Dashboard">
-                                        <Shield className="w-5 h-5" />
-                                    </Link>
-                                )}
-                                <Link href="/account" className="text-white/80 hover:text-white transition-colors" title="My Account">
-                                    <User className="w-5 h-5" />
-                                </Link>
-                            </div>
-                        ) : (
-                            <Link href="/login" className="text-white/80 hover:text-white transition-colors hidden md:block">
-                                <User className="w-5 h-5" />
-                            </Link>
-                        )}
-
-                        {/* Wishlist */}
-                        <Link href="/wishlist" className="text-white/80 hover:text-white transition-colors hidden md:block">
-                            <Heart className="w-5 h-5" />
-                        </Link>
-
                         {/* Cart */}
-                        <button onClick={toggleCart} className="relative text-white/80 hover:text-white transition-colors group">
-                            <ShoppingBag className="w-5 h-5" />
+                        <Link href="/cart" className="relative text-black hover:text-[#FF0000] transition-colors group">
+                            <ShoppingBag className="w-[18px] h-[18px]" />
                             {itemCount > 0 && (
-                                <span className="absolute -top-1 -right-2 bg-red-600 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full group-hover:scale-110 transition-transform">
+                                <span className="absolute -top-1 -right-2 bg-[#FF0000] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                                     {itemCount}
                                 </span>
                             )}
-                        </button>
+                        </Link>
 
-                        {/* Currency */}
-                        <div className="hidden md:flex items-center gap-1.5 text-white/80 text-xs font-medium tracking-widest">
-                            <span>🇳🇬</span>
-                            <span>NGN</span>
-                        </div>
+                        {/* User / Account */}
+                        {loading ? (
+                            <div className="w-4 h-4 rounded-full bg-gray-200 animate-pulse hidden md:block" />
+                        ) : user ? (
+                            <div className="hidden md:flex items-center gap-4">
+                                {isAdmin && (
+                                    <Link href="/admin" className="text-black hover:text-[#FF0000] transition-colors" title="Admin Dashboard">
+                                        <Shield className="w-[18px] h-[18px]" />
+                                    </Link>
+                                )}
+                                <Link href="/account" className="text-black hover:text-[#FF0000] transition-colors" title="My Account">
+                                    <User className="w-[18px] h-[18px]" />
+                                </Link>
+                            </div>
+                        ) : (
+                            <Link href="/login" className="text-black hover:text-[#FF0000] transition-colors hidden md:block">
+                                <User className="w-[18px] h-[18px]" />
+                            </Link>
+                        )}
 
-                        {/* Mobile Menu Button */}
+                        {/* Mobile Menu */}
                         <button
-                            className="md:hidden text-white"
+                            className="md:hidden text-black"
                             onClick={() => setMobileMenuOpen(true)}
                         >
                             <Menu className="w-6 h-6" />
@@ -199,7 +181,7 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* Mobile Menu */}
+            {/* ── Mobile Menu ──────────────────────────────────────────────── */}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
@@ -207,22 +189,21 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '-100%' }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-50 bg-[#CCCCCC] md:hidden overflow-y-auto"
+                        className="fixed inset-0 z-50 bg-white md:hidden overflow-y-auto"
                     >
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-12">
-                                <span className="font-display text-xl flex items-center gap-1">
+                                <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                                     <Image
-                                        src="/Copy of 8+ red logo.png"
+                                        src="/Eightplus logo.png"
                                         alt="Eightplux Logo"
-                                        width={24}
-                                        height={24}
+                                        width={64}
+                                        height={64}
                                         className="object-contain"
                                     />
-                                    EIGHTPLU<span className="text-red-600">+</span>
-                                </span>
+                                </Link>
                                 <button onClick={() => setMobileMenuOpen(false)}>
-                                    <X className="w-6 h-6 text-red-500" />
+                                    <X className="w-6 h-6 text-[#FF0000]" />
                                 </button>
                             </div>
 
@@ -232,18 +213,18 @@ export default function Navbar() {
                                         <Link
                                             href={link.href}
                                             onClick={() => setMobileMenuOpen(false)}
-                                            className="block text-2xl font-display uppercase tracking-wide mb-2 text-red-500"
+                                            className="block text-2xl font-bold uppercase tracking-wide mb-2 text-black hover:text-[#FF0000] transition-colors"
                                         >
                                             {link.name}
                                         </Link>
                                         {link.dropdown && (
-                                            <div className="pl-4 space-y-3 border-l-2 border-[#F4F1E9] bg-[#F4F1E9]">
+                                            <div className="pl-4 space-y-3 border-l-2 border-gray-100">
                                                 {link.dropdown.map((item) => (
                                                     <Link
                                                         key={item.name}
                                                         href={item.href}
                                                         onClick={() => setMobileMenuOpen(false)}
-                                                        className="block text-sm text-black hover:text-red-600 transition-colors uppercase tracking-widest"
+                                                        className="block text-sm text-gray-600 hover:text-[#FF0000] transition-colors uppercase tracking-widest"
                                                     >
                                                         {item.name}
                                                     </Link>
@@ -254,27 +235,27 @@ export default function Navbar() {
                                 ))}
                             </div>
 
-                            <div className="mt-12 pt-12 border-t border-[#F4F1E9] flex justify-between">
+                            <div className="mt-12 pt-12 border-t border-gray-100 flex justify-between">
                                 {isAdmin && (
                                     <Link
                                         href="/admin"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center gap-2 text-xs uppercase tracking-widest text-red-500"
+                                        className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#FF0000]"
                                     >
                                         <Shield className="w-4 h-4" /> Admin
                                     </Link>
                                 )}
                                 <Link
-                                    href={user ? "/account" : "/login"}
+                                    href={user ? '/account' : '/login'}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center gap-2 text-xs uppercase tracking-widest text-red-500"
+                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#FF0000] transition-colors"
                                 >
-                                    <User className="w-4 h-4" /> {user ? "Account" : "Login"}
+                                    <User className="w-4 h-4" /> {user ? 'Account' : 'Login'}
                                 </Link>
                                 <Link
                                     href="/wishlist"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center gap-2 text-xs uppercase tracking-widest text-red-500"
+                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#FF0000] transition-colors"
                                 >
                                     <Heart className="w-4 h-4" /> Wishlist
                                 </Link>
@@ -284,14 +265,14 @@ export default function Navbar() {
                 )}
             </AnimatePresence>
 
-            {/* Search Modal */}
+            {/* ── Search Modal ─────────────────────────────────────────────── */}
             <AnimatePresence>
                 {searchOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-sm flex items-start justify-center pt-32"
+                        className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex items-start justify-center pt-32"
                     >
                         <div className="w-full max-w-2xl px-6 relative">
                             <button
@@ -301,7 +282,7 @@ export default function Navbar() {
                                 <X className="w-8 h-8" />
                             </button>
 
-                            <div className="flex items-center border-b-2 border-black dark:border-white pb-4">
+                            <div className="flex items-center border-b-2 border-black pb-4">
                                 <Search className="w-6 h-6 text-gray-400" />
                                 <input
                                     type="text"
@@ -319,7 +300,7 @@ export default function Navbar() {
                                             key={term}
                                             href={`/shop?q=${term}`}
                                             onClick={() => setSearchOpen(false)}
-                                            className="px-4 py-2 border border-gray-200 dark:border-gray-800 text-sm hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                                            className="px-4 py-2 border border-gray-200 text-sm hover:bg-black hover:text-white transition-colors"
                                         >
                                             {term}
                                         </Link>

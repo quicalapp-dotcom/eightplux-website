@@ -1,28 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Play, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProductBySlug } from '@/lib/firebase/products';
 import { Product, ProductColor } from '@/types';
 
-// Mock data for styled with and recently viewed
-const styledWith = [
-    { name: 'Silk Trouser', price: 1100, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H', slug: 'silk-trouser' },
-    { name: 'Derby Boot', price: 1350, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAONEJr7Tczt0KHlX1SSC9TPyHy2oS3b72tPHuAS0ER6awAcq-6kkbN36jPGiG4WzwDRBhjH84FI2lV32n962QW--eTAWvIU1nnnlri9LpQVFjLD5xYTH0Hjp1EgQzdtrm8va5qtpWj9jmdup6kCg7p_LmXTfIvLPvKwlIknIr9gLVfklOK-SAeH9LVaVZ_ZA-4TCSXJXw7PMpXhX54cb8MOqCkXc_hBklTupZwxfdw2po52GXAv7n-fPaRgHl5QqTCQhb7niuSZVDR', slug: 'derby-boot' },
+// Mock data for fallback
+const fallbackStyledWith = [
+    { name: 'Silk Trouser', price: 110, image: '/lt.jpg', slug: 'silk-trouser' },
+    { name: 'Derby Boot', price: 135, image: '/Model2.jpg', slug: 'derby-boot' },
+    { name: 'Technical Coat', price: 250, image: '/tg.jpg', slug: 'technical-coat' },
 ];
 
-const recentlyViewed = [
-    { name: 'Cashmere Hoodie', price: 890, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf' },
-    { name: 'Calfskin Jacket', price: 2450, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCTtHbdm_uh4PzaWhffvpZfH6T4OlMtLtiZLI9nkSZowQ4PN0KqqEDFTugGiWDWmFv0q2ckQQ39RJ01_o0Bk3UinM2fC0VeBSp64oGl0YMdblfZkTa8AQuHVo_p8-q4v60zF8qBvXnc5GHiul-ojGqeMd93h4dF0pYrmbOJ7ZYoUX5MZmOTg5FMnxuCP5oyiSiBRRCQMDiffRAL_tAMEMJR7PXQujRX3knaDXwKUy4NHz8MQmURl-jfFN5evwFUyaKx0tTiK5adRpFW' },
-    { name: 'Studio Knit', price: 650, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL' },
-    { name: 'Mist Tee', price: 120, image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf' },
+const fallbackRecentlyViewed = [
+    { name: 'Cashmere Hoodie', price: 89, image: '/bg.jpg' },
+    { name: 'Calfskin Jacket', price: 245, image: '/bb.jpg' },
+    { name: 'Studio Knit', price: 65, image: '/Model3.jpg' },
+    { name: 'Mist Tee', price: 12, image: '/Model1.jpg' },
 ];
+
+const mockProduct: Product = {
+    id: 'mock-1',
+    name: 'Waistcoat with Pockets',
+    slug: 'waistcoat-pockets',
+    price: 49.90,
+    fabric: 'Technical',
+    images: ['/Model1.jpg', '/Model2.jpg', '/Model3.jpg'],
+    colors: [{ name: 'Black', hex: '#000000' }, { name: 'Grey', hex: '#808080' }],
+    isNew: true,
+    isBestSeller: false,
+    isSale: false,
+    category: 'Waistcoats',
+    currency: 'USD',
+    description: 'Round neck waistcoat featuring front welt pockets, contrast trims, a pleat in the back and metal appliqué fastening in the front.',
+    inventory: 10,
+    sizes: ['S', 'M', 'L'],
+    tags: [],
+    gender: 'women',
+    createdAt: new Date(),
+    updatedAt: new Date()
+};
+
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -30,9 +54,11 @@ export default function ProductDetailPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
-    const [selectedSize, setSelectedSize] = useState('M');
+    const [selectedSize, setSelectedSize] = useState<string>('');
+    const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const { addItem } = useCartStore();
+    const { addItem, showNotification } = useCartStore();
     const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
     const { user } = useAuth();
 
@@ -40,9 +66,15 @@ export default function ProductDetailPage() {
         const fetchProduct = async () => {
             try {
                 const fetchedProduct = await getProductBySlug(slug);
-                setProduct(fetchedProduct);
-                if (fetchedProduct && fetchedProduct.colors.length > 0) {
-                    setSelectedColor(fetchedProduct.colors[0]);
+                if (fetchedProduct) {
+                    setProduct(fetchedProduct);
+                    if (fetchedProduct.colors.length > 0) {
+                        setSelectedColor(fetchedProduct.colors[0]);
+                    }
+                } else {
+                    // Use mock product as fallback if not found in DB
+                    setProduct(mockProduct);
+                    setSelectedColor(mockProduct.colors[0]);
                 }
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -59,7 +91,7 @@ export default function ProductDetailPage() {
     const handleAddToBag = () => {
         if (!product || !selectedColor) return;
 
-        addItem({
+        const newItem = {
             productId: product.id,
             name: product.name,
             price: product.price,
@@ -67,7 +99,10 @@ export default function ProductDetailPage() {
             size: selectedSize,
             color: selectedColor.name,
             quantity: 1,
-        });
+        };
+
+        addItem(newItem);
+        showNotification(newItem);
     };
 
     const handleWishlistToggle = () => {
@@ -79,6 +114,22 @@ export default function ProductDetailPage() {
             addToWishlist(product.id, user.uid);
         }
     };
+    
+    // Click outside handler for size dropdown
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsSizeDropdownOpen(false);
+            }
+        };
+
+        if (isSizeDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSizeDropdownOpen]);
 
     if (loading) {
         return (
@@ -106,227 +157,168 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen">
+        <div className="bg-white text-black min-h-screen pt-[81px]">
             {/* Main Product Section */}
-            <main className="w-full flex flex-col lg:flex-row min-h-screen">
-                {/* Image Gallery - Sticky on Desktop */}
-                <div className="w-full lg:w-[62%] h-[80vh] lg:h-screen lg:sticky lg:top-0 overflow-hidden bg-gray-100 dark:bg-gray-900 relative">
-                    {product.images.length > 0 && (
-                        <Image
-                            src={product.images[currentImageIndex]}
-                            alt={product.name}
-                            fill
-                            className="object-cover object-top"
-                            priority
-                        />
-                    )}
-
-                    {/* Image Navigation */}
-                    {product.images.length > 1 && (
-                        <>
-                            <button
-                                onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1))}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-black/80 flex items-center justify-center hover:bg-white dark:hover:bg-black transition-colors"
-                            >
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => setCurrentImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1))}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-black/80 flex items-center justify-center hover:bg-white dark:hover:bg-black transition-colors"
-                            >
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        </>
-                    )}
-
-                    {/* Reference Number */}
-                    <div className="absolute bottom-8 left-8 z-10 hidden lg:block">
-                        <p className="text-[10px] uppercase tracking-widest text-white/70">Ref. {product.id}</p>
+            <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
+                <div className="flex flex-col lg:flex-row gap-16">
+                    
+                    {/* Image Gallery (Left) */}
+                    <div className="flex-1 flex gap-4 h-fit">
+                        {/* Thumbnails (Vertical) */}
+                        <div className="hidden md:flex flex-col gap-4 w-24">
+                            {product.images.map((img, idx) => (
+                                <button 
+                                    key={idx} 
+                                    onClick={() => setCurrentImageIndex(idx)}
+                                    className={`aspect-[3/4] relative border border-gray-100 dark:border-gray-800 overflow-hidden ${currentImageIndex === idx ? 'ring-1 ring-black dark:ring-white' : ''}`}
+                                >
+                                    <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                        
+                        {/* Main Image */}
+                        <div className="flex-1 aspect-[3/4] relative bg-[#F6F6F6] dark:bg-gray-900 border border-gray-100 dark:border-gray-800 overflow-hidden">
+                            <Image
+                                src={product.images[currentImageIndex]}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
                     </div>
 
-                    {/* Wishlist Button */}
-                    <button 
-                        onClick={handleWishlistToggle}
-                        className="absolute top-24 right-6 w-10 h-10 bg-white/80 dark:bg-black/80 flex items-center justify-center hover:bg-white dark:hover:bg-black transition-colors"
-                    >
-                        <Heart 
-                            className={`w-5 h-5 transition-colors ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-800 dark:text-gray-200'}`} 
-                        />
-                    </button>
-                </div>
+                    {/* Product Info (Right) */}
+                    <div className="w-full lg:w-[450px] shrink-0 space-y-10">
+                        {/* Breadcrumbs */}
+                        <nav className="text-[10px] uppercase font-bold tracking-widest text-gray-400">
+                            Homepage / Catalog / {product.category}
+                        </nav>
 
-                {/* Product Info Panel */}
-                <div className="w-full lg:w-[38%] bg-white dark:bg-[#0F0F0F] flex flex-col pt-12 pb-24 px-6 md:px-12 lg:pt-32 lg:px-16 overflow-y-auto">
-                    {/* Breadcrumbs */}
-                    <div className="flex items-center space-x-2 text-[10px] uppercase tracking-widest text-gray-400 mb-8">
-                        <Link href="/shop" className="hover:text-black dark:hover:text-white">Shop</Link>
-                        <span>/</span>
-                        <Link href={`/shop?category=${product.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{product.category}</Link>
-                        <span>/</span>
-                        <span className="text-black dark:text-white">{product.name.split(' ')[1]}</span>
-                    </div>
+                        {/* Title & Price */}
+                        <div className="space-y-4">
+                            <h1 className="text-3xl md:text-4xl font-bold uppercase tracking-[0.1em] leading-[1.1]">
+                                {product.name}
+                            </h1>
+                            <p className="text-2xl font-bold tracking-widest">
+                                ${product.price}
+                            </p>
+                        </div>
 
-                    {/* Title & Price */}
-                    <div className="mb-10">
-                        <h1 className="text-4xl md:text-5xl font-display font-bold uppercase tracking-wide leading-tight mb-2">
-                            {product.name}
-                        </h1>
-                        <p className="text-xl font-light tracking-wide">
-                            {product.currency === 'USD' ? `$${product.price.toLocaleString()}` : `₦${product.price.toLocaleString()}`}
-                        </p>
-                    </div>
-
-                    {/* Description */}
-                    <div className="mb-10 border-t border-gray-100 dark:border-gray-800 pt-6">
-                        <p className="text-sm font-light leading-relaxed text-gray-600 dark:text-gray-300">
-                            {product.description}
-                        </p>
-                        <button className="mt-4 text-[10px] uppercase font-bold tracking-widest underline underline-offset-4 decoration-1 decoration-gray-300 hover:decoration-black dark:hover:decoration-white transition-all">
-                            View Full Details
-                        </button>
-                    </div>
-
-                    {/* Options */}
-                    <div className="space-y-8 mb-12">
-                        {/* Color Selection */}
-                        {product.colors && product.colors.length > 0 && (
-                            <div>
-                                <span className="block text-[10px] uppercase tracking-widest font-bold mb-3">
-                                    Color — {selectedColor?.name || 'Select Color'}
-                                </span>
-                                <div className="flex space-x-3">
-                                    {product.colors.map((color) => (
-                                        <button
-                                            key={color.name}
-                                            onClick={() => setSelectedColor(color)}
-                                            className={`w-8 h-8 rounded-full hover:scale-110 transition-transform ${selectedColor?.name === color.name
-                                                ? 'ring-2 ring-offset-2 ring-black dark:ring-white'
-                                                : 'border border-gray-300'
-                                                }`}
-                                            style={{ backgroundColor: color.hex }}
-                                        />
-                                    ))}
+                        {/* Description & Summary Grid */}
+                        <div className="grid grid-cols-2 gap-8 border-t border-gray-100 dark:border-gray-800 pt-8 pb-4">
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Description</h4>
+                                <p className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60">
+                                    {product.description || "Round neck waistcoat featuring front welt pockets, contrast trims, a pleat in the back and metal appliqué fastening in the front."}
+                                </p>
+                            </div>
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Summary</h4>
+                                <div className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60 space-y-1">
+                                    <p>Color: {selectedColor?.name || 'Navy Blue'}</p>
+                                    <p>Height of model: 177 cm. / 5' 9"</p>
+                                    <p className="opacity-40">{product.id}</p>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         {/* Size Selection */}
-                        {product.sizes && product.sizes.length > 0 && (
-                            <div>
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-[10px] uppercase tracking-widest font-bold">Size</span>
-                                    <button className="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white underline decoration-dotted">
-                                        Size Guide
-                                    </button>
+                        <div className="space-y-6 relative" ref={dropdownRef}>
+                            <div 
+                                onClick={() => setIsSizeDropdownOpen(!isSizeDropdownOpen)}
+                                className="flex justify-between items-center border border-gray-100 dark:border-gray-800 px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-all group"
+                            >
+                                <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 group-hover:text-black transition-colors">Choose size</span>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-[10px] uppercase font-bold tracking-widest">{selectedSize || '-'}</span>
+                                    <span className={`text-[8px] transition-transform duration-300 ${isSizeDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
                                 </div>
-                                <div className="grid grid-cols-4 gap-2">
+                            </div>
+
+                            {/* Custom Dropdown List */}
+                            {isSizeDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 z-20 bg-white border border-t-0 border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                     {product.sizes.map((size) => (
                                         <button
                                             key={size}
-                                            onClick={() => setSelectedSize(size)}
-                                            className={`h-10 border flex items-center justify-center text-xs transition-colors ${selectedSize === size
-                                                ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-bold'
-                                                : 'border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white'
-                                                }`}
+                                            onClick={() => {
+                                                setSelectedSize(size);
+                                                setIsSizeDropdownOpen(false);
+                                            }}
+                                            className="w-full text-left px-6 py-4 text-[10px] uppercase font-bold tracking-widest hover:bg-black hover:text-white transition-colors border-b border-gray-50 last:border-0"
                                         >
                                             {size}
                                         </button>
                                     ))}
                                 </div>
+                            )}
+
+                            <button
+                                onClick={handleAddToBag}
+                                className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-between px-8 items-center hover:bg-black transition-colors"
+                            >
+                                Add to cart <span className="text-xl">+</span>
+                            </button>
+                        </div>
+
+                        {/* Match With Section - Mock fallbacks */}
+                        <div className="border-t border-gray-100 dark:border-gray-800 pt-12 mt-12 pb-20">
+                            <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] text-gray-400 mb-10">Match with</h3>
+                            <div className="grid grid-cols-3 gap-4">
+                                {fallbackStyledWith.map((item) => (
+                                    <Link key={item.name} href={`/shop/${item.slug}`} className="group space-y-4">
+                                        <div className="aspect-[3/4] bg-[#F6F6F6] relative border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                            <Image
+                                                src={item.image}
+                                                alt={item.name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="space-y-1 uppercase tracking-widest font-bold">
+                                            <h4 className="text-[9px] leading-tight text-gray-400 group-hover:text-black transition-colors">
+                                                {item.name}
+                                            </h4>
+                                            <div className="flex gap-2 text-[9px]">
+                                                <span>${item.price}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
-                        )}
-                    </div>
-
-                    {/* Add to Bag */}
-                    <button
-                        onClick={handleAddToBag}
-                        disabled={!selectedColor}
-                        className="w-full bg-black dark:bg-white text-white dark:text-black py-4 uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Add to Bag
-                    </button>
-                    <p className="text-[10px] text-center text-gray-400 uppercase tracking-wider">
-                        Free global shipping on orders over $500
-                    </p>
-
-                    {/* Styled With */}
-                    <div className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
-                        <h3 className="font-display text-lg uppercase tracking-widest mb-6">Styled With</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            {styledWith.map((item) => (
-                                <Link key={item.name} href={`/shop/${item.slug}`} className="group">
-                                    <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3 relative">
-                                        <Image
-                                            src={item.image}
-                                            alt={item.name}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-baseline">
-                                        <span className="text-[10px] uppercase tracking-wider font-bold group-hover:underline">
-                                            {item.name}
-                                        </span>
-                                        <span className="text-[10px]">${item.price.toLocaleString()}</span>
-                                    </div>
-                                </Link>
-                            ))}
+                            
+                            <button className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] mt-10 hover:bg-black transition-colors text-center">
+                                Go to cart
+                            </button>
                         </div>
                     </div>
                 </div>
-            </main>
 
-            {/* Campaign Section */}
-            <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden bg-black">
-                <Image
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAO_vifb1VnEqFLh1n8Fxl68TVv6M_pnPq49qCwoBGHnQvrVQI-gNer1GMv8dRChHk_1Gw0LaIutYDPCBO3jn3R3iLgYIsIrIYrI9jwcomDKDz1RPYWxaZfEeC9_ISBJS0V8yNjl1ct0crXQUSIZd_5P92H8msPM71HdG5Ojw81AEoff9Vl_JU3vnkf-0X1VPKyCK3o9zasQRfKcwqi4bS9snzaB9MqZBBOgYR7hsEqYA8i9k1Ocsy5_pRGixoSoK3ijNscR_e_lL_"
-                    alt="Campaign Visual"
-                    fill
-                    className="object-cover opacity-70"
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-6">
-                    <h2 className="text-4xl md:text-7xl font-display uppercase tracking-widest mb-4 text-center">
-                        In Motion
-                    </h2>
-                    <button className="flex items-center gap-3 group">
-                        <div className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-                            <Play className="w-5 h-5 ml-0.5" />
-                        </div>
-                        <span className="text-xs uppercase tracking-[0.2em] font-medium">Watch Campaign</span>
-                    </button>
-                </div>
-            </section>
-
-            {/* Recently Viewed */}
-            <section className="py-20 bg-white dark:bg-[#0F0F0F] border-b border-gray-100 dark:border-gray-900">
-                <div className="container mx-auto px-6">
-                    <h3 className="text-xl font-display uppercase tracking-widest mb-10 text-center md:text-left">
-                        Recently Viewed
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-                        {recentlyViewed.map((item) => (
-                            <div key={item.name} className="group relative bg-white dark:bg-[#141414] overflow-hidden">
-                                <div className="aspect-[3/4] overflow-hidden relative">
+                {/* You Can Also Check Section - Mock fallbacks */}
+                <div className="mt-32 border-t border-gray-100 dark:border-gray-800 pt-20">
+                    <h1 className="text-lg font-bold uppercase tracking-[0.1em] mb-12 px-2">You can also check</h1>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                        {fallbackRecentlyViewed.map((item, idx) => (
+                            <div key={idx} className="group cursor-pointer">
+                                <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] dark:bg-gray-900 overflow-hidden border border-gray-100 dark:border-gray-800">
                                     <Image
                                         src={item.image}
                                         alt={item.name}
                                         fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
-                                <div className="p-4">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <h3 className="text-xs font-display font-semibold uppercase tracking-wider">
-                                            {item.name}
-                                        </h3>
-                                        <span className="text-xs font-light">${item.price}</span>
-                                    </div>
+                                <div className="space-y-2 uppercase tracking-widest text-[10px] font-bold px-2">
+                                    <h3 className="leading-tight text-gray-500 group-hover:text-black transition-colors">{item.name}</h3>
+                                    <p>${item.price}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
-            </section>
+            </main>
         </div>
     );
 }
