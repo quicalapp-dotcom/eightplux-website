@@ -19,22 +19,22 @@ export default function CampaignBanner({ image, showButtons }: CampaignBannerPro
         className="object-cover brightness-75"
       />
       <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center">
-        <h2 className="text-white text-3xl md:text-5xl lg:text-7xl font-bold uppercase tracking-[0.3em] leading-tight drop-shadow-2xl mb-12">
-          dress easy <br className="md:hidden" />
-          live <span className="text-[#FF0000]">bold</span>
-        </h2>
+          <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-light tracking-[0.15em] uppercase leading-[1.1] font-tt">
+            every look is a <br />
+            <span className="text-[#C72f32] font-black tracking-[0.05em]">statement</span>
+          </h1>
         
         {showButtons && (
-          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-lg px-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg mx-auto px-4">
             <Link 
               href="/shop?category=men"
-              className="flex-1 bg-white text-black py-4 px-8 text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl"
+              className="bg-white text-black py-4 px-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl w-full"
             >
               SHOP MEN
             </Link>
             <Link 
               href="/shop?category=women"
-              className="flex-1 bg-white text-black py-4 px-8 text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl"
+              className="bg-white text-black py-4 px-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl w-full"
             >
               SHOP WOMEN
             </Link>

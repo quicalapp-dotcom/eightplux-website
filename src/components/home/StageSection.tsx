@@ -4,20 +4,23 @@ interface StageSectionProps {
 
 export default function StageSection({ image }: StageSectionProps) {
   return (
-    <section className="relative h-[80vh] w-full overflow-hidden flex items-end justify-center pb-20 bg-gray-800">
-      <div className="absolute inset-0 z-0">
+    <section className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center bg-gray-800">
+      <div className="absolute inset-0 z-0 text-center">
         <img
           alt="Eightplux stage"
-          className="w-full h-full object-cover object-center brightness-[0.6]"
+          className="w-full h-full object-cover object-center brightness-[0.5]"
           src={image}
         />
       </div>
       <div className="relative z-10 text-center px-4 w-full">
-        <h2 className="text-5xl md:text-7xl lg:text-8xl font-light text-white leading-tight mb-8">
-          the <span className="text-[#FF0000] font-bold">stage</span> is yours
+        <h2 className="text-6xl md:text-8xl lg:text-9xl font-thin text-white leading-[0.85] mb-12 font-tt flex flex-col items-center tracking-tighter">
+          <span className="lowercase drop-shadow-md">
+            <span className="text-[#C72f32] font-normal">define</span> your
+          </span>
+          <span className="lowercase text-white/90">statement</span>
         </h2>
-        <div className="flex justify-center">
-          <button className="bg-white/50 backdrop-blur-sm border border-white text-white px-12 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#FF0000] hover:border-[#FF0000] transition-all duration-300">
+        <div className="flex justify-center w-full max-w-xs sm:max-w-none mx-auto">
+          <button className="bg-white/30 backdrop-blur-md border border-white/20 text-white px-16 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all duration-500 w-full sm:w-auto">
             explore
           </button>
         </div>

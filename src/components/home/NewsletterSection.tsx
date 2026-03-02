@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function NewsletterSection() {
   return (
-    <section className="bg-[#1C1C1C] text-white py-24 px-6 md:px-20 lg:px-32">
+    <section className="bg-[#1C1C1C] text-white py-24 px-6 md:px-20 lg:px-32 font-metropolis">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-16">
         {/* Left Side: Content */}
         <div className="space-y-4 max-w-2xl">
@@ -27,7 +27,7 @@ export default function NewsletterSection() {
             />
             <button
               type="submit"
-              className="absolute right-0 bottom-3 text-base md:text-lg font-bold uppercase tracking-[0.2em] hover:text-[#FF0000] transition-colors pb-1"
+              className="absolute right-0 bottom-3 text-base md:text-lg font-bold uppercase tracking-[0.2em] hover:text-[#C72f32] transition-colors pb-1"
             >
               Join
             </button>

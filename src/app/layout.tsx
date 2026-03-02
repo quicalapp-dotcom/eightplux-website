@@ -55,6 +55,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${playfair.variable} ${dancingScript.variable} ${cinzel.variable} ${inter.variable}`}>
       <head>
+        <link href="https://fonts.cdnfonts.com/css/tt-runs" rel="stylesheet" />
+        <link href="https://fonts.cdnfonts.com/css/metropolis-2" rel="stylesheet" />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"

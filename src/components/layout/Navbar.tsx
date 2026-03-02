@@ -66,7 +66,7 @@ export default function Navbar() {
     return (
         <>
             {/* ── Desktop Navbar ───────────────────────────────────────────── */}
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
+            <nav className="absolute top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
                 <div className="mx-auto px-6 md:px-10 h-[60px] flex items-center relative">
 
                     {/* LEFT — Nav links */}
@@ -83,7 +83,7 @@ export default function Navbar() {
                                     <Link
                                         href={link.href}
                                         className={`text-[11px] font-semibold tracking-widest uppercase flex items-center gap-0.5 transition-colors ${
-                                            isActive ? 'text-[#FF0000]' : 'text-black hover:text-[#FF0000]'
+                                            isActive ? 'text-[#C72f32]' : 'text-black hover:text-[#C72f32]'
                                         }`}
                                     >
                                         {link.name}
@@ -104,7 +104,7 @@ export default function Navbar() {
                                                         <Link
                                                             key={item.name}
                                                             href={item.href}
-                                                            className="block px-5 py-2 text-[10px] uppercase tracking-widest text-gray-600 hover:text-[#FF0000] hover:bg-gray-50 transition-colors"
+                                                            className="block px-5 py-2 text-[10px] uppercase tracking-widest text-gray-600 hover:text-[#C72f32] hover:bg-gray-50 transition-colors"
                                                         >
                                                             {item.name}
                                                         </Link>
@@ -121,7 +121,7 @@ export default function Navbar() {
                     {/* CENTER — Logo (absolute so it's truly centred) */}
                     <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
                         <Image
-                            src="/Eightplus logo.png"
+                            src="/EIghtplu+ logo.png"
                             alt="Eightplux Logo"
                             width={
 143}
@@ -135,16 +135,16 @@ export default function Navbar() {
                         {/* Search */}
                         <button
                             onClick={() => setSearchOpen(true)}
-                            className="text-black hover:text-[#FF0000] transition-colors"
+                            className="text-black hover:text-[#C72f32] transition-colors"
                         >
                             <Search className="w-[18px] h-[18px]" />
                         </button>
 
                         {/* Cart */}
-                        <Link href="/cart" className="relative text-black hover:text-[#FF0000] transition-colors group">
+                        <Link href="/cart" className="relative text-black hover:text-[#C72f32] transition-colors group">
                             <ShoppingBag className="w-[18px] h-[18px]" />
                             {itemCount > 0 && (
-                                <span className="absolute -top-1 -right-2 bg-[#FF0000] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                                <span className="absolute -top-1 -right-2 bg-[#C72f32] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                                     {itemCount}
                                 </span>
                             )}
@@ -156,16 +156,16 @@ export default function Navbar() {
                         ) : user ? (
                             <div className="hidden md:flex items-center gap-4">
                                 {isAdmin && (
-                                    <Link href="/admin" className="text-black hover:text-[#FF0000] transition-colors" title="Admin Dashboard">
+                                    <Link href="/admin" className="text-black hover:text-[#C72f32] transition-colors" title="Admin Dashboard">
                                         <Shield className="w-[18px] h-[18px]" />
                                     </Link>
                                 )}
-                                <Link href="/account" className="text-black hover:text-[#FF0000] transition-colors" title="My Account">
+                                <Link href="/account" className="text-black hover:text-[#C72f32] transition-colors" title="My Account">
                                     <User className="w-[18px] h-[18px]" />
                                 </Link>
                             </div>
                         ) : (
-                            <Link href="/login" className="text-black hover:text-[#FF0000] transition-colors hidden md:block">
+                            <Link href="/login" className="text-black hover:text-[#C72f32] transition-colors hidden md:block">
                                 <User className="w-[18px] h-[18px]" />
                             </Link>
                         )}
@@ -195,7 +195,7 @@ export default function Navbar() {
                             <div className="flex justify-between items-center mb-12">
                                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                                     <Image
-                                        src="/Eightplus logo.png"
+                                        src="/EIghtplu+ logo.png"
                                         alt="Eightplux Logo"
                                         width={64}
                                         height={64}
@@ -203,7 +203,7 @@ export default function Navbar() {
                                     />
                                 </Link>
                                 <button onClick={() => setMobileMenuOpen(false)}>
-                                    <X className="w-6 h-6 text-[#FF0000]" />
+                                    <X className="w-6 h-6 text-[#C72f32]" />
                                 </button>
                             </div>
 
@@ -213,7 +213,7 @@ export default function Navbar() {
                                         <Link
                                             href={link.href}
                                             onClick={() => setMobileMenuOpen(false)}
-                                            className="block text-2xl font-bold uppercase tracking-wide mb-2 text-black hover:text-[#FF0000] transition-colors"
+                                            className="block text-2xl font-bold uppercase tracking-wide mb-2 text-black hover:text-[#C72f32] transition-colors"
                                         >
                                             {link.name}
                                         </Link>
@@ -224,7 +224,7 @@ export default function Navbar() {
                                                         key={item.name}
                                                         href={item.href}
                                                         onClick={() => setMobileMenuOpen(false)}
-                                                        className="block text-sm text-gray-600 hover:text-[#FF0000] transition-colors uppercase tracking-widest"
+                                                        className="block text-sm text-gray-600 hover:text-[#C72f32] transition-colors uppercase tracking-widest"
                                                     >
                                                         {item.name}
                                                     </Link>
@@ -240,7 +240,7 @@ export default function Navbar() {
                                     <Link
                                         href="/admin"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#FF0000]"
+                                        className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#C72f32]"
                                     >
                                         <Shield className="w-4 h-4" /> Admin
                                     </Link>
@@ -248,14 +248,14 @@ export default function Navbar() {
                                 <Link
                                     href={user ? '/account' : '/login'}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#FF0000] transition-colors"
+                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#C72f32] transition-colors"
                                 >
                                     <User className="w-4 h-4" /> {user ? 'Account' : 'Login'}
                                 </Link>
                                 <Link
                                     href="/wishlist"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#FF0000] transition-colors"
+                                    className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-[#C72f32] transition-colors"
                                 >
                                     <Heart className="w-4 h-4" /> Wishlist
                                 </Link>
