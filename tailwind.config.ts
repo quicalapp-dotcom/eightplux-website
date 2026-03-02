@@ -26,11 +26,13 @@ const config: Config = {
                 "card-dark": "#171717",
             },
             fontFamily: {
-                sans: ['Montserrat', 'sans-serif'],
+                sans: ['Montserrat', 'TT Runs', 'sans-serif'],
                 serif: ['Playfair Display', 'serif'],
                 script: ['Dancing Script', 'cursive'],
                 display: ["var(--font-playfair)", "serif"],
                 logo: ["var(--font-cinzel)", "serif"],
+                tt: ['TT Runs', 'sans-serif'],
+                metropolis: ['Metropolis', 'sans-serif'],
             },
             fontSize: {
                 '10xl': '10rem',

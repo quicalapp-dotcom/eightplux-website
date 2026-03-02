@@ -3,77 +3,84 @@ import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#000000] text-white py-20 px-6 md:px-12">
+    <footer className="bg-[#000000] text-white py-20 px-6 md:px-12 font-metropolis">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-          {/* ABOUT US */}
-          <div className="lg:pr-12">
-            <h3 className="text-lg font-black uppercase mb-8 tracking-widest">ABOUT US</h3>
-            <p className="text-sm font-light leading-relaxed opacity-80 text-justify md:text-left">
-              Eightplux is a clothing brand focused on everyday movement,
-              comfort, and self-expression. We design thoughtfully made pieces
-              intended to be worn often and lived in fully — clothing that
-              supports real life rather than standing apart from it. Rooted in
-              intention and subtle design, each collection is created to move
-              with you, adapt to your routine, and feel natural wherever your
-              day takes you.
-            </p>
-          </div>
-
-          {/* SHOP */}
-          <div className="lg:pl-12">
-            <h3 className="text-lg font-black uppercase mb-8 tracking-widest">SHOP</h3>
-            <ul className="space-y-4 text-sm font-medium opacity-80">
-              <li><Link href="/shop" className="hover:opacity-100 transition-opacity">All Products</Link></li>
-              <li><Link href="/shop?category=skirts" className="hover:opacity-100 transition-opacity">Skirts</Link></li>
-              <li><Link href="/shop?category=shoes" className="hover:opacity-100 transition-opacity">Shoes</Link></li>
-              <li><Link href="/shop?category=accessories" className="hover:opacity-100 transition-opacity">Accessories</Link></li>
-              <li><Link href="/shop?category=shorts" className="hover:opacity-100 transition-opacity">Shorts</Link></li>
-              <li><Link href="/shop?category=tops" className="hover:opacity-100 transition-opacity">Tops</Link></li>
+          {/* FEATURES */}
+          <div>
+            <h3 className="text-sm font-black uppercase mb-8 tracking-widest">FEATURES</h3>
+            <ul className="space-y-4 text-[10px] font-medium opacity-80 uppercase tracking-widest">
+              <li><Link href="/" className="hover:opacity-100 transition-opacity">Home</Link></li>
+              <li><Link href="/shop" className="hover:opacity-100 transition-opacity">Shop</Link></li>
+              <li><Link href="/campaign" className="hover:opacity-100 transition-opacity">Campaign</Link></li>
+              <li><Link href="/world-of-8" className="hover:opacity-100 transition-opacity">The World of 8+</Link></li>
             </ul>
           </div>
 
-          {/* LEGAL */}
+          {/* MENU */}
           <div>
-            <h3 className="text-lg font-black uppercase mb-8 tracking-widest">LEGAL</h3>
-            <ul className="space-y-4 text-sm font-medium opacity-80">
-              <li><Link href="/privacy-policy" className="hover:opacity-100 transition-opacity">Privacy Policy</Link></li>
-              <li><Link href="/refund-policy" className="hover:opacity-100 transition-opacity">Refund Policy</Link></li>
-              <li><Link href="/terms-of-use" className="hover:opacity-100 transition-opacity">Terms of Use</Link></li>
+            <h3 className="text-sm font-black uppercase mb-8 tracking-widest">MENU</h3>
+            <ul className="space-y-4 text-[10px] font-medium opacity-80 uppercase tracking-widest">
+              <li><Link href="/about" className="hover:opacity-100 transition-opacity">About Us</Link></li>
+              <li><Link href="/contact" className="hover:opacity-100 transition-opacity">Contact Us</Link></li>
+              <li><Link href="/account" className="hover:opacity-100 transition-opacity">My Account</Link></li>
+              <li><Link href="/login" className="hover:opacity-100 transition-opacity">Login</Link></li>
             </ul>
           </div>
 
           {/* CONTACT US */}
           <div>
-            <h3 className="text-lg font-black uppercase mb-8 tracking-widest">CONTACT US</h3>
-            <p className="text-sm font-medium mb-8 opacity-80 leading-relaxed">
-              Have a question? Give us a call or fill out the contact form. We'd love to hear from you
-            </p>
-            <div className="space-y-3 mb-8">
-              <p className="text-sm font-medium">+234 809 0000 0000</p>
-              <p className="text-sm font-medium">support@eightplux.com</p>
+            <h3 className="text-sm font-black uppercase mb-8 tracking-widest">CONTACT US</h3>
+            <div className="space-y-6 text-[10px] font-medium opacity-80 uppercase tracking-widest">
+              <div>
+                <p className="mb-1 opacity-60">Address:</p>
+                <p>123 Eight Close, Lagos</p>
+              </div>
+              <div>
+                <p className="mb-1 opacity-60">Phone:</p>
+                <p>+234 809 222 4579</p>
+              </div>
+              <div>
+                <p className="mb-1 opacity-60">Email:</p>
+                <p>Hello@eightplux.com</p>
+              </div>
+              <div>
+                <p className="mb-1 opacity-60">Working Days/Hours:</p>
+                <p>Mon - Sun / 9:00am - 8:00pm</p>
+              </div>
             </div>
-            <div className="flex gap-4">
-              <a href="#" className="p-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors">
-                <Facebook size={18} strokeWidth={1.5} />
-              </a>
-              <a href="#" className="p-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors">
-                <Instagram size={18} strokeWidth={1.5} />
-              </a>
-              <a href="#" className="p-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors">
-                <Twitter size={18} strokeWidth={1.5} />
-              </a>
-              <a href="#" className="p-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors">
-                <Youtube size={18} strokeWidth={1.5} />
-              </a>
-            </div>
+          </div>
+
+          {/* FOLLOW US */}
+          <div>
+            <h3 className="text-sm font-black uppercase mb-8 tracking-widest">FOLLOW US</h3>
+            <ul className="space-y-6 text-[10px] font-medium opacity-80 uppercase tracking-widest">
+              <li>
+                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                  <span className="p-1 bg-white text-black"><Facebook size={14} fill="currentColor" /></span>
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                  <span className="p-1 bg-white text-black"><Twitter size={14} fill="currentColor" /></span>
+                  Twitter
+                </a>
+              </li>
+              <li>
+                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                  <span className="p-1 bg-white text-black"><Instagram size={14} fill="currentColor" /></span>
+                  Instagram
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
         <hr className="border-white/20 mb-12" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center text-[10px] md:text-sm font-medium opacity-60">
-          <p>© 2025, EightPlux. All Rights Reserved.</p>
+        <div className="flex flex-col md:flex-row justify-between items-center text-[10px] font-medium opacity-60 uppercase tracking-widest">
+          <p>© 2026 EightPlux</p>
         </div>
       </div>
     </footer>
