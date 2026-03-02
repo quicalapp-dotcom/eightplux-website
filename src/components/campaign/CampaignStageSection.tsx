@@ -25,15 +25,17 @@ export default function CampaignStageSection({
       />
       <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center">
         <h2 className="text-white text-3xl md:text-5xl lg:text-7xl font-light tracking-[0.2em] uppercase leading-tight mb-12 drop-shadow-xl">
-          the <span className="text-[#FF0000] font-black italic">stage</span> is yours
+          the <span className="text-[#C72f32] font-black italic">stage</span> is yours
         </h2>
         
-        <Link 
-          href={buttonHref}
-          className="inline-block border border-white/50 text-white px-16 py-4 text-[11px] font-bold uppercase tracking-[0.5em] hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm"
-        >
-          {buttonText}
-        </Link>
+        <div className="flex justify-center w-full max-w-xs sm:max-w-none mx-auto px-4">
+          <Link 
+            href={buttonHref}
+            className="inline-block border border-white/50 text-white px-16 py-4 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.5em] hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm w-full sm:w-auto text-center"
+          >
+            {buttonText}
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -19,13 +19,13 @@ export default function SportSection({ image }: SportSectionProps) {
           </span>
         </div>
         <h2 className="text-4xl md:text-7xl font-light text-white mb-10">
-          play <span className="text-[#FF0000] font-bold">beyond</span> limit
+          play <span className="text-[#C72f32] font-bold">beyond</span> limit
         </h2>
-        <div className="flex flex-col sm:flex-row justify-center gap-6">
-          <button className="bg-white text-black px-10 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#FF0000] hover:text-white transition-all duration-300 w-40">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-xs sm:max-w-none mx-auto">
+          <button className="bg-white text-black px-10 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-40">
             explore
           </button>
-          <button className="bg-white text-black px-10 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#FF0000] hover:text-white transition-all duration-300 w-40">
+          <button className="bg-white text-black px-10 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-40">
             watch
           </button>
         </div>

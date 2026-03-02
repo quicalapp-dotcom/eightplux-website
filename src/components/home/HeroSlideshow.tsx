@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 const SLIDE_INTERVAL_MS = 10_000;
 
@@ -17,7 +18,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
   const total = slides.length;
 
   const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % total);
+    setCurrent((prev: number) => (prev + 1) % total);
   }, [total]);
 
   useEffect(() => {
@@ -49,17 +50,28 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
 
       <div className="relative z-10 text-center px-4 w-full max-w-7xl mx-auto mt-32">
         <h1 className="text-4xl md:text-6xl lg:text-8xl font-light text-white leading-tight tracking-tight mb-8">
-          yOu've been <span className="text-[#FF0000] font-bold">grounded</span><br />
+          yOu've been <span className="text-[#C72f32] font-bold">grounded</span><br />
           long enough
         </h1>
         <div className="relative mb-16">
-          <h2 className="font-[Dancing_Script] text-6xl md:text-8xl text-[#FF0000] transform -rotate-6 opacity-90 inline-block drop-shadow-lg">
+          <h2 className="font-[Dancing_Script] text-6xl md:text-8xl text-[#C72f32] transform -rotate-6 opacity-90 inline-block drop-shadow-lg">
             Let it Fly
           </h2>
         </div>
-        <button className="bg-white text-black px-14 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#FF0000] hover:text-white transition-all duration-300 min-w-[180px]">
-          Shop Now
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-lg mx-auto px-4">
+          <Link 
+            href="/shop?category=men"
+            className="bg-white text-black px-12 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-[180px] text-center"
+          >
+            Shop XX
+          </Link>
+          <Link 
+            href="/shop?category=women"
+            className="bg-white text-black px-12 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-[180px] text-center"
+          >
+            Shop XY
+          </Link>
+        </div>
       </div>
 
       {/* Dot indicators */}

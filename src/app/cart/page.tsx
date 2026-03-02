@@ -154,7 +154,7 @@ export default function CartPage() {
                                 </p>
                                 <button 
                                     onClick={() => removeItem(item.productId, item.size, item.color)}
-                                    className="text-[10px] uppercase font-bold tracking-widest text-[#FF0000] mt-4"
+                                    className="text-[10px] uppercase font-bold tracking-widest text-[#C72f32] mt-4"
                                 >
                                     Remove
                                 </button>

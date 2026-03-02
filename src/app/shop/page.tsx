@@ -138,7 +138,7 @@ export default function ShopPage() {
                                                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
                                             {product.isSale && (
-                                                <div className="absolute top-4 left-4 z-10 bg-[#FF0000] text-white px-3 py-1 text-[10px] uppercase font-bold tracking-widest">
+                                                <div className="absolute top-4 left-4 z-10 bg-[#C72f32] text-white px-3 py-1 text-[10px] uppercase font-bold tracking-widest">
                                                     Sale
                                                 </div>
                                             )}
@@ -153,7 +153,7 @@ export default function ShopPage() {
                                         <div className="flex gap-2 text-gray-500">
                                             {product.isSale && product.compareAtPrice ? (
                                                 <>
-                                                    <span className="text-[#FF0000] underline decoration-1 underline-offset-4">${product.price}</span>
+                                                    <span className="text-[#C72f32] underline decoration-1 underline-offset-4">${product.price}</span>
                                                     <span className="line-through opacity-50">${product.compareAtPrice}</span>
                                                 </>
                                             ) : (
