@@ -11,35 +11,38 @@ interface CampaignBannerProps {
 
 export default function CampaignBanner({ image, showButtons }: CampaignBannerProps) {
   return (
-    <section className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center">
-      <Image
-        src={image}
-        alt="Banner"
-        fill
-        className="object-cover brightness-75"
-      />
-      <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center">
-          <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-thin tracking-[0.15em] leading-[1.1] font-tt lowercase">
-            every look is a <br />
-            <span className="text-[#C72f32] font-bold tracking-[0.05em]">statement</span>
+    <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">
+      <div className="relative w-full">
+        <Image
+          src={image}
+          alt="Banner"
+          width={1920}
+          height={1080}
+          className="w-full h-auto block brightness-75"
+          priority
+        />
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
+          <h1 className="text-white text-5xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] font-tt lowercase">
+            dress easy live <span className="text-[#C72f32] font-medium">bold</span>
           </h1>
         
         {showButtons && (
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg mx-auto px-4">
             <Link 
-              href="/shop?category=men"
-              className="bg-white text-black py-4 px-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl w-full"
+              href="/shop"
+              className="bg-white text-black py-4 px-12 text-sm font-medium  tracking-tight hover:bg-black hover:text-white transition-all duration-300 text-center w-full"
             >
-              SHOP MEN
+              Shop XX
             </Link>
             <Link 
-              href="/shop?category=women"
-              className="bg-white text-black py-4 px-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all duration-300 text-center shadow-xl w-full"
+              href="/shop"
+              className="bg-white text-black py-4 px-12 text-sm font-medium tracking-tight hover:bg-black hover:text-white transition-all duration-300 text-center w-full"
             >
-              SHOP WOMEN
+              Shop XY
             </Link>
           </div>
         )}
+      </div>
       </div>
     </section>
   );

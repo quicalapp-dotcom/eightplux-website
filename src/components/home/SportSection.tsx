@@ -4,15 +4,13 @@ interface SportSectionProps {
 
 export default function SportSection({ image }: SportSectionProps) {
   return (
-    <section className="relative h-[90vh] w-full overflow-hidden flex items-center justify-center bg-black">
-      <div className="absolute inset-0 z-0">
-        <img
-          alt="Eightplux Sport collection"
-          className="w-full h-full object-contain object-center brightness-[0.6]"
-          src={image}
-        />
-      </div>
-      <div className="relative z-10 text-center px-4">
+    <section className="relative w-full overflow-hidden bg-black">
+      <img
+        alt="Eightplux Sport collection"
+        className="w-full h-auto block opacity-60"
+        src={image}
+      />
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
         <div className="mb-6">
           <span className="bg-white/20 backdrop-blur-md text-white px-4 py-1 text-[10px] uppercase tracking-widest">
             Eightplux Sport

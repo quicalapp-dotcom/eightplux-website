@@ -5,8 +5,9 @@ import CampaignHero from '@/components/campaign/CampaignHero';
 import CampaignFeatureRow from '@/components/campaign/CampaignFeatureRow';
 import CampaignInteractiveHero from '@/components/campaign/CampaignInteractiveHero';
 import CampaignBanner from '@/components/campaign/CampaignBanner';
-import StageSection from '@/components/home/StageSection';
+
 import NewsletterSection from '@/components/home/NewsletterSection';
+import WorldSection from '@/components/home/WorldSection';
 
 export default function CampaignsPage() {
   return (
@@ -19,35 +20,35 @@ export default function CampaignsPage() {
       {/* 2. First Feature Row */}
       <CampaignFeatureRow 
         leftImage="/middle.jpg" 
-        rightImage="/Model3.jpg" 
+        rightImage="/17.png" 
       />
 
       {/* 3. Interactive Hero with CTAs */}
       <CampaignInteractiveHero 
-        image="/lt.jpg" 
+        image="/sportbg.gif" 
       />
 
       {/* 4. Second Feature Row */}
       <CampaignFeatureRow 
-        leftImage="/tees.jpg" 
-        rightImage="/tops.jpg" 
+        leftImage="/20.png" 
+        rightImage="/21.png" 
       />
 
       {/* 5. Interactive Banner */}
       <CampaignBanner 
-        image="/bb.jpg" 
+        image="/casualbg.gif" 
         showButtons={true}
       />
 
       {/* 6. Third Feature Row (Orange Collection) */}
       <CampaignFeatureRow 
-        leftImage="/mn.jpg" 
-        rightImage="/rt.jpg" 
+        leftImage="/22.png" 
+        rightImage="/23.png" 
       />
 
       {/* 7. Stage Section */}
-      <StageSection 
-        image="/lb.jpg"
+      <WorldSection
+        image="/community.gif"
       />
 
       {/* 8. Newsletter Section */}
