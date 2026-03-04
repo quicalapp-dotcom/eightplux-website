@@ -10,16 +10,18 @@ interface WorldHeroProps {
 
 export default function WorldHero({ image }: WorldHeroProps) {
   return (
-    <section className="relative w-full overflow-hidden" style={{ height: '100vh' }}>
-      {/* Image fills the full section — no grey sides, no cropping weirdness */}
-      <Image
-        src={image}
-        alt="World of 8+ Hero"
-        fill
-        sizes="100vw"
-        className="object-cover object-center"
-        priority
-      />
+    <section className="relative w-full overflow-hidden bg-black">
+      {/* Container wraps the image to determine height naturally */}
+      <div className="relative w-full">
+        <Image
+          src={image}
+          alt="World of 8+ Hero"
+          width={1920}
+          height={1308}
+          className="w-full h-auto block"
+          priority
+        />
+      </div>
 
       {/* Dark overlay + text at the bottom */}
       <div className="absolute inset-0 flex flex-col items-center justify-end pb-6 md:pb-12 text-center px-4 bg-black/10">

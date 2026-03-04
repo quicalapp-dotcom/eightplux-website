@@ -4,23 +4,23 @@ interface StageSectionProps {
 
 export default function StageSection({ image }: StageSectionProps) {
   return (
-    <section className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center bg-gray-800">
-      <div className="absolute inset-0 z-0 text-center">
-        <img
-          alt="Eightplux stage"
-          className="w-full h-full object-cover object-center brightness-[0.5]"
-          src={image}
-        />
-      </div>
-      <div className="relative z-10 text-center px-4 w-full">
-        <h2 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.85] mb-12 font-tt flex flex-col items-center tracking-tighter">
-          <span className="lowercase drop-shadow-md">
-            <span className="text-[#C72f32] font-black">Define</span>
+    <section className="relative w-full overflow-hidden bg-[#1a1a1a]">
+      <img
+        alt="Eightplux stage"
+        className="w-full h-auto block brightness-[0.5]"
+        src={image}
+      />
+      <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4 font-tt">
+        <h2 className="text-white text-5xl md:text-8xl lg:text-[100px] font-thin tracking-tighter leading-[0.85] mb-12 flex flex-col items-center">
+          <span className="flex items-center gap-2 md:gap-4">
+            <span className="text-[#C72f32] font-black italic">Define</span>
+            <span className="lowercase">your</span>
           </span>
-          <span className="lowercase text-white/90">your statement</span>
+          <span className="lowercase">statement</span>
         </h2>
-        <div className="flex justify-center w-full max-w-xs sm:max-w-none mx-auto">
-          <button className="bg-white/30 backdrop-blur-md border border-white/20 text-white px-16 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all duration-500 w-full sm:w-auto">
+        
+        <div className="flex justify-center">
+          <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-12 py-3 text-[11px] lowercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-500">
             explore
           </button>
         </div>

@@ -67,7 +67,7 @@ export default function Navbar() {
         <>
             {/* ── Desktop Navbar ───────────────────────────────────────────── */}
             <nav className="absolute top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
-                <div className="mx-auto px-6 md:px-10 h-[60px] flex items-center relative">
+                <div className="mx-auto px-4 md:px-10 h-[60px] flex items-center relative">
 
                     {/* LEFT — Nav links */}
                     <div className="hidden md:flex items-center gap-7 flex-1">
@@ -131,7 +131,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* RIGHT — Icons */}
-                    <div className="flex items-center gap-5 ml-auto">
+                    <div className="flex items-center gap-1.5 md:gap-5 ml-auto">
                         {/* Search */}
                         <button
                             onClick={() => setSearchOpen(true)}
