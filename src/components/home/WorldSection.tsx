@@ -4,15 +4,13 @@ interface WorldSectionProps {
 
 export default function WorldSection({ image }: WorldSectionProps) {
   return (
-    <section className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center bg-gray-900">
-      <div className="absolute inset-0 z-0">
-        <img
-          alt="Eightplux World – the collective"
-          className="w-full h-full object-contain object-center brightness-[0.5]"
-          src={image}
-        />
-      </div>
-      <div className="relative z-10 text-center px-4 max-w-5xl font-tt">
+    <section className="relative w-full overflow-hidden bg-gray-900">
+      <img
+        alt="Eightplux World – the collective"
+        className="w-full h-auto block opacity-50"
+        src={image}
+      />
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto font-tt">
         <div className="mb-8 flex justify-center">
           <span className="border border-white/40 text-white/90 px-3 py-1 text-[9px] uppercase tracking-[0.3em] backdrop-blur-sm">
             Eightplux World

@@ -13,11 +13,15 @@ export default function CampaignFeatureRow({ leftImage, rightImage }: CampaignFe
     <section className="bg-white">
       {/* Branded Divider Top */}
       <div className="flex items-center justify-between px-6 md:px-20 py-6 border-y border-gray-100">
-        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black font-tt">EIGHTPLUX®</span>
-        <div className="relative w-8 h-8 md:w-10 md:h-10">
+        <div className="relative w-24 md:w-40 h-8">
+          <Image src="/Eightplus logocam.png" alt="Eightplu+" fill className="object-contain" />
+        </div>
+        <div className="relative w-20 h-20 md:w-32 md:h-32">
           <Image src="/Copy of 8+ red logo.png" alt="Logo" fill className="object-contain" />
         </div>
-        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black">EIGHTPLUX®</span>
+        <div className="relative w-24 md:w-40 h-8">
+          <Image src="/Eightplus logocam.png" alt="Eightplu+" fill className="object-contain" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-8">
@@ -31,11 +35,15 @@ export default function CampaignFeatureRow({ leftImage, rightImage }: CampaignFe
 
       {/* Branded Divider Bottom */}
       <div className="flex items-center justify-between px-6 md:px-20 py-6 border-y border-gray-100">
-        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black">EIGHTPLUX®</span>
-        <div className="relative w-8 h-8 md:w-10 md:h-10">
+        <div className="relative w-36 md:w-56 h-10">
+          <Image src="/Eightplus logocam.png" alt="Eightplu+" fill className="object-contain" />
+        </div>
+        <div className="relative w-14 h-14 md:w-24 md:h-24">
           <Image src="/Copy of 8+ red logo.png" alt="Logo" fill className="object-contain" />
         </div>
-        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black">EIGHTPLUX®</span>
+        <div className="relative w-36 md:w-56 h-10">
+          <Image src="/Eightplus logocam.png" alt="Eightplu+" fill className="object-contain" />
+        </div>
       </div>
     </section>
   );

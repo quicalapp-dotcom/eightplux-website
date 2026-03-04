@@ -26,7 +26,7 @@ const IMAGES = {
     { src: '/wb.jpg',   label: 'Tank top'  },
   ],
   world: '/community.gif',
-  stage: '/define.jpg',
+  stage: '/defines.jpg',
 };
 
 export default function HomePage() {
