@@ -11,13 +11,13 @@ export default function StyleSection({ cards }: StyleSectionProps) {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-[1920px] mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-gray-200 pb-8">
-          <div className="mb-4 md:mb-0">
-            <span className="bg-gray-100 text-gray-800 px-4 py-2 text-[10px] uppercase tracking-widest font-bold">
+        <div className="flex flex-row justify-between items-center mb-16 border-b border-gray-200 pb-8 overflow-hidden">
+          <div className="flex-shrink-0">
+            <span className="bg-gray-100 text-gray-800 px-3 md:px-4 py-1.5 md:py-2 text-[8px] md:text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">
               Eightplux Style
             </span>
           </div>
-          <h2 className="text-4xl md:text-7xl font-light text-right w-full md:w-auto text-black font-tt">
+          <h2 className="text-sm md:text-5xl lg:text-7xl font-light text-right text-black font-tt lowercase ml-4 leading-tight">
             every look is a <span className="font-bold text-[#C72f32]">statement</span>
           </h2>
         </div>

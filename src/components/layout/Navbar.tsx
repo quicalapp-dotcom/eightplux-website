@@ -119,12 +119,11 @@ export default function Navbar() {
                     </div>
 
                     {/* CENTER — Logo (absolute so it's truly centred) */}
-                    <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
+                    <Link href="/" className="relative md:absolute md:left-1/2 md:-translate-x-1/2 flex items-center">
                         <Image
                             src="/EIghtplu+ logo.png"
                             alt="Eightplux Logo"
-                            width={
-143}
+                            width={143}
                             height={17.09}
                             className="object-contain"
                         />

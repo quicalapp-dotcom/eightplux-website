@@ -14,10 +14,10 @@ import NewsletterSection from '@/components/home/NewsletterSection';
 const IMAGES = {
   heroSlides: [
     { src: '/Model1.jpg' },
-    { src: '/Model2.jpg' },
+    { src: '/define.jpg' },
     { src: '/Model3.jpg' }
   ],
-  sport:  '/sportbg.gif',
+  sport:  '/sporttt.gif',
   casual: '/casualbg.gif',
   style: [
     { src: '/tops.jpg', label: 'Jesus top' },
@@ -26,7 +26,7 @@ const IMAGES = {
     { src: '/wb.jpg',   label: 'Tank top'  },
   ],
   world: '/community.gif',
-  stage: '/defines.jpg',
+  stage: '/definend.jpg',
 };
 
 export default function HomePage() {
