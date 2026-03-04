@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Minus, Plus, X, ChevronRight } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import WorldSection from '@/components/home/WorldSection';
+import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function CartPage() {
     const { items, updateQuantity, removeItem, getSubtotal } = useCartStore();
@@ -18,22 +20,33 @@ export default function CartPage() {
 
     const subtotal = getSubtotal();
 
+    const sections = (
+        <>
+            <WorldSection image="/community.gif" />
+            <NewsletterSection />
+        </>
+    );
+
     if (items.length === 0) {
         return (
-            <div className="min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
-                <h1 className="text-2xl font-display uppercase tracking-[0.3em] mb-8">Shopping Cart</h1>
-                <p className="text-gray-400 text-sm uppercase tracking-widest mb-12">Your bag is currently empty.</p>
-                <Link 
-                    href="/shop"
-                    className="bg-black text-white px-12 py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-red-600 transition-colors"
-                >
-                    Continue Shopping
-                </Link>
-            </div>
+            <>
+                <div className="min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
+                    <h1 className="text-2xl font-display uppercase tracking-[0.3em] mb-8">Shopping Cart</h1>
+                    <p className="text-gray-400 text-sm uppercase tracking-widest mb-12">Your bag is currently empty.</p>
+                    <Link 
+                        href="/shop"
+                        className="bg-black text-white px-12 py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-red-600 transition-colors"
+                    >
+                        Continue Shopping
+                    </Link>
+                </div>
+                {sections}
+            </>
         );
     }
 
     return (
+        <>
         <div className="min-h-screen pt-24 md:pt-32 pb-20 px-4 md:px-10 max-w-7xl mx-auto selection:bg-black selection:text-white">
             {/* Breadcrumbs */}
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 mb-10 justify-center">
@@ -230,5 +243,7 @@ export default function CartPage() {
                 </div>
             </div>
         </div>
+        {sections}
+        </>
     );
 }

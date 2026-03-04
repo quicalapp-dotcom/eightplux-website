@@ -10,6 +10,8 @@ import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProductBySlug } from '@/lib/firebase/products';
 import { Product, ProductColor } from '@/types';
+import WorldSection from '@/components/home/WorldSection';
+import NewsletterSection from '@/components/home/NewsletterSection';
 
 // Mock data for fallback
 const fallbackStyledWith = [
@@ -157,6 +159,7 @@ export default function ProductDetailPage() {
     }
 
     return (
+        <>
         <div className="bg-white text-black min-h-screen pt-[81px]">
             {/* Main Product Section */}
             <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
@@ -320,5 +323,8 @@ export default function ProductDetailPage() {
                 </div>
             </main>
         </div>
+        <WorldSection  image="/community.gif" />
+        <NewsletterSection />
+        </>
     );
 }

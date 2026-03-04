@@ -31,7 +31,7 @@ export default function WorldHero({ image }: WorldHeroProps) {
           </nav>
 
           {/* Bold Header */}
-          <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.3em] uppercase drop-shadow-2xl">
+          <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-thin tracking-[0.3em] uppercase drop-shadow-2xl font-tt">
             ARTISTIC/DOPE/CULTURED
           </h1>
         </div>
