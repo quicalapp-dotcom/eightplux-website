@@ -5,26 +5,26 @@ import CampaignHero from '@/components/campaign/CampaignHero';
 import CampaignFeatureRow from '@/components/campaign/CampaignFeatureRow';
 import CampaignInteractiveHero from '@/components/campaign/CampaignInteractiveHero';
 import CampaignBanner from '@/components/campaign/CampaignBanner';
-import CampaignStageSection from '@/components/campaign/CampaignStageSection';
+import StageSection from '@/components/home/StageSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function CampaignsPage() {
   return (
-    <main className="bg-white min-h-screen pt-16">
+    <main className="bg-white min-h-screen pt-16 font-tt">
       {/* 1. Hero Section */}
       <CampaignHero 
-        image="/Model2.jpg" 
+        image="/caa.jpg" 
       />
 
       {/* 2. First Feature Row */}
       <CampaignFeatureRow 
-        leftImage="/lt.jpg" 
+        leftImage="/middle.jpg" 
         rightImage="/Model3.jpg" 
       />
 
       {/* 3. Interactive Hero with CTAs */}
       <CampaignInteractiveHero 
-        image="/middle.jpg" 
+        image="/lt.jpg" 
       />
 
       {/* 4. Second Feature Row */}
@@ -46,7 +46,7 @@ export default function CampaignsPage() {
       />
 
       {/* 7. Stage Section */}
-      <CampaignStageSection 
+      <StageSection 
         image="/lb.jpg"
       />
 

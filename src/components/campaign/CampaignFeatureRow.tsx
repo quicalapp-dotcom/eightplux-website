@@ -13,7 +13,7 @@ export default function CampaignFeatureRow({ leftImage, rightImage }: CampaignFe
     <section className="bg-white">
       {/* Branded Divider Top */}
       <div className="flex items-center justify-between px-6 md:px-20 py-6 border-y border-gray-100">
-        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black">EIGHTPLUX®</span>
+        <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black font-tt">EIGHTPLUX®</span>
         <div className="relative w-8 h-8 md:w-10 md:h-10">
           <Image src="/Copy of 8+ red logo.png" alt="Logo" fill className="object-contain" />
         </div>

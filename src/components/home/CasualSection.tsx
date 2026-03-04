@@ -8,7 +8,7 @@ export default function CasualSection({ image }: CasualSectionProps) {
       <div className="absolute inset-0 z-0">
         <img
           alt="Eightplux Casual collection"
-          className="w-full h-full object-cover object-center brightness-[0.7]"
+          className="w-full h-full object-contain object-center brightness-[0.7]"
           src={image}
         />
       </div>

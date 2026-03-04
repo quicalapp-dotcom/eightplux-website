@@ -8,7 +8,7 @@ export default function SportSection({ image }: SportSectionProps) {
       <div className="absolute inset-0 z-0">
         <img
           alt="Eightplux Sport collection"
-          className="w-full h-full object-cover object-center brightness-[0.6]"
+          className="w-full h-full object-contain object-center brightness-[0.6]"
           src={image}
         />
       </div>

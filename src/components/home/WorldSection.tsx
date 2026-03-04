@@ -8,7 +8,7 @@ export default function WorldSection({ image }: WorldSectionProps) {
       <div className="absolute inset-0 z-0">
         <img
           alt="Eightplux World – the collective"
-          className="w-full h-full object-cover object-center brightness-[0.5]"
+          className="w-full h-full object-contain object-center brightness-[0.5]"
           src={image}
         />
       </div>

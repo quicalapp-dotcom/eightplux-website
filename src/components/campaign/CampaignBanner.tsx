@@ -19,9 +19,9 @@ export default function CampaignBanner({ image, showButtons }: CampaignBannerPro
         className="object-cover brightness-75"
       />
       <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center">
-          <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-light tracking-[0.15em] uppercase leading-[1.1] font-tt">
+          <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-thin tracking-[0.15em] leading-[1.1] font-tt lowercase">
             every look is a <br />
-            <span className="text-[#C72f32] font-black tracking-[0.05em]">statement</span>
+            <span className="text-[#C72f32] font-bold tracking-[0.05em]">statement</span>
           </h1>
         
         {showButtons && (

@@ -3,7 +3,7 @@
 import React from 'react';
 import WorldHero from '@/components/world/WorldHero';
 import WorldMosaic from '@/components/world/WorldMosaic';
-import CampaignStageSection from '@/components/campaign/CampaignStageSection';
+import StageSection from '@/components/home/StageSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function WorldPage() {
@@ -18,10 +18,8 @@ export default function WorldPage() {
       <WorldMosaic />
 
       {/* 3. The Stage Is Yours Section */}
-      <CampaignStageSection 
+      <StageSection 
         image="/Model3.jpg"
-        buttonText="VISIT"
-        buttonHref="/shop"
       />
 
       {/* 4. Final Newsletter Section */}

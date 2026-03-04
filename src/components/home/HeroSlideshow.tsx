@@ -53,10 +53,12 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
           yOu've been <span className="text-[#C72f32] font-bold">grounded</span><br />
           long enough
         </h1>
-        <div className="relative mb-16">
-          <h2 className="font-[Dancing_Script] text-6xl md:text-8xl text-[#C72f32] transform -rotate-6 opacity-90 inline-block drop-shadow-lg">
-            Let it Fly
-          </h2>
+        <div className="relative mb-16 flex justify-center">
+          <img 
+            src="/letsfly.png" 
+            alt="Let's Fly" 
+            className="h-24 md:h-36 object-contain drop-shadow-lg"
+          />
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-lg mx-auto px-4">
           <Link 

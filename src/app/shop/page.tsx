@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { Product, Category } from '@/types';
 import { subscribeToProducts, subscribeToCategories } from '@/lib/firebase/admin';
+import WorldSection from '@/components/home/WorldSection';
+import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function ShopPage() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -104,6 +106,7 @@ export default function ShopPage() {
     };
 
     return (
+        <>
         <div className="pt-[81px] bg-white min-h-screen">
             <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
                 <div className="flex flex-col lg:flex-row gap-16">
@@ -277,5 +280,8 @@ export default function ShopPage() {
                 </button>
             </div>
         </div>
+        <WorldSection  image="/community.gif" />
+        <NewsletterSection />
+        </>
     );
 }

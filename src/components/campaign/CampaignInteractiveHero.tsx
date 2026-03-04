@@ -18,8 +18,8 @@ export default function CampaignInteractiveHero({ image }: CampaignInteractiveHe
         className="object-cover brightness-90"
       />
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 bg-black/5">
-        <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.25em] uppercase mb-16 drop-shadow-lg">
-          play <span className="text-[#C72f32] font-black italic">beyond</span> limit
+        <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-thin tracking-[0.25em] mb-16 drop-shadow-lg font-tt lowercase">
+          play <span className="text-[#C72f32] font-bold italic">beyond</span> limit
         </h2>
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg mx-auto px-4">
           <Link 
