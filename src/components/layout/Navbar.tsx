@@ -118,10 +118,9 @@ export default function Navbar() {
                         })}
                     </div>
 
-                    {/* CENTER — Logo (absolute so it's truly centred) */}
                     <Link href="/" className="relative md:absolute md:left-1/2 md:-translate-x-1/2 flex items-center">
                         <Image
-                            src="/EIghtplu+ logo.png"
+                            src="/mainlogo.png"
                             alt="Eightplux Logo"
                             width={143}
                             height={17.09}
@@ -194,7 +193,7 @@ export default function Navbar() {
                             <div className="flex justify-between items-center mb-12">
                                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                                     <Image
-                                        src="/EIghtplu+ logo.png"
+                                        src="/mainlogo.png"
                                         alt="Eightplux Logo"
                                         width={64}
                                         height={64}

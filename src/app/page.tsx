@@ -26,7 +26,7 @@ const IMAGES = {
     { src: '/wb.jpg',   label: 'Tank top'  },
   ],
   world: '/community.gif',
-  stage: '/define.jpg',
+  stage: '/definend.jpg',
 };
 
 export default function HomePage() {
@@ -50,13 +50,6 @@ export default function HomePage() {
       <StyleSection  cards={IMAGES.style} />
       <WorldSection  image={IMAGES.world} />
       <StageSection  image={IMAGES.stage} />
-      <div className="w-full bg-black">
-        <img 
-          src="/definend.jpg" 
-          alt="Define Statement" 
-          className="w-full h-auto block"
-        />
-      </div>
       <NewsletterSection />
     </main>
   );
