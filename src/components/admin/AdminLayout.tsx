@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             {/* Main Content Area */}
-            <main className={`${sidebarOpen ? 'md:ml-64' : 'md:ml-0'} min-h-screen bg-white text-black transition-all duration-300`}>
+            <main className={`md:ml-64 min-h-screen bg-white text-black transition-all duration-300`}>
                 {/* Top Header Placeholder */}
                 <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10 text-black">
                     <h1 className="hidden md:block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-600 font-display">Eightplux Control Panel</h1>

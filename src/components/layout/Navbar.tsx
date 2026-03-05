@@ -22,7 +22,7 @@ const baseNavLinks = [
         { name: 'Pants', href: '/shop?category=pants' },
         { name: 'Accessories', href: '/shop?category=accessories' },
     ]},
-    { name: 'Campaign', href: '/campaigns' },
+    { name: 'lookbook', href: '/campaigns' },
     { name: 'The World Of 8+', href: '/world', dropdown: [
         { name: 'Eightplux World', href: '/world' },
     ]},
