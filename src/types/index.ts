@@ -209,6 +209,124 @@ export interface PaletteItem {
     updatedAt: Date;
 }
 
+export interface HeroSlide {
+    id: string;
+    src: string;
+    mediaType: 'image' | 'video';
+    title?: string;
+    subtitle?: string;
+    collectionId?: string;
+    buttonText?: string;
+    buttonLink?: string;
+    isActive: boolean;
+    sortOrder: number;
+}
+
+export interface HeroSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    primaryButtonText?: string;
+    primaryButtonCollectionId?: string;
+    secondaryButtonText?: string;
+    secondaryButtonCollectionId?: string;
+    decorativeImage?: string;
+    slides: HeroSlide[];
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface SportSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    primaryButtonText?: string;
+    primaryButtonCollectionId?: string;
+    secondaryButtonText?: string;
+    secondaryButtonCollectionId?: string;
+    badgeText: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface CasualSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    primaryButtonText?: string;
+    primaryButtonCollectionId?: string;
+    secondaryButtonText?: string;
+    secondaryButtonCollectionId?: string;
+    badgeText: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface StyleCard {
+    id: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    label: string;
+    collectionId?: string;
+    sortOrder: number;
+    isActive: boolean;
+}
+
+export interface StyleSectionData {
+    id: string;
+    badgeText: string;
+    title: string;
+    cards: StyleCard[];
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface WorldSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    buttonText?: string;
+    buttonCollectionId?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface StageSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    buttonText?: string;
+    buttonCollectionId?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface NewsletterSectionData {
+    id: string;
+    title: string;
+    subtitle: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface HomePageData {
+    hero: HeroSectionData;
+    sport: SportSectionData;
+    casual: CasualSectionData;
+    style: StyleSectionData;
+    world: WorldSectionData;
+    stage: StageSectionData;
+    newsletter: NewsletterSectionData;
+}
+
 export interface HighlightItem {
     id: string;
     title: string;

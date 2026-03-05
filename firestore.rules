@@ -121,6 +121,13 @@ service cloud.firestore {
        allow write: if isAdmin();
      }
 
+     // Homepage Sections (Public Read, Admin Write)
+     // New collection for managing homepage components (hero, sport, casual, style, world, stage, newsletter)
+     match /homepage_sections/{sectionId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
+
      // Collections (Public Read, Admin Write)
      // Collections must have a category field (men/women)
      match /collections/{collectionId} {
