@@ -4,18 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Save, Loader2, Upload, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getProductById, updateProduct, uploadAdminImage } from '@/lib/firebase/admin';
-import { Product } from '@/types';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-
-interface Category {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    isActive: boolean;
-}
+import { getProductById, updateProduct, uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
+import { Product, Collection } from '@/types';
 
 export default function EditProductPage() {
     const router = useRouter();
@@ -25,7 +15,7 @@ export default function EditProductPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -40,13 +30,8 @@ export default function EditProductPage() {
     }, [id]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'categories'), (snapshot) => {
-            const categoriesData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Category[];
-
-            setCategories(categoriesData.filter(cat => cat.isActive)); // Only show active categories
+        const unsubscribe = subscribeToCollections((data) => {
+            setCollections(data.filter(c => c.isActive));
         });
 
         return () => unsubscribe();
@@ -142,16 +127,25 @@ export default function EditProductPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase font-bold text-gray-500">Category</label>
+                            <label className="text-xs uppercase font-bold text-gray-500">Collection</label>
                             <select
                                 required
-                                value={product.category}
-                                onChange={(e) => setProduct({ ...product, category: e.target.value })}
+                                value={product.collectionId || ''}
+                                onChange={(e) => {
+                                    const collection = collections.find(c => c.id === e.target.value);
+                                    setProduct({ 
+                                        ...product, 
+                                        collectionId: e.target.value,
+                                        category: collection?.category || 'women',
+                                        gender: collection?.category || 'women'
+                                    });
+                                }}
                                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
                             >
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.name}>
-                                        {category.name}
+                                <option value="">Select Collection</option>
+                                {collections.map((col) => (
+                                    <option key={col.id} value={col.id}>
+                                        {col.name} ({col.category === 'women' ? 'Women' : 'Men'})
                                     </option>
                                 ))}
                             </select>

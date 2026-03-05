@@ -19,6 +19,7 @@ export default function NewCollectionPage() {
     const [slug, setSlug] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
+    const [category, setCategory] = useState<'men' | 'women'>('women');
     const [isActive, setIsActive] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
@@ -60,7 +61,7 @@ export default function NewCollectionPage() {
         setLoading(true);
         try {
             await createCollection({
-                name, slug, description, image, isActive,
+                name, slug, description, image, category, isActive,
                 products: selectedProducts,
             });
             router.push('/admin/collections');
@@ -96,6 +97,33 @@ export default function NewCollectionPage() {
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase text-gray-500">Description</label>
                         <textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-gray-500">Category</label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setCategory('women')}
+                                className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
+                                    category === 'women'
+                                        ? 'border-red-500 bg-red-50 text-red-600'
+                                        : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                                }`}
+                            >
+                                Shop XX (Women)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCategory('men')}
+                                className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
+                                    category === 'men'
+                                        ? 'border-red-500 bg-red-50 text-red-600'
+                                        : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                                }`}
+                            >
+                                Shop XY (Men)
+                            </button>
+                        </div>
                     </div>
                 </div>
 

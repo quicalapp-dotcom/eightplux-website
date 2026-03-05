@@ -268,12 +268,12 @@ export const updateWorldContent = async (id: string, data: Partial<WorldContent>
     });
 };
 
+// Categories are now hardcoded (Men/Women), no longer stored in Firestore
+// This function is kept for backwards compatibility but returns empty array
 export const subscribeToCategories = (callback: (categories: Category[]) => void) => {
-    const q = query(collection(db, 'categories'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-        const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
-        callback(categories);
-    });
+    // Categories are now predefined constants, not stored in Firestore
+    callback([]);
+    return () => {}; // No-op unsubscribe
 };
 
 export const deleteWorldContent = async (id: string) => {

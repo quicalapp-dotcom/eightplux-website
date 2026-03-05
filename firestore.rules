@@ -38,6 +38,15 @@ service cloud.firestore {
       return isSuperAdmin() || isOrderManager() || isContentManager();
     }
 
+    // Validation Helpers
+    function isValidCategory() {
+      return request.resource.data.category in ['men', 'women'];
+    }
+
+    function isValidGender() {
+      return request.resource.data.gender in ['men', 'women', 'unisex'];
+    }
+
     // --- Collection Rules ---
 
     // Users Collection
@@ -58,13 +67,22 @@ service cloud.firestore {
     // Products (Public Read, Admin Write)
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if isAdmin() 
+        && isValidCategory()
+        && request.resource.data.collectionId is string
+        && request.resource.data.name is string
+        && request.resource.data.price is number;
+      allow update: if isAdmin()
+        && (request.resource.data.category in ['men', 'women'] || request.resource.data.category == resource.data.category);
+      allow delete: if isAdmin();
     }
 
-    // Categories (Public Read, Admin Write)
+    // Categories Collection - DEPRECATED
+    // Categories are now hardcoded (Men/Women) and not stored in Firestore
+    // This rule is kept for backwards compatibility only
     match /categories/{categoryId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if false; // No longer allowed to create/modify categories
     }
 
     // Homepage Content (Public Read, Admin Write)
@@ -104,9 +122,17 @@ service cloud.firestore {
      }
 
      // Collections (Public Read, Admin Write)
+     // Collections must have a category field (men/women)
      match /collections/{collectionId} {
        allow read: if true;
-       allow write: if isAdmin();
+       allow create: if isAdmin()
+        && isValidCategory()
+        && request.resource.data.name is string
+        && request.resource.data.slug is string
+        && request.resource.data.image is string;
+       allow update: if isAdmin()
+        && (request.resource.data.category in ['men', 'women'] || request.resource.data.category == resource.data.category);
+       allow delete: if isAdmin();
      }
 
     // Campaigns (Public Read, Admin Write)

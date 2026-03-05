@@ -81,7 +81,16 @@ export default function CollectionsManagementPage() {
                         </div>
                         <div className="p-4 sm:p-6">
                             <h3 className="font-bold text-base sm:text-lg mb-1 text-black">{collection.name}</h3>
-                            <p className="text-xs text-gray-600 mb-4">{collection.products?.length || 0} Products</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                                    collection.category === 'women' 
+                                        ? 'bg-pink-50 text-pink-600 border border-pink-100' 
+                                        : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                }`}>
+                                    {collection.category === 'women' ? 'Women' : 'Men'}
+                                </span>
+                                <span className="text-xs text-gray-600">{collection.products?.length || 0} Products</span>
+                            </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 sm:pt-6 border-t border-gray-100 gap-2 sm:gap-0">
                                 <div className="flex gap-2 text-gray-400">

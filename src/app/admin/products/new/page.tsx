@@ -4,16 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, Loader2, Plus, X } from 'lucide-react';
 import Link from 'next/link';
-import { addProduct, uploadAdminImage } from '@/lib/firebase/admin';
+import { addProduct, uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { Collection } from '@/types';
 
-interface Category {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    isActive: boolean;
+interface CategoryOption {
+    value: string;
+    label: string;
 }
 
 export default function NewProductPage() {
@@ -21,31 +19,32 @@ export default function NewProductPage() {
     const [loading, setLoading] = useState(false);
     const [images, setImages] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
 
     // Form Stats
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
-        category: '',
+        collectionId: '',
         inventory: '',
         colors: '', // Comma separated for MVP
         sizes: '', // Comma separated for MVP
     });
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'categories'), (snapshot) => {
-            const categoriesData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Category[];
-
-            setCategories(categoriesData.filter(cat => cat.isActive)); // Only show active categories
+        const unsubscribe = subscribeToCollections((data) => {
+            setCollections(data.filter(c => c.isActive));
         });
 
         return () => unsubscribe();
     }, []);
+
+    const selectedCollection = collections.find(c => c.id === formData.collectionId);
+    const categoryOptions: CategoryOption[] = [
+        { value: 'men', label: 'Men' },
+        { value: 'women', label: 'Women' }
+    ];
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,14 +79,15 @@ export default function NewProductPage() {
                 slug: formData.name.toLowerCase().replace(/ /g, '-'),
                 description: formData.description,
                 price: parseFloat(formData.price),
-                category: formData.category,
+                category: selectedCollection?.category || 'women',
                 inventory: parseInt(formData.inventory),
                 currency: 'USD' as const,
                 images: imageUrls,
-                gender: 'unisex' as const,
+                gender: selectedCollection?.category || 'women',
                 sizes: formData.sizes.split(',').map(s => s.trim()),
                 colors: formData.colors.split(',').map(c => ({ name: c.trim(), hex: '#000000' })), // Simplification
                 tags: [],
+                collectionId: formData.collectionId,
                 isActive: true
             };
 
@@ -131,18 +131,18 @@ export default function NewProductPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase font-bold text-gray-500">Category</label>
+                            <label className="text-xs uppercase font-bold text-gray-500">Collection</label>
                             <select
-                                name="category"
+                                name="collectionId"
                                 required
-                                value={formData.category}
+                                value={formData.collectionId}
                                 onChange={handleChange}
                                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
                             >
-                                <option value="">Select Category</option>
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.name}>
-                                        {category.name}
+                                <option value="">Select Collection</option>
+                                {collections.map((col) => (
+                                    <option key={col.id} value={col.id}>
+                                        {col.name} ({col.category === 'women' ? 'Women' : 'Men'})
                                     </option>
                                 ))}
                             </select>

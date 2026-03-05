@@ -9,13 +9,13 @@ export interface Product {
     compareAtPrice?: number;
     currency: 'NGN' | 'USD';
     images: string[];
-    category: string;
+    category: 'men' | 'women';
     subcategory?: string;
     gender: 'men' | 'women' | 'unisex';
     sizes: string[];
     colors: ProductColor[];
     tags: string[];
-    collectionId?: string;
+    collectionId: string;
     isExclusive?: boolean;
     campaignId?: string;
     fabric?: string;
@@ -43,6 +43,7 @@ export interface Collection {
     heroImage?: string;
     tagline?: string;
     products: string[]; // Product IDs
+    category: 'men' | 'women';
     isActive: boolean;
     publishedAt?: Date;
     createdAt: Date;
@@ -135,15 +136,34 @@ export interface Payment {
     createdAt: Date;
 }
 
-export interface Category {
+// Hardcoded categories - not created by admin
+export type Category = 'men' | 'women';
+
+export interface CategoryDisplay {
     id: string;
     name: string;
     slug: string;
-    description?: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    description: string;
+    isActive: true;
 }
+
+// Predefined category constants
+export const CATEGORIES: CategoryDisplay[] = [
+    {
+        id: 'men',
+        name: 'Men',
+        slug: 'men',
+        description: 'Men\'s collection',
+        isActive: true
+    },
+    {
+        id: 'women',
+        name: 'Women',
+        slug: 'women',
+        description: 'Women\'s collection',
+        isActive: true
+    }
+];
 
 export interface WorldContent {
     id: string;

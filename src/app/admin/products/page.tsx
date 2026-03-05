@@ -3,22 +3,34 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { subscribeToProducts, deleteProduct } from '@/lib/firebase/admin';
-import { Product } from '@/types';
+import { subscribeToProducts, deleteProduct, subscribeToCollections } from '@/lib/firebase/admin';
+import { Product, Collection } from '@/types';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        const unsubscribe = subscribeToProducts((data) => {
+        const unsubscribeProducts = subscribeToProducts((data) => {
             setProducts(data);
             setLoading(false);
         });
+        const unsubscribeCollections = subscribeToCollections((data) => {
+            setCollections(data);
+        });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribeProducts();
+            unsubscribeCollections();
+        };
     }, []);
+
+    const getCollectionName = (collectionId: string) => {
+        const collection = collections.find(c => c.id === collectionId);
+        return collection ? collection.name : 'Unknown';
+    };
 
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,6 +96,7 @@ export default function ProductsPage() {
                         <thead className="bg-gray-50/50 text-gray-500 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
                             <tr>
                                 <th className="px-3 sm:px-6 py-3 sm:py-5 font-bold">Product</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-5 font-bold">Collection</th>
                                 <th className="px-3 sm:px-6 py-3 sm:py-5 font-bold">Category</th>
                                 <th className="px-3 sm:px-6 py-3 sm:py-5 font-bold">Price</th>
                                 <th className="px-3 sm:px-6 py-3 sm:py-5 font-bold">Status</th>
@@ -108,7 +121,16 @@ export default function ProductsPage() {
                                         </div>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
-                                        <span className="text-xs font-bold uppercase tracking-wide text-gray-600">{product.category}</span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-gray-600">{getCollectionName(product.collectionId)}</span>
+                                    </td>
+                                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                                            product.category === 'women' 
+                                                ? 'bg-pink-50 text-pink-600 border border-pink-100' 
+                                                : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                        }`}>
+                                            {product.category === 'women' ? 'Women' : 'Men'}
+                                        </span>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-black">
                                         ₦{product.price.toLocaleString()}

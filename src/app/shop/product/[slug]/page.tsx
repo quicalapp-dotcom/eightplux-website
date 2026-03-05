@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
@@ -38,7 +38,8 @@ const mockProduct: Product = {
     isNew: true,
     isBestSeller: false,
     isSale: false,
-    category: 'Waistcoats',
+    category: 'women',
+    collectionId: 'mock-collection',
     currency: 'USD',
     description: 'Round neck waistcoat featuring front welt pockets, contrast trims, a pleat in the back and metal appliqué fastening in the front.',
     inventory: 10,
@@ -52,6 +53,7 @@ const mockProduct: Product = {
 
 export default function ProductDetailPage() {
     const params = useParams();
+    const router = useRouter();
     const slug = params.slug as string;
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
@@ -116,7 +118,7 @@ export default function ProductDetailPage() {
             addToWishlist(product.id, user.uid);
         }
     };
-    
+
     // Click outside handler for size dropdown
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -135,9 +137,9 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen flex items-center justify-center">
+            <div className="bg-white text-black min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-black dark:border-white mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-black mx-auto mb-4"></div>
                     <p className="text-sm uppercase tracking-widest text-gray-500">Loading product</p>
                 </div>
             </div>
@@ -146,11 +148,11 @@ export default function ProductDetailPage() {
 
     if (!product) {
         return (
-            <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100 min-h-screen flex items-center justify-center">
+            <div className="bg-white text-black min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-4xl font-bold mb-4">Product Not Found</h1>
                     <p className="text-gray-500 mb-8">The product you are looking for does not exist or has been removed.</p>
-                    <Link href="/shop" className="inline-block px-8 py-4 bg-black dark:bg-white text-white dark:text-black uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity">
+                    <Link href="/shop" className="inline-block px-8 py-4 bg-black text-white uppercase tracking-[0.2em] text-xs font-bold hover:opacity-90 transition-opacity">
                         Continue Shopping
                     </Link>
                 </div>
@@ -158,30 +160,32 @@ export default function ProductDetailPage() {
         );
     }
 
+    const categoryLink = product.category === 'women' ? '/shop/women' : '/shop/men';
+
     return (
         <>
         <div className="bg-white text-black min-h-screen pt-[81px]">
             {/* Main Product Section */}
             <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
                 <div className="flex flex-col lg:flex-row gap-16">
-                    
+
                     {/* Image Gallery (Left) */}
                     <div className="flex-1 flex gap-4 h-fit">
                         {/* Thumbnails (Vertical) */}
                         <div className="hidden md:flex flex-col gap-4 w-24">
                             {product.images.map((img, idx) => (
-                                <button 
-                                    key={idx} 
+                                <button
+                                    key={idx}
                                     onClick={() => setCurrentImageIndex(idx)}
-                                    className={`aspect-[3/4] relative border border-gray-100 dark:border-gray-800 overflow-hidden ${currentImageIndex === idx ? 'ring-1 ring-black dark:ring-white' : ''}`}
+                                    className={`aspect-[3/4] relative border border-gray-100 overflow-hidden ${currentImageIndex === idx ? 'ring-1 ring-black' : ''}`}
                                 >
                                     <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
                                 </button>
                             ))}
                         </div>
-                        
+
                         {/* Main Image */}
-                        <div className="flex-1 aspect-[3/4] relative bg-[#F6F6F6] dark:bg-gray-900 border border-gray-100 dark:border-gray-800 overflow-hidden">
+                        <div className="flex-1 aspect-[3/4] relative bg-[#F6F6F6] border border-gray-100 overflow-hidden">
                             <Image
                                 src={product.images[currentImageIndex]}
                                 alt={product.name}
@@ -196,7 +200,7 @@ export default function ProductDetailPage() {
                     <div className="w-full lg:w-[450px] shrink-0 space-y-10">
                         {/* Breadcrumbs */}
                         <nav className="text-[10px] uppercase font-bold tracking-widest text-gray-400">
-                            Homepage / Catalog / {product.category}
+                            <Link href="/shop" className="hover:text-black">Shop</Link> / <Link href={categoryLink} className="hover:text-black">{product.category === 'women' ? 'Women' : 'Men'}</Link> / {product.category}
                         </nav>
 
                         {/* Title & Price */}
@@ -210,7 +214,7 @@ export default function ProductDetailPage() {
                         </div>
 
                         {/* Description & Summary Grid */}
-                        <div className="grid grid-cols-2 gap-8 border-t border-gray-100 dark:border-gray-800 pt-8 pb-4">
+                        <div className="grid grid-cols-2 gap-8 border-t border-gray-100 pt-8 pb-4">
                             <div className="space-y-4">
                                 <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Description</h4>
                                 <p className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60">
@@ -229,9 +233,9 @@ export default function ProductDetailPage() {
 
                         {/* Size Selection */}
                         <div className="space-y-6 relative" ref={dropdownRef}>
-                            <div 
+                            <div
                                 onClick={() => setIsSizeDropdownOpen(!isSizeDropdownOpen)}
-                                className="flex justify-between items-center border border-gray-100 dark:border-gray-800 px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-all group"
+                                className="flex justify-between items-center border border-gray-100 px-6 py-4 cursor-pointer hover:bg-gray-50 transition-all group"
                             >
                                 <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 group-hover:text-black transition-colors">Choose size</span>
                                 <div className="flex items-center gap-4">
@@ -242,7 +246,7 @@ export default function ProductDetailPage() {
 
                             {/* Custom Dropdown List */}
                             {isSizeDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 z-20 bg-white border border-t-0 border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="absolute top-full left-0 right-0 z-20 bg-white border border-t-0 border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                     {product.sizes.map((size) => (
                                         <button
                                             key={size}
@@ -267,12 +271,12 @@ export default function ProductDetailPage() {
                         </div>
 
                         {/* Match With Section - Mock fallbacks */}
-                        <div className="border-t border-gray-100 dark:border-gray-800 pt-12 mt-12 pb-20">
+                        <div className="border-t border-gray-100 pt-12 mt-12 pb-20">
                             <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] text-gray-400 mb-10">Match with</h3>
                             <div className="grid grid-cols-3 gap-4">
                                 {fallbackStyledWith.map((item) => (
-                                    <Link key={item.name} href={`/shop/${item.slug}`} className="group space-y-4">
-                                        <div className="aspect-[3/4] bg-[#F6F6F6] relative border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                    <Link key={item.name} href={`/shop/product/${item.slug}`} className="group space-y-4">
+                                        <div className="aspect-[3/4] bg-[#F6F6F6] relative border border-gray-100 overflow-hidden">
                                             <Image
                                                 src={item.image}
                                                 alt={item.name}
@@ -291,7 +295,7 @@ export default function ProductDetailPage() {
                                     </Link>
                                 ))}
                             </div>
-                            
+
                             <button className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] mt-10 hover:bg-black transition-colors text-center">
                                 Go to cart
                             </button>
@@ -300,12 +304,12 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* You Can Also Check Section - Mock fallbacks */}
-                <div className="mt-32 border-t border-gray-100 dark:border-gray-800 pt-20">
+                <div className="mt-32 border-t border-gray-100 pt-20">
                     <h1 className="text-lg font-bold uppercase tracking-[0.1em] mb-12 px-2">You can also check</h1>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {fallbackRecentlyViewed.map((item, idx) => (
-                            <div key={idx} className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] dark:bg-gray-900 overflow-hidden border border-gray-100 dark:border-gray-800">
+                            <Link key={idx} href={`/shop/product/${item.name.toLowerCase().replace(/\s+/g, '-')}`} className="group cursor-pointer">
+                                <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] overflow-hidden border border-gray-100">
                                     <Image
                                         src={item.image}
                                         alt={item.name}
@@ -317,13 +321,13 @@ export default function ProductDetailPage() {
                                     <h3 className="leading-tight text-gray-500 group-hover:text-black transition-colors">{item.name}</h3>
                                     <p>${item.price}</p>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
             </main>
         </div>
-        <WorldSection  image="/community.gif" />
+        <WorldSection image="/community.gif" />
         <NewsletterSection />
         </>
     );
