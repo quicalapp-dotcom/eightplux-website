@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Image as ImageIcon, Video, Plus, X, Trash2, Upload, Home } from 'lucide-react';
+import { Save, Loader2, Image as ImageIcon, Video, Plus, X, Trash2, Upload, Home, MoveUp, MoveDown } from 'lucide-react';
 import Link from 'next/link';
 import {
     subscribeToCampaignHero,
@@ -15,7 +15,7 @@ import {
     initializeAllCampaignSections
 } from '@/lib/firebase/campaign-sections';
 import { uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
-import { Collection } from '@/types';
+import { Collection, CampaignFeatureItem } from '@/types';
 
 export default function CampaignManagementPage() {
     const [saving, setSaving] = useState(false);
@@ -155,10 +155,51 @@ export default function CampaignManagementPage() {
         }
     };
 
-    const handleUploadFeatureMedia = async (rowId: string, position: 'left' | 'right', file: File, currentData: any, setData: any) => {
+    const handleAddFeatureItem = (rowId: string, setData: any) => {
+        setData((prev: any) => {
+            const newItem: CampaignFeatureItem = {
+                id: Date.now().toString(),
+                mediaUrl: '',
+                mediaType: 'image',
+                collectionId: '',
+                sortOrder: prev.items?.length || 0,
+                isActive: true
+            };
+            return { ...prev, items: [...(prev.items || []), newItem] };
+        });
+    };
+
+    const handleRemoveFeatureItem = (rowId: string, itemId: string, setData: any) => {
+        setData((prev: any) => ({
+            ...prev,
+            items: prev.items?.filter((item: CampaignFeatureItem) => item.id !== itemId) || []
+        }));
+    };
+
+    const handleUpdateFeatureItem = (rowId: string, itemId: string, field: keyof CampaignFeatureItem, value: any, setData: any) => {
+        setData((prev: any) => ({
+            ...prev,
+            items: prev.items?.map((item: CampaignFeatureItem) => 
+                item.id === itemId ? { ...item, [field]: value } : item
+            ) || []
+        }));
+    };
+
+    const handleMoveFeatureItem = (rowId: string, index: number, direction: 'up' | 'down', setData: any) => {
+        setData((prev: any) => {
+            const newItems = [...(prev.items || [])];
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            if (newIndex < 0 || newIndex >= newItems.length) return prev;
+            [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+            newItems.forEach((item, i) => item.sortOrder = i);
+            return { ...prev, items: newItems };
+        });
+    };
+
+    const handleUploadFeatureItemMedia = async (rowId: string, itemId: string, file: File, setData: any) => {
         try {
-            const url = await uploadAdminImage(file, `campaign/${rowId}_${position}`);
-            setData({ ...currentData, [`${position}MediaUrl`]: url });
+            const url = await uploadAdminImage(file, `campaign/${rowId}`);
+            handleUpdateFeatureItem(rowId, itemId, 'mediaUrl', url, setData);
         } catch (error) {
             alert('Upload failed');
         }
@@ -356,78 +397,70 @@ export default function CampaignManagementPage() {
                 {activeTab === 'featureRow1' && (
                     <div className="space-y-6">
                         <div className="bg-white rounded-xl border border-gray-200 p-6">
-                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 1 Content</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow1.leftMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow1({ ...featureRow1, leftMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_1', 'left', e.target.files[0], featureRow1, setFeatureRow1)} />
-                                        </label>
-                                    </div>
-                                    {featureRow1.leftMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow1.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow1.rightMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow1({ ...featureRow1, rightMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_1', 'right', e.target.files[0], featureRow1, setFeatureRow1)} />
-                                        </label>
-                                    </div>
-                                    {featureRow1.rightMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow1.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Feature Row 1 Items ({featureRow1.items?.length || 0})</h2>
+                                <button 
+                                    onClick={() => handleAddFeatureItem('campaign_feature_row_1', setFeatureRow1)}
+                                    className="flex items-center gap-2 bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity"
+                                >
+                                    <Plus className="w-4 h-4" /> Add Item
+                                </button>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
-                                    <select
-                                        value={featureRow1.leftCollectionId || ''}
-                                        onChange={(e) => setFeatureRow1({ ...featureRow1, leftCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
-                                    <select
-                                        value={featureRow1.rightCollectionId || ''}
-                                        onChange={(e) => setFeatureRow1({ ...featureRow1, rightCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {featureRow1.items?.map((item: CampaignFeatureItem, index: number) => (
+                                    <div key={item.id} className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-xs font-bold uppercase text-gray-500">Item {index + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_1', index, 'up', setFeatureRow1)} disabled={index === 0} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveUp className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_1', index, 'down', setFeatureRow1)} disabled={index === featureRow1.items.length - 1} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveDown className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleRemoveFeatureItem('campaign_feature_row_1', item.id, setFeatureRow1)} className="p-1 hover:bg-red-50 rounded text-red-500">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Media URL</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        value={item.mediaUrl || ''}
+                                                        onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_1', item.id, 'mediaUrl', e.target.value, setFeatureRow1)}
+                                                        className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                    />
+                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                                        <Upload className="w-4 h-4" />
+                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_1', item.id, e.target.files[0], setFeatureRow1)} />
+                                                    </label>
+                                                </div>
+                                                {item.mediaUrl && (
+                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>
+                                                <select
+                                                    value={item.collectionId || ''}
+                                                    onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_1', item.id, 'collectionId', e.target.value, setFeatureRow1)}
+                                                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                >
+                                                    <option value="">None</option>
+                                                    {collections.map(col => (
+                                                        <option key={col.id} value={col.id}>
+                                                            {col.name} ({getCollectionCategory(col.id)})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <button
@@ -540,78 +573,70 @@ export default function CampaignManagementPage() {
                 {activeTab === 'featureRow2' && (
                     <div className="space-y-6">
                         <div className="bg-white rounded-xl border border-gray-200 p-6">
-                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 2 Content</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow2.leftMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow2({ ...featureRow2, leftMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_2', 'left', e.target.files[0], featureRow2, setFeatureRow2)} />
-                                        </label>
-                                    </div>
-                                    {featureRow2.leftMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow2.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow2.rightMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow2({ ...featureRow2, rightMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_2', 'right', e.target.files[0], featureRow2, setFeatureRow2)} />
-                                        </label>
-                                    </div>
-                                    {featureRow2.rightMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow2.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Feature Row 2 Items ({featureRow2.items?.length || 0})</h2>
+                                <button 
+                                    onClick={() => handleAddFeatureItem('campaign_feature_row_2', setFeatureRow2)}
+                                    className="flex items-center gap-2 bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity"
+                                >
+                                    <Plus className="w-4 h-4" /> Add Item
+                                </button>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
-                                    <select
-                                        value={featureRow2.leftCollectionId || ''}
-                                        onChange={(e) => setFeatureRow2({ ...featureRow2, leftCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
-                                    <select
-                                        value={featureRow2.rightCollectionId || ''}
-                                        onChange={(e) => setFeatureRow2({ ...featureRow2, rightCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {featureRow2.items?.map((item: CampaignFeatureItem, index: number) => (
+                                    <div key={item.id} className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-xs font-bold uppercase text-gray-500">Item {index + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_2', index, 'up', setFeatureRow2)} disabled={index === 0} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveUp className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_2', index, 'down', setFeatureRow2)} disabled={index === featureRow2.items.length - 1} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveDown className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleRemoveFeatureItem('campaign_feature_row_2', item.id, setFeatureRow2)} className="p-1 hover:bg-red-50 rounded text-red-500">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Media URL</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        value={item.mediaUrl || ''}
+                                                        onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_2', item.id, 'mediaUrl', e.target.value, setFeatureRow2)}
+                                                        className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                    />
+                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                                        <Upload className="w-4 h-4" />
+                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_2', item.id, e.target.files[0], setFeatureRow2)} />
+                                                    </label>
+                                                </div>
+                                                {item.mediaUrl && (
+                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>
+                                                <select
+                                                    value={item.collectionId || ''}
+                                                    onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_2', item.id, 'collectionId', e.target.value, setFeatureRow2)}
+                                                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                >
+                                                    <option value="">None</option>
+                                                    {collections.map(col => (
+                                                        <option key={col.id} value={col.id}>
+                                                            {col.name} ({getCollectionCategory(col.id)})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <button
@@ -739,78 +764,70 @@ export default function CampaignManagementPage() {
                 {activeTab === 'featureRow3' && (
                     <div className="space-y-6">
                         <div className="bg-white rounded-xl border border-gray-200 p-6">
-                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 3 Content</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow3.leftMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow3({ ...featureRow3, leftMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_3', 'left', e.target.files[0], featureRow3, setFeatureRow3)} />
-                                        </label>
-                                    </div>
-                                    {featureRow3.leftMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow3.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            value={featureRow3.rightMediaUrl || ''}
-                                            onChange={(e) => setFeatureRow3({ ...featureRow3, rightMediaUrl: e.target.value })}
-                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                            <Upload className="w-4 h-4" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_3', 'right', e.target.files[0], featureRow3, setFeatureRow3)} />
-                                        </label>
-                                    </div>
-                                    {featureRow3.rightMediaUrl && (
-                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                            <img src={featureRow3.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Feature Row 3 Items ({featureRow3.items?.length || 0})</h2>
+                                <button 
+                                    onClick={() => handleAddFeatureItem('campaign_feature_row_3', setFeatureRow3)}
+                                    className="flex items-center gap-2 bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity"
+                                >
+                                    <Plus className="w-4 h-4" /> Add Item
+                                </button>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
-                                    <select
-                                        value={featureRow3.leftCollectionId || ''}
-                                        onChange={(e) => setFeatureRow3({ ...featureRow3, leftCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
-                                    <select
-                                        value={featureRow3.rightCollectionId || ''}
-                                        onChange={(e) => setFeatureRow3({ ...featureRow3, rightCollectionId: e.target.value })}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    >
-                                        <option value="">None</option>
-                                        {collections.map(col => (
-                                            <option key={col.id} value={col.id}>
-                                                {col.name} ({getCollectionCategory(col.id)})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {featureRow3.items?.map((item: CampaignFeatureItem, index: number) => (
+                                    <div key={item.id} className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-xs font-bold uppercase text-gray-500">Item {index + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_3', index, 'up', setFeatureRow3)} disabled={index === 0} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveUp className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleMoveFeatureItem('campaign_feature_row_3', index, 'down', setFeatureRow3)} disabled={index === featureRow3.items.length - 1} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30">
+                                                    <MoveDown className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleRemoveFeatureItem('campaign_feature_row_3', item.id, setFeatureRow3)} className="p-1 hover:bg-red-50 rounded text-red-500">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Media URL</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        value={item.mediaUrl || ''}
+                                                        onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_3', item.id, 'mediaUrl', e.target.value, setFeatureRow3)}
+                                                        className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                    />
+                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                                        <Upload className="w-4 h-4" />
+                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_3', item.id, e.target.files[0], setFeatureRow3)} />
+                                                    </label>
+                                                </div>
+                                                {item.mediaUrl && (
+                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>
+                                                <select
+                                                    value={item.collectionId || ''}
+                                                    onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_3', item.id, 'collectionId', e.target.value, setFeatureRow3)}
+                                                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
+                                                >
+                                                    <option value="">None</option>
+                                                    {collections.map(col => (
+                                                        <option key={col.id} value={col.id}>
+                                                            {col.name} ({getCollectionCategory(col.id)})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <button

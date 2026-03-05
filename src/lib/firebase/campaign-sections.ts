@@ -82,16 +82,19 @@ export const updateCampaignFeatureRow = async (rowId: string, data: Partial<Camp
     });
 };
 
-export const initializeCampaignFeatureRow = async (rowId: string, leftImage: string, rightImage: string) => {
+export const initializeCampaignFeatureRow = async (rowId: string, images: string[]) => {
     const ref = doc(db, 'campaign_sections', rowId);
+    const items = images.map((url, index) => ({
+        id: `item_${index}`,
+        mediaUrl: url,
+        mediaType: 'image' as const,
+        collectionId: '',
+        sortOrder: index,
+        isActive: true
+    }));
     const defaultData: CampaignFeatureRowData = {
         id: rowId,
-        leftMediaUrl: leftImage,
-        leftMediaType: 'image',
-        rightMediaUrl: rightImage,
-        rightMediaType: 'image',
-        leftCollectionId: '',
-        rightCollectionId: '',
+        items,
         isActive: true,
         updatedAt: new Date()
     };
@@ -179,11 +182,11 @@ export const initializeCampaignBanner = async () => {
 
 export const initializeAllCampaignSections = async () => {
     await initializeCampaignHero();
-    await initializeCampaignFeatureRow(SECTION_IDS.featureRow1, '/middle.jpg', '/17.png');
+    await initializeCampaignFeatureRow('campaign_feature_row_1', ['/middle.jpg', '/17.png']);
     await initializeCampaignInteractiveHero();
-    await initializeCampaignFeatureRow(SECTION_IDS.featureRow2, '/20.png', '/21.png');
+    await initializeCampaignFeatureRow('campaign_feature_row_2', ['/20.png', '/21.png']);
     await initializeCampaignBanner();
-    await initializeCampaignFeatureRow(SECTION_IDS.featureRow3, '/22.png', '/23.png');
+    await initializeCampaignFeatureRow('campaign_feature_row_3', ['/22.png', '/23.png']);
 };
 
 // --- Get All Campaign Sections ---

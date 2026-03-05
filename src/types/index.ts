@@ -353,14 +353,18 @@ export interface CampaignHeroData {
 
 export interface CampaignFeatureRowData {
     id: string;
-    leftMediaUrl: string;
-    leftMediaType: 'image' | 'video';
-    rightMediaUrl: string;
-    rightMediaType: 'image' | 'video';
-    leftCollectionId?: string;
-    rightCollectionId?: string;
+    items: CampaignFeatureItem[];
     isActive: boolean;
     updatedAt: Date;
+}
+
+export interface CampaignFeatureItem {
+    id: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    collectionId?: string;
+    sortOrder: number;
+    isActive: boolean;
 }
 
 export interface CampaignInteractiveHeroData {

@@ -25,28 +25,21 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
         return () => unsubscribe();
     }, [rowId]);
 
-    const leftMediaUrl = rowData?.leftMediaUrl || defaultLeftImage;
-    const rightMediaUrl = rowData?.rightMediaUrl || defaultRightImage;
-    const leftCollectionId = rowData?.leftCollectionId;
-    const rightCollectionId = rowData?.rightCollectionId;
+    // Use items from Firestore or fallback to default 2 images
+    const items = rowData?.items?.filter(item => item.isActive).sort((a, b) => a.sortOrder - b.sortOrder) 
+        || [
+            { id: 'fallback-1', mediaUrl: defaultLeftImage, collectionId: '', mediaType: 'image' as const, sortOrder: 0, isActive: true },
+            { id: 'fallback-2', mediaUrl: defaultRightImage, collectionId: '', mediaType: 'image' as const, sortOrder: 1, isActive: true }
+        ];
 
-    const LeftContent = () => (
-        <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-50 overflow-hidden group">
-            <Image src={leftMediaUrl} alt="Feature Left" fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-            {leftCollectionId && (
-                <Link href={`/shop/collections/${leftCollectionId}`} className="absolute inset-0 z-10" />
-            )}
-        </div>
-    );
-
-    const RightContent = () => (
-        <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-50 overflow-hidden group">
-            <Image src={rightMediaUrl} alt="Feature Right" fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-            {rightCollectionId && (
-                <Link href={`/shop/collections/${rightCollectionId}`} className="absolute inset-0 z-10" />
-            )}
-        </div>
-    );
+    // Determine grid class based on number of items
+    const getGridClass = (count: number) => {
+        if (count === 1) return 'grid-cols-1';
+        if (count === 2) return 'grid-cols-1 md:grid-cols-2';
+        if (count === 3) return 'grid-cols-1 md:grid-cols-3';
+        if (count === 4) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4';
+        return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+    };
 
     return (
         <section className="bg-white">
@@ -57,21 +50,30 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-8">
-                {leftCollectionId ? (
-                    <Link href={`/shop/collections/${leftCollectionId}`} className="relative">
-                        <LeftContent />
-                    </Link>
-                ) : (
-                    <LeftContent />
-                )}
-                {rightCollectionId ? (
-                    <Link href={`/shop/collections/${rightCollectionId}`} className="relative">
-                        <RightContent />
-                    </Link>
-                ) : (
-                    <RightContent />
-                )}
+            <div className={`grid ${getGridClass(items.length)} gap-4 p-4 md:p-8`}>
+                {items.map((item, index) => {
+                    const content = (
+                        <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-50 overflow-hidden group">
+                            <Image 
+                                src={item.mediaUrl} 
+                                alt={`Feature ${index + 1}`} 
+                                fill 
+                                className="object-cover group-hover:scale-105 transition-transform duration-1000" 
+                            />
+                            {item.collectionId && (
+                                <Link href={`/shop/collections/${item.collectionId}`} className="absolute inset-0 z-10" />
+                            )}
+                        </div>
+                    );
+
+                    return item.collectionId ? (
+                        <Link key={item.id || index} href={`/shop/collections/${item.collectionId}`} className="relative">
+                            {content}
+                        </Link>
+                    ) : (
+                        <div key={item.id || index}>{content}</div>
+                    );
+                })}
             </div>
 
             {/* Branded Divider Bottom */}
