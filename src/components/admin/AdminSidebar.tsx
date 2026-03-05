@@ -32,12 +32,12 @@ const adminLinks = [
     { name: 'Categories', href: '/admin/categories', icon: Package, category: 'core' },
     { name: 'Collections', href: '/admin/collections', icon: Layers, category: 'core' },
     { name: 'Customers', href: '/admin/customers', icon: Users, category: 'core' },
-    
+
     // Homepage & Content Management
     { name: 'Homepage Sections', href: '/admin/homepage-sections', icon: Home, category: 'content' },
-    { name: 'Campaigns', href: '/admin/campaigns', icon: Megaphone, category: 'content' },
+    { name: 'Campaigns', href: '/admin/campaigns', icon: Home, category: 'content' },
     { name: 'World Content', href: '/admin/world', icon: Globe, category: 'content' },
-    
+
     // Analytics & Settings
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, category: 'settings' },
     { name: 'Settings', href: '/admin/settings', icon: Settings, category: 'settings' },

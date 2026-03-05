@@ -1,179 +1,829 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Save, Loader2, Image as ImageIcon, Video, Plus, X, Trash2, Upload, Home } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Plus, Search, Filter, Edit, Trash2, Calendar, Eye, Megaphone } from 'lucide-react';
-import { subscribeToCampaigns, deleteCampaign } from '@/lib/firebase/admin';
-import { Campaign } from '@/types';
-import { format } from 'date-fns';
+import {
+    subscribeToCampaignHero,
+    subscribeToCampaignFeatureRow,
+    subscribeToCampaignInteractiveHero,
+    subscribeToCampaignBanner,
+    updateCampaignHero,
+    updateCampaignFeatureRow,
+    updateCampaignInteractiveHero,
+    updateCampaignBanner,
+    initializeAllCampaignSections
+} from '@/lib/firebase/campaign-sections';
+import { uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
+import { Collection } from '@/types';
 
-export default function CampaignsPage() {
-    const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+export default function CampaignManagementPage() {
+    const [saving, setSaving] = useState(false);
+    const [initializing, setInitializing] = useState(false);
+    const [activeTab, setActiveTab] = useState<'hero' | 'featureRow1' | 'interactiveHero' | 'featureRow2' | 'banner' | 'featureRow3'>('hero');
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [initialized, setInitialized] = useState(false);
+    const [dataLoaded, setDataLoaded] = useState(false);
+
+    // Section States
+    const [heroSection, setHeroSection] = useState<any>(null);
+    const [featureRow1, setFeatureRow1] = useState<any>(null);
+    const [interactiveHero, setInteractiveHero] = useState<any>(null);
+    const [featureRow2, setFeatureRow2] = useState<any>(null);
+    const [banner, setBanner] = useState<any>(null);
+    const [featureRow3, setFeatureRow3] = useState<any>(null);
 
     useEffect(() => {
-        const unsubscribe = subscribeToCampaigns((data) => {
-            setCampaigns(data);
-            setLoading(false);
+        const unsubscribeCollections = subscribeToCollections(setCollections);
+
+        const unsubscribeHero = subscribeToCampaignHero((data) => {
+            if (data) {
+                setHeroSection(data);
+                setInitialized(true);
+            }
         });
 
-        return () => unsubscribe();
+        const unsubscribeFeatureRow1 = subscribeToCampaignFeatureRow('campaign_feature_row_1', (data) => {
+            if (data) {
+                setFeatureRow1(data);
+                setInitialized(true);
+            }
+        });
+
+        const unsubscribeInteractiveHero = subscribeToCampaignInteractiveHero((data) => {
+            if (data) {
+                setInteractiveHero(data);
+                setInitialized(true);
+            }
+        });
+
+        const unsubscribeFeatureRow2 = subscribeToCampaignFeatureRow('campaign_feature_row_2', (data) => {
+            if (data) {
+                setFeatureRow2(data);
+                setInitialized(true);
+            }
+        });
+
+        const unsubscribeBanner = subscribeToCampaignBanner((data) => {
+            if (data) {
+                setBanner(data);
+                setInitialized(true);
+            }
+        });
+
+        const unsubscribeFeatureRow3 = subscribeToCampaignFeatureRow('campaign_feature_row_3', (data) => {
+            if (data) {
+                setFeatureRow3(data);
+                setInitialized(true);
+            }
+        });
+
+        const timer = setTimeout(() => setDataLoaded(true), 1000);
+
+        return () => {
+            clearTimeout(timer);
+            unsubscribeCollections();
+            unsubscribeHero();
+            unsubscribeFeatureRow1();
+            unsubscribeInteractiveHero();
+            unsubscribeFeatureRow2();
+            unsubscribeBanner();
+            unsubscribeFeatureRow3();
+        };
     }, []);
 
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this campaign?')) {
-            try {
-                await deleteCampaign(id);
-            } catch (error) {
-                alert('Error deleting campaign');
-            }
+    const handleInitialize = async () => {
+        setInitializing(true);
+        try {
+            await initializeAllCampaignSections();
+            alert('Campaign sections initialized with default content! You can now customize them.');
+            setInitialized(true);
+        } catch (error) {
+            alert('Failed to initialize campaign sections');
+            console.error(error);
+        } finally {
+            setInitializing(false);
         }
     };
 
-    const filteredCampaigns = campaigns.filter(campaign =>
-        campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const getCollectionName = (collectionId: string) => {
+        if (!collectionId) return 'Not set';
+        const collection = collections.find(c => c.id === collectionId);
+        return collection ? collection.name : 'Unknown';
+    };
+
+    const getCollectionCategory = (collectionId: string) => {
+        if (!collectionId) return '';
+        const collection = collections.find(c => c.id === collectionId);
+        return collection ? (collection.category === 'women' ? 'Women' : 'Men') : '';
+    };
+
+    // Hero Section Handlers
+    const handleSaveHero = async () => {
+        setSaving(true);
+        try {
+            await updateCampaignHero(heroSection);
+            alert('Campaign hero saved!');
+        } catch (error) {
+            alert('Failed to save campaign hero');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadHeroMedia = async (file: File) => {
+        try {
+            const url = await uploadAdminImage(file, 'campaign/hero');
+            setHeroSection({ ...heroSection, mediaUrl: url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Feature Row Handlers
+    const handleSaveFeatureRow = async (rowId: string, data: any) => {
+        setSaving(true);
+        try {
+            await updateCampaignFeatureRow(rowId, data);
+            alert('Feature row saved!');
+        } catch (error) {
+            alert('Failed to save feature row');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadFeatureMedia = async (rowId: string, position: 'left' | 'right', file: File, currentData: any, setData: any) => {
+        try {
+            const url = await uploadAdminImage(file, `campaign/${rowId}_${position}`);
+            setData({ ...currentData, [`${position}MediaUrl`]: url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Interactive Hero Handlers
+    const handleSaveInteractiveHero = async () => {
+        setSaving(true);
+        try {
+            await updateCampaignInteractiveHero(interactiveHero);
+            alert('Interactive hero saved!');
+        } catch (error) {
+            alert('Failed to save interactive hero');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadInteractiveMedia = async (file: File) => {
+        try {
+            const url = await uploadAdminImage(file, 'campaign/interactive');
+            setInteractiveHero({ ...interactiveHero, mediaUrl: url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Banner Handlers
+    const handleSaveBanner = async () => {
+        setSaving(true);
+        try {
+            await updateCampaignBanner(banner);
+            alert('Banner saved!');
+        } catch (error) {
+            alert('Failed to save banner');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadBannerMedia = async (file: File) => {
+        try {
+            const url = await uploadAdminImage(file, 'campaign/banner');
+            setBanner({ ...banner, mediaUrl: url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Show initialization screen if no data exists
+    if (dataLoaded && !initialized) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
+                    <Home className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+                    <h1 className="text-2xl font-bold text-black mb-4">Campaign Management</h1>
+                    <p className="text-gray-600 mb-8">
+                        No campaign sections found. Click below to initialize with default content that you can customize.
+                    </p>
+                    <button
+                        onClick={handleInitialize}
+                        disabled={initializing}
+                        className="w-full bg-black text-white px-6 py-4 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {initializing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                        {initializing ? 'Initializing...' : 'Initialize Campaign Sections'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!dataLoaded || !heroSection || !featureRow1 || !interactiveHero || !featureRow2 || !banner || !featureRow3) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-black" />
+                    <p className="text-sm uppercase tracking-widest text-gray-500">Loading campaign sections...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-4 sm:space-y-6 bg-white text-black">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-black">Campaigns</h1>
-                    <p className="text-sm text-gray-600">Manage marketing campaigns and drops.</p>
-                </div>
-                <Link
-                    href="/admin/campaigns/new"
-                    className="inline-flex items-center justify-center gap-2 bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                    <Plus className="w-4 h-4" />
-                    New Campaign
-                </Link>
-            </div>
-
-            {/* Stats Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 text-black">
-                    <p className="text-xs sm:text-xs uppercase tracking-widest text-gray-500 font-bold mb-2">Total Campaigns</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-black">{campaigns.length}</p>
-                </div>
-                <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 text-black">
-                    <p className="text-xs sm:text-xs uppercase tracking-widest text-gray-500 font-bold mb-2">Active Now</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-green-500">
-                        {campaigns.filter(c => c.isActive).length}
-                    </p>
-                </div>
-                <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 text-black">
-                    <p className="text-xs sm:text-xs uppercase tracking-widest text-gray-500 font-bold mb-2">Past Collections</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-blue-500">
-                        {campaigns.filter(c => !c.isActive).length}
-                    </p>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-black">Campaign Management</h1>
+                        <p className="text-sm text-gray-600 mt-1">Customize your campaign page sections, media, and collection links</p>
+                    </div>
+                    <Link
+                        href="/campaigns"
+                        target="_blank"
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black text-sm font-bold uppercase tracking-widest rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                        <Home className="w-4 h-4" />
+                        View Campaign Page
+                    </Link>
                 </div>
             </div>
 
-            {/* Filters and Search */}
-            <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4 text-black">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search campaigns..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none text-black"
-                    />
+            {/* Tabs */}
+            <div className="bg-white border-b border-gray-200 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex gap-1 overflow-x-auto">
+                        {[
+                            { id: 'hero', label: 'Hero' },
+                            { id: 'featureRow1', label: 'Feature Row 1' },
+                            { id: 'interactiveHero', label: 'Interactive Hero' },
+                            { id: 'featureRow2', label: 'Feature Row 2' },
+                            { id: 'banner', label: 'Banner' },
+                            { id: 'featureRow3', label: 'Feature Row 3' }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`px-6 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-b-2 ${
+                                    activeTab === tab.id
+                                        ? 'border-black text-black'
+                                        : 'border-transparent text-gray-500 hover:text-black'
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-md text-sm hover:bg-gray-50 text-black">
-                    <Filter className="w-4 h-4" />
-                    Filters
-                </button>
             </div>
 
-            {/* Campaigns Grid */}
-            {loading ? (
-                <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-                </div>
-            ) : filteredCampaigns.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    {filteredCampaigns.map((campaign) => (
-                        <div key={campaign.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden group text-black">
-                            <div className="aspect-[16/9] relative">
-                                {campaign.heroMedia.type === 'image' ? (
-                                    <Image
-                                        src={campaign.heroMedia.url}
-                                        alt={campaign.name}
-                                        fill
-                                        className="object-cover transition-transform group-hover:scale-105"
+            {/* Content */}
+            <div className="max-w-7xl mx-auto px-6 py-8">
+                {/* Hero Section Editor */}
+                {activeTab === 'hero' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Campaign Hero Content</h2>
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Title</label>
+                                <input
+                                    value={heroSection.title || ''}
+                                    onChange={(e) => setHeroSection({ ...heroSection, title: e.target.value })}
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                />
+                            </div>
+                            <div className="mt-6">
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Background Media URL</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={heroSection.mediaUrl || ''}
+                                        onChange={(e) => setHeroSection({ ...heroSection, mediaUrl: e.target.value })}
+                                        className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                ) : (
-                                    <div className="w-full h-full bg-black flex items-center justify-center">
-                                        <Megaphone className="w-12 h-12 text-white/20" />
+                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                        <Upload className="w-4 h-4" />
+                                        <span className="text-xs font-bold uppercase">Upload</span>
+                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadHeroMedia(e.target.files[0])} />
+                                    </label>
+                                </div>
+                                {heroSection.mediaUrl && (
+                                    <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
+                                        <img src={heroSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
                                     </div>
                                 )}
-                                <div className="absolute top-4 left-4">
-                                    <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${campaign.isActive
-                                            ? 'bg-green-500 text-white'
-                                            : 'bg-gray-500 text-white'
-                                        }`}>
-                                        {campaign.isActive ? 'Active' : 'Inactive'}
-                                    </span>
+                            </div>
+                            <div className="mt-6">
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Decorative Image URL</label>
+                                <input
+                                    value={heroSection.decorativeImage || ''}
+                                    onChange={(e) => setHeroSection({ ...heroSection, decorativeImage: e.target.value })}
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                />
+                                {heroSection.decorativeImage && (
+                                    <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
+                                        <img src={heroSection.decorativeImage} alt="Preview" className="w-full h-full object-contain p-4" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleSaveHero}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Hero Section
+                        </button>
+                    </div>
+                )}
+
+                {/* Feature Row 1 Editor */}
+                {activeTab === 'featureRow1' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 1 Content</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow1.leftMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow1({ ...featureRow1, leftMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_1', 'left', e.target.files[0], featureRow1, setFeatureRow1)} />
+                                        </label>
+                                    </div>
+                                    {featureRow1.leftMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow1.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow1.rightMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow1({ ...featureRow1, rightMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_1', 'right', e.target.files[0], featureRow1, setFeatureRow1)} />
+                                        </label>
+                                    </div>
+                                    {featureRow1.rightMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow1.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div className="p-4 sm:p-6">
-                                <h3 className="font-bold text-base sm:text-lg mb-2 text-black">{campaign.name}</h3>
-                                <div className="flex items-center gap-2 text-xs text-gray-600 mb-4">
-                                    <Calendar className="w-3 h-3" />
-                                    <span>
-                                        {format(campaign.startDate instanceof Date ? campaign.startDate : new Date(campaign.startDate), 'MMM dd, yyyy')}
-                                        {campaign.endDate && ` - ${format(campaign.endDate instanceof Date ? campaign.endDate : new Date(campaign.endDate), 'MMM dd, yyyy')}`}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100 gap-2 sm:gap-0">
-                                    <div className="flex gap-2">
-                                        <Link
-                                            href={`/admin/campaigns/edit/${campaign.id}`}
-                                            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-                                            title="Edit"
-                                        >
-                                            <Edit className="w-4 h-4 text-blue-500" />
-                                        </Link>
-                                        <button
-                                            onClick={() => handleDelete(campaign.id)}
-                                            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                        </button>
-                                    </div>
-                                    <Link
-                                        href={`/campaigns/${campaign.slug}`}
-                                        target="_blank"
-                                        className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors"
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
+                                    <select
+                                        value={featureRow1.leftCollectionId || ''}
+                                        onChange={(e) => setFeatureRow1({ ...featureRow1, leftCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     >
-                                        <Eye className="w-4 h-4" />
-                                        View Live
-                                    </Link>
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
+                                    <select
+                                        value={featureRow1.rightCollectionId || ''}
+                                        onChange={(e) => setFeatureRow1({ ...featureRow1, rightCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-16 sm:py-24 bg-white rounded-lg border border-gray-200">
-                    <Megaphone className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-black">No campaigns found</h3>
-                    <p className="text-gray-600 mb-6">Create your first campaign to get started.</p>
-                    <Link
-                        href="/admin/campaigns/new"
-                        className="inline-flex items-center justify-center gap-2 bg-black text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                        <Plus className="w-4 h-4" />
-                        New Campaign
-                    </Link>
-                </div>
-            )}
+                        <button
+                            onClick={() => handleSaveFeatureRow('campaign_feature_row_1', featureRow1)}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Feature Row 1
+                        </button>
+                    </div>
+                )}
+
+                {/* Interactive Hero Editor */}
+                {activeTab === 'interactiveHero' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Interactive Hero Content</h2>
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Title</label>
+                                <input
+                                    value={interactiveHero.title || ''}
+                                    onChange={(e) => setInteractiveHero({ ...interactiveHero, title: e.target.value })}
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                />
+                            </div>
+                            <div className="mt-6">
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Background Media URL</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={interactiveHero.mediaUrl || ''}
+                                        onChange={(e) => setInteractiveHero({ ...interactiveHero, mediaUrl: e.target.value })}
+                                        className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                        <Upload className="w-4 h-4" />
+                                        <span className="text-xs font-bold uppercase">Upload</span>
+                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadInteractiveMedia(e.target.files[0])} />
+                                    </label>
+                                </div>
+                                {interactiveHero.mediaUrl && (
+                                    <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
+                                        <img src={interactiveHero.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Primary Button Text</label>
+                                    <input
+                                        value={interactiveHero.primaryButtonText || ''}
+                                        onChange={(e) => setInteractiveHero({ ...interactiveHero, primaryButtonText: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Primary Button Collection</label>
+                                    <select
+                                        value={interactiveHero.primaryButtonCollectionId || ''}
+                                        onChange={(e) => setInteractiveHero({ ...interactiveHero, primaryButtonCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Secondary Button Text</label>
+                                    <input
+                                        value={interactiveHero.secondaryButtonText || ''}
+                                        onChange={(e) => setInteractiveHero({ ...interactiveHero, secondaryButtonText: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Secondary Button Collection</label>
+                                    <select
+                                        value={interactiveHero.secondaryButtonCollectionId || ''}
+                                        onChange={(e) => setInteractiveHero({ ...interactiveHero, secondaryButtonCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleSaveInteractiveHero}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Interactive Hero
+                        </button>
+                    </div>
+                )}
+
+                {/* Feature Row 2 Editor */}
+                {activeTab === 'featureRow2' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 2 Content</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow2.leftMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow2({ ...featureRow2, leftMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_2', 'left', e.target.files[0], featureRow2, setFeatureRow2)} />
+                                        </label>
+                                    </div>
+                                    {featureRow2.leftMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow2.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow2.rightMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow2({ ...featureRow2, rightMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_2', 'right', e.target.files[0], featureRow2, setFeatureRow2)} />
+                                        </label>
+                                    </div>
+                                    {featureRow2.rightMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow2.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
+                                    <select
+                                        value={featureRow2.leftCollectionId || ''}
+                                        onChange={(e) => setFeatureRow2({ ...featureRow2, leftCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
+                                    <select
+                                        value={featureRow2.rightCollectionId || ''}
+                                        onChange={(e) => setFeatureRow2({ ...featureRow2, rightCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => handleSaveFeatureRow('campaign_feature_row_2', featureRow2)}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Feature Row 2
+                        </button>
+                    </div>
+                )}
+
+                {/* Banner Editor */}
+                {activeTab === 'banner' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Campaign Banner Content</h2>
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Title</label>
+                                <input
+                                    value={banner.title || ''}
+                                    onChange={(e) => setBanner({ ...banner, title: e.target.value })}
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                />
+                            </div>
+                            <div className="mt-6">
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Background Media URL</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={banner.mediaUrl || ''}
+                                        onChange={(e) => setBanner({ ...banner, mediaUrl: e.target.value })}
+                                        className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                        <Upload className="w-4 h-4" />
+                                        <span className="text-xs font-bold uppercase">Upload</span>
+                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadBannerMedia(e.target.files[0])} />
+                                    </label>
+                                </div>
+                                {banner.mediaUrl && (
+                                    <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
+                                        <img src={banner.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mt-6">
+                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Show Buttons</label>
+                                <select
+                                    value={banner.showButtons ? 'true' : 'false'}
+                                    onChange={(e) => setBanner({ ...banner, showButtons: e.target.value === 'true' })}
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                >
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            {banner.showButtons && (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Primary Button Text</label>
+                                            <input
+                                                value={banner.primaryButtonText || ''}
+                                                onChange={(e) => setBanner({ ...banner, primaryButtonText: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Primary Button Collection</label>
+                                            <select
+                                                value={banner.primaryButtonCollectionId || ''}
+                                                onChange={(e) => setBanner({ ...banner, primaryButtonCollectionId: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                            >
+                                                <option value="">None</option>
+                                                {collections.map(col => (
+                                                    <option key={col.id} value={col.id}>
+                                                        {col.name} ({getCollectionCategory(col.id)})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Secondary Button Text</label>
+                                            <input
+                                                value={banner.secondaryButtonText || ''}
+                                                onChange={(e) => setBanner({ ...banner, secondaryButtonText: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Secondary Button Collection</label>
+                                            <select
+                                                value={banner.secondaryButtonCollectionId || ''}
+                                                onChange={(e) => setBanner({ ...banner, secondaryButtonCollectionId: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                            >
+                                                <option value="">None</option>
+                                                {collections.map(col => (
+                                                    <option key={col.id} value={col.id}>
+                                                        {col.name} ({getCollectionCategory(col.id)})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleSaveBanner}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Banner
+                        </button>
+                    </div>
+                )}
+
+                {/* Feature Row 3 Editor */}
+                {activeTab === 'featureRow3' && (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Feature Row 3 Content</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow3.leftMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow3({ ...featureRow3, leftMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_3', 'left', e.target.files[0], featureRow3, setFeatureRow3)} />
+                                        </label>
+                                    </div>
+                                    {featureRow3.leftMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow3.leftMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Image URL</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={featureRow3.rightMediaUrl || ''}
+                                            onChange={(e) => setFeatureRow3({ ...featureRow3, rightMediaUrl: e.target.value })}
+                                            className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                        <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+                                            <Upload className="w-4 h-4" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureMedia('campaign_feature_row_3', 'right', e.target.files[0], featureRow3, setFeatureRow3)} />
+                                        </label>
+                                    </div>
+                                    {featureRow3.rightMediaUrl && (
+                                        <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
+                                            <img src={featureRow3.rightMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Left Collection Link</label>
+                                    <select
+                                        value={featureRow3.leftCollectionId || ''}
+                                        onChange={(e) => setFeatureRow3({ ...featureRow3, leftCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Right Collection Link</label>
+                                    <select
+                                        value={featureRow3.rightCollectionId || ''}
+                                        onChange={(e) => setFeatureRow3({ ...featureRow3, rightCollectionId: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    >
+                                        <option value="">None</option>
+                                        {collections.map(col => (
+                                            <option key={col.id} value={col.id}>
+                                                {col.name} ({getCollectionCategory(col.id)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => handleSaveFeatureRow('campaign_feature_row_3', featureRow3)}
+                            disabled={saving}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white px-8 py-4 text-xs font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Save Feature Row 3
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

@@ -128,6 +128,13 @@ service cloud.firestore {
        allow write: if isAdmin();
      }
 
+     // Campaign Sections (Public Read, Admin Write)
+     // Collection for managing campaign page components
+     match /campaign_sections/{sectionId} {
+       allow read: if true;
+       allow write: if isAdmin();
+     }
+
      // Collections (Public Read, Admin Write)
      // Collections must have a category field (men/women)
      match /collections/{collectionId} {

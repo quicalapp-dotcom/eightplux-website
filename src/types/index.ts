@@ -339,3 +339,62 @@ export interface HighlightItem {
     createdAt: Date;
     updatedAt: Date;
 }
+
+// Campaign Page Section Types
+export interface CampaignHeroData {
+    id: string;
+    title: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    decorativeImage?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface CampaignFeatureRowData {
+    id: string;
+    leftMediaUrl: string;
+    leftMediaType: 'image' | 'video';
+    rightMediaUrl: string;
+    rightMediaType: 'image' | 'video';
+    leftCollectionId?: string;
+    rightCollectionId?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface CampaignInteractiveHeroData {
+    id: string;
+    title: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    primaryButtonText?: string;
+    primaryButtonCollectionId?: string;
+    secondaryButtonText?: string;
+    secondaryButtonCollectionId?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface CampaignBannerData {
+    id: string;
+    title: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    showButtons: boolean;
+    primaryButtonText?: string;
+    primaryButtonCollectionId?: string;
+    secondaryButtonText?: string;
+    secondaryButtonCollectionId?: string;
+    isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface CampaignPageData {
+    hero: CampaignHeroData;
+    featureRow1: CampaignFeatureRowData;
+    interactiveHero: CampaignInteractiveHeroData;
+    featureRow2: CampaignFeatureRowData;
+    banner: CampaignBannerData;
+    featureRow3: CampaignFeatureRowData;
+}
