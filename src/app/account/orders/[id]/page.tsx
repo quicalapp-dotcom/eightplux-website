@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Package, MapPin, CreditCard, Truck, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
+import OrderStepper from '@/components/ui/OrderStepper';
 
 interface OrderItem {
   name: string;
@@ -239,30 +240,26 @@ export default function OrderDetailPage() {
 
             {/* Order Status Timeline */}
             <section>
-              <h2 className="font-display text-red-600 mb-6">Order Status</h2>
-              <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${getStatusInfo(order.orderStatus).bg} ${getStatusInfo(order.orderStatus).border} border`}>
-                    <StatusIcon className={`w-6 h-6 ${getStatusInfo(order.orderStatus).color}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-black capitalize">{order.orderStatus}</h3>
-                    <p className="text-sm text-black">
-                      {order.orderStatus === 'pending' && 'Your order is being processed'}
-                      {order.orderStatus === 'confirmed' && 'Your order has been confirmed'}
-                      {order.orderStatus === 'processing' && 'Your order is being prepared for shipment'}
-                      {order.orderStatus === 'shipped' && 'Your order has been shipped'}
-                      {order.orderStatus === 'delivered' && 'Your order has been delivered'}
-                      {order.orderStatus === 'cancelled' && 'Your order has been cancelled'}
-                    </p>
-                  </div>
-                </div>
+              <h2 className="font-display text-red-600 mb-6">Order Journey</h2>
+              <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-8 bg-white dark:bg-gray-200 shadow-sm">
+                <OrderStepper 
+                  currentStatus={order.orderStatus} 
+                  isCancelled={order.orderStatus === 'cancelled'} 
+                />
                 
                 {order.trackingNumber && (
-                  <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-                    <h4 className="font-bold text-sm uppercase tracking-widest text-black mb-2">Tracking Information</h4>
-                    <p className="text-sm">Tracking Number: {order.trackingNumber}</p>
-                    <button className="mt-2 text-sm font-bold text-red-600 hover:text-red-500">Track Package</button>
+                  <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Carrier Details</h4>
+                      <p className="text-xs uppercase font-bold tracking-widest">Tracking Number: <span className="text-red-600 font-mono">{order.trackingNumber}</span></p>
+                    </div>
+                    <Link 
+                      href={`https://www.google.com/search?q=track+package+${order.trackingNumber}`}
+                      target="_blank"
+                      className="inline-flex items-center justify-center bg-black text-white px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-colors"
+                    >
+                      Track Package
+                    </Link>
                   </div>
                 )}
               </div>

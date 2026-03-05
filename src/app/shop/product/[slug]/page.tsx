@@ -94,8 +94,22 @@ export default function ProductDetailPage() {
         }
     }, [slug]);
 
+    const [selectionError, setSelectionError] = useState('');
+
     const handleAddToBag = () => {
-        if (!product || !selectedColor) return;
+        if (!product) return;
+        
+        setSelectionError('');
+
+        if (product.sizes.length > 0 && !selectedSize) {
+            setSelectionError('please select a size before adding to bag');
+            return;
+        }
+
+        if (product.colors.length > 0 && !selectedColor) {
+            setSelectionError('please select a color before adding to bag');
+            return;
+        }
 
         const newItem = {
             productId: product.id,
@@ -103,7 +117,7 @@ export default function ProductDetailPage() {
             price: product.price,
             image: product.images[0],
             size: selectedSize,
-            color: selectedColor.name,
+            color: selectedColor?.name || '',
             quantity: 1,
         };
 
@@ -255,6 +269,7 @@ export default function ProductDetailPage() {
                                             onClick={() => {
                                                 setSelectedSize(size);
                                                 setIsSizeDropdownOpen(false);
+                                                setSelectionError('');
                                             }}
                                             className="w-full text-left px-6 py-4 text-[10px] uppercase font-bold tracking-widest hover:bg-black hover:text-white transition-colors border-b border-gray-50 last:border-0"
                                         >
@@ -262,6 +277,12 @@ export default function ProductDetailPage() {
                                         </button>
                                     ))}
                                 </div>
+                            )}
+
+                            {selectionError && (
+                                <p className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#C72f32] animate-pulse">
+                                    {selectionError}
+                                </p>
                             )}
 
                             <button
@@ -298,9 +319,12 @@ export default function ProductDetailPage() {
                                 ))}
                             </div>
 
-                            <button className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] mt-10 hover:bg-black transition-colors text-center">
+                            <Link 
+                                href="/cart"
+                                className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] mt-10 hover:bg-black transition-colors flex justify-center items-center"
+                            >
                                 Go to cart
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

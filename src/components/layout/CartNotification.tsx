@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
 import { useCartStore } from '@/stores/cartStore';
 
 export default function CartNotification() {
@@ -35,12 +36,21 @@ export default function CartNotification() {
                                 You added product <span className="underline italic">_{lastAddedItem.name}_</span> to your shopping Bag
                             </span>
                         </div>
-                        <button 
-                            onClick={hideNotification}
-                            className="text-[#0ca678] hover:text-[#087f5b] transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-6">
+                            <Link 
+                                href="/cart"
+                                onClick={hideNotification}
+                                className="text-[10px] uppercase font-bold tracking-[0.2em] border-b border-[#0ca678] text-[#0ca678] hover:opacity-70 transition-opacity whitespace-nowrap"
+                            >
+                                View Bag
+                            </Link>
+                            <button 
+                                onClick={hideNotification}
+                                className="text-[#0ca678] hover:text-[#087f5b] transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             )}

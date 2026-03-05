@@ -9,6 +9,7 @@ import { updateOrderStatus } from '@/lib/firebase/admin';
 import { updateDoc } from 'firebase/firestore';
 import { ArrowLeft, MapPin, CreditCard, Box, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
+import OrderStepper from '@/components/ui/OrderStepper';
 
 export default function OrderDetailPage() {
     const { id } = useParams();
@@ -106,7 +107,8 @@ export default function OrderDetailPage() {
                             disabled={updating}
                             className="px-4 py-2 bg-white dark:bg-grey-200 border border-gray-200 dark:border-gray-800 rounded-md text-sm font-medium focus:outline-none focus:ring-1 focus:ring-black"
                         >
-                            <option value="pending">Pending</option>
+                            <option value="pending">Pending Review</option>
+                            <option value="confirmed">Confirmed (Paid)</option>
                             <option value="processing">Processing</option>
                             <option value="shipped">Shipped</option>
                             <option value="delivered">Delivered</option>
@@ -114,6 +116,20 @@ export default function OrderDetailPage() {
                         </select>
                     </div>
                 </div>
+            </div>
+
+            {/* Visual Tracking Stepper */}
+            <div className="bg-white dark:bg-grey-200 p-8 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="flex justify-between items-center mb-10">
+                    <h2 className="text-[10px] uppercase font-black tracking-[0.3em] text-gray-400">Order Journey</h2>
+                    <span className="text-[10px] uppercase font-bold px-3 py-1 bg-gray-50 dark:bg-grey-400 rounded-full border border-gray-100 dark:border-gray-800">
+                        Live Tracking
+                    </span>
+                </div>
+                <OrderStepper 
+                    currentStatus={order.orderStatus} 
+                    isCancelled={order.orderStatus === 'cancelled'} 
+                />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

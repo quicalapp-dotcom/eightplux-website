@@ -2,519 +2,247 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, ChevronLeft, CreditCard, Lock, Check } from 'lucide-react';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase/config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
+// Stores & Contexts
 import { useCartStore } from '@/stores/cartStore';
 import { useCurrencyStore } from '@/stores/currencyStore';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/contexts/AuthContext';
 
-const steps = ['Information', 'Shipping', 'Payment'];
+// Modular Components
+import CheckoutHeader from '@/components/checkout/CheckoutHeader';
+import CheckoutIdentification from '@/components/checkout/CheckoutIdentification';
+import CheckoutShipping from '@/components/checkout/CheckoutShipping';
+import CheckoutPayment from '@/components/checkout/CheckoutPayment';
+import OrderSummary from '@/components/checkout/OrderSummary';
+
+const steps = ['Identification', 'Shipping', 'Payment'];
 
 export default function CheckoutPage() {
     const router = useRouter();
     const { items, getSubtotal, clearCart } = useCartStore();
-    const { formatPrice } = useCurrencyStore();
+    const { formatPrice, currency } = useCurrencyStore();
+    const { user } = useAuth();
+    
+    // UI State
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [loginLoading, setLoginLoading] = useState(false);
+    const [authError, setAuthError] = useState('');
+    const [mounted, setMounted] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
         email: '',
+        password: '',
         firstName: '',
         lastName: '',
         address: '',
         city: '',
-        country: 'United States',
+        country: 'Nigeria',
         postalCode: '',
         phone: '',
         shippingMethod: 'standard',
-        paymentMethod: 'paystack_card', // Added payment method selection
+        paymentMethod: 'crypto',
     });
 
-    // Calculate totals
-    const subtotal = getSubtotal();
-    const { convertPrice } = useCurrencyStore();
-    const shippingCostUSD = formData.shippingMethod === 'express' ? 25 : 0;
-    const shippingCost = convertPrice(shippingCostUSD);
-    const total = subtotal + shippingCostUSD;
-
-    // Wait for hydration
-    const [mounted, setMounted] = useState(false);
+    // Sync email if user is logged in
     useEffect(() => {
-        setMounted(true);
-        if (items.length === 0) {
-            // Redirect if cart is empty, but maybe wait a bit or show a message?
-            // For now, let's just let them see the empty state or redirect
-            // router.push('/shop'); 
+        if (user && user.email) {
+            setFormData(prev => ({ ...prev, email: user.email || '' }));
+            if (currentStep === 0) setCurrentStep(1);
         }
-    }, [items, router]);
+    }, [user, currentStep]);
+
+    // Paystack script loading commented out — using direct wallet crypto
+    // useEffect(() => {
+    //     const script = document.createElement('script');
+    //     script.src = 'https://js.paystack.co/v1/inline.js';
+    //     script.async = true;
+    //     document.body.appendChild(script);
+    //     return () => { if (document.body.contains(script)) document.body.removeChild(script); };
+    // }, []);
+    useEffect(() => { setMounted(true); }, []);
 
     if (!mounted) return null;
 
-    if (items.length === 0) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#0A0A0A] text-black dark:text-white">
-                <h1 className="font-display text-2xl mb-4">Your bag is empty</h1>
-                <Link href="/shop" className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 uppercase text-xs font-bold tracking-widest">
-                    Continue Shopping
-                </Link>
-            </div>
-        )
-    }
+    // Totals
+    const subtotal = getSubtotal();
+    const shippingCostUSD = formData.shippingMethod === 'express' ? 25 : 0;
+    const total = subtotal + shippingCostUSD;
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    // Handlers
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Call useAuth at the top level to follow React Hook rules
-    const { user, loading: authLoading } = useAuth();
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoginLoading(true);
+        setAuthError('');
+        try {
+            await signInWithEmailAndPassword(auth, formData.email, formData.password);
+            setCurrentStep(1);
+        } catch (err: any) {
+            setAuthError('Invalid credentials. Please try again.');
+        } finally {
+            setLoginLoading(false);
+        }
+    };
+
+    const handleGuestCheckout = () => {
+        if (!formData.email) {
+            setAuthError('Please enter an email address.');
+            return;
+        }
+        setCurrentStep(1);
+    };
 
     const handleNextStep = (e: React.FormEvent) => {
         e.preventDefault();
         if (currentStep < steps.length - 1) {
             setCurrentStep((prev) => prev + 1);
-        } else {
-            handlePlaceOrder();
         }
     };
 
-    const handlePlaceOrder = async () => {
+    const finalizeOrder = async (reference: string, paymentStatus: 'paid' | 'pending') => {
+        const orderRef = doc(collection(db, 'orders'));
+        const orderData = {
+            id: orderRef.id,
+            userId: user?.uid || 'guest',
+            items: items.map(item => ({
+                productId: item.productId,
+                name: item.name,
+                image: item.image,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color
+            })),
+            subtotal,
+            shipping: shippingCostUSD,
+            total,
+            orderStatus: paymentStatus === 'paid' ? 'confirmed' : 'pending',
+            paymentMethod: formData.paymentMethod,
+            paymentStatus,
+            currency: 'USD',
+            shippingAddress: {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                address1: formData.address,
+                city: formData.city,
+                country: formData.country,
+                postalCode: formData.postalCode,
+                phone: formData.phone || '',
+            },
+            email: formData.email,
+            paymentReference: reference,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
+        await setDoc(orderRef, orderData);
+        return orderRef.id;
+    };
+
+    // Paystack handlePlaceOrder commented out — using direct wallet
+    // const handlePlaceOrder = async () => { /* ... paystack logic ... */ };
+    const handlePlaceOrder = async () => {}; // no-op; crypto uses handleCryptoConfirm
+
+    const handleCryptoConfirm = async (txHash: string, coin: string) => {
         setLoading(true);
         try {
-            // Check if user is authenticated
-            if (!user) {
-                throw new Error('You must be logged in to place an order');
-            }
-
-            // Create order in Firestore
-            const orderData = {
-                userId: user.uid, // Use authenticated user's uid
-                items: items.map(item => ({
-                    productId: item.productId,
-                    name: item.name,
-                    image: item.image,
-                    price: item.price,
-                    quantity: item.quantity,
-                    size: item.size,
-                    color: item.color
-                })),
-                subtotal: subtotal,
-                shipping: shippingCost, // Changed from shippingCost to shipping to match Order type
-                tax: 0, // Added tax field to match Order type
-                total: total,
-                orderStatus: 'pending', // pending → confirmed → processing → shipped → delivered → cancelled
-                paymentMethod: formData.paymentMethod, // Use the selected payment method from form
-                paymentStatus: 'pending', // Added paymentStatus to match Order type
-                currency: 'USD',
-                shippingAddress: {
-                    id: '', // Placeholder ID - will be auto-generated
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    address1: formData.address, // Changed from address to address1 to match Address type
-                    address2: '', // Added address2 to match Address type
-                    city: formData.city,
-                    state: '', // Added state to match Address type
-                    country: formData.country,
-                    postalCode: formData.postalCode,
-                    phone: formData.phone || '',
-                    isDefault: false // Added isDefault to match Address type
-                },
-                billingAddress: {
-                    id: '', // Placeholder ID - will be auto-generated
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    address1: formData.address, // Changed from address to address1 to match Address type
-                    address2: '', // Added address2 to match Address type
-                    city: formData.city,
-                    state: '', // Added state to match Address type
-                    country: formData.country,
-                    postalCode: formData.postalCode,
-                    phone: formData.phone || '',
-                    isDefault: false // Added isDefault to match Address type
-                },
-                shippingMethod: formData.shippingMethod,
-                email: formData.email,
-                trackingNumber: '', // Added trackingNumber to match Order type
-                paymentReference: '', // Added paymentReference to match Order type
-                cryptoTransactionHash: '', // Added cryptoTransactionHash to match Order type
-                notes: '', // Added notes to match Order type
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
-            // Add order to Firestore
-            const orderRef = doc(collection(db, 'orders'));
-            await setDoc(orderRef, {
-                ...orderData,
-                id: orderRef.id, // Store the document ID in the order object
-                createdAt: serverTimestamp(), // Use server timestamp for consistency
-                updatedAt: serverTimestamp()  // Use server timestamp for consistency
+            const ref = 'CRYPTO-' + Date.now();
+            const orderId = await finalizeOrder(ref, 'pending');
+            // Store tx hash on the order
+            const { doc, updateDoc } = await import('firebase/firestore');
+            await updateDoc(doc(db, 'orders', orderId), {
+                cryptoTransactionHash: txHash || 'awaiting',
+                cryptoCoin: coin,
             });
-
-            // Clear cart and redirect to success
             clearCart();
             router.push('/checkout/success');
-        } catch (error) {
-            console.error('Error placing order:', error);
+        } catch (err) {
+            console.error('Crypto confirm error:', err);
+            alert('Order creation failed. Please contact support.');
+        } finally {
             setLoading(false);
-            // Show error message to user
-            alert('Failed to place order. Please try again.');
         }
     };
 
+    // Empty state
+    if (items.length === 0) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black font-sans">
+                <h1 className="font-tt text-2xl mb-8 lowercase text-gray-400">your bag is empty</h1>
+                <Link href="/shop" className="border border-black px-12 py-4 uppercase text-[10px] font-bold tracking-[0.2em] hover:bg-black hover:text-white transition-all">
+                    continue shopping
+                </Link>
+            </div>
+        );
+    }
+
     return (
-        <div className="bg-gray-200 dark:bg-gray-200 text-black dark:text-gray-100 min-h-screen flex flex-col lg:flex-row font-sans">
-            {/* Left Column - Main Content */}
-            <div className="w-full lg:w-[58%] px-6 py-8 lg:px-20 lg:py-16 order-2 lg:order-1">
-                {/* Header */}
-                <div className="mb-8">
-                    <Link href="/" className="font-display text-2xl tracking-widest font-bold">
-                        EIGHTPLU<span className="text-red-600">+</span>
-                    </Link>
+        <div className="bg-white text-black min-h-screen font-sans">
+            <div className="max-w-[1440px] mx-auto min-h-screen flex flex-col lg:flex-row">
+                
+                {/* Left Section - Process Steps */}
+                <div className="flex-1 px-6 py-10 lg:px-20 lg:py-20 border-r border-gray-100">
+                    <div className="max-w-xl mx-auto lg:mx-0 lg:ml-auto">
+                        <CheckoutHeader 
+                            currentStep={currentStep} 
+                            steps={steps} 
+                            setCurrentStep={setCurrentStep} 
+                        />
 
-                    {/* Breadcrumbs */}
-                    <div className="flex items-center space-x-2 text-xs mt-6 text-gray-500">
-                        <Link href="/cart" className="hover:text-red-600 transition-colors">Cart</Link>
-                        <ChevronRight className="w-3 h-3" />
-                        {steps.map((step, index) => (
-                            <div key={step} className="flex items-center">
-                                <span className={`${index === currentStep ? 'text-black dark:text-red-600 font-bold' : ''} ${index < currentStep ? 'text-red-600' : ''}`}>
-                                    {step}
-                                </span>
-                                {index < steps.length - 1 && <ChevronRight className="w-3 h-3 mx-2" />}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <form onSubmit={handleNextStep}>
-                    {/* STEP 1: INFORMATION */}
-                    {currentStep === 0 && (
-                        <div className="space-y-8 animate-fade-in-up">
-                            <div>
-                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Contact</h2>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                />
-                            </div>
-
-                            <div>
-                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Shipping Address</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="text"
-                                        name="firstName"
-                                        placeholder="First Name"
-                                        value={formData.firstName}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="lastName"
-                                        placeholder="Last Name"
-                                        value={formData.lastName}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        placeholder="Address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        placeholder="City"
-                                        value={formData.city}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="postalCode"
-                                        placeholder="Postal Code"
-                                        value={formData.postalCode}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                    <select
-                                        name="country"
-                                        value={formData.country}
-                                        onChange={handleInputChange}
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    >
-                                        <option value="United States">United States</option>
-                                        <option value="United Kingdom">United Kingdom</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="Nigeria">Nigeria</option>
-                                        <option value="France">France</option>
-                                        <option value="Japan">Japan</option>
-                                    </select>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        placeholder="Phone (optional)"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        className="col-span-2 w-full bg-transparent border border-gray-300 dark:border-gray-700 p-3 text-black focus:border-black dark:focus:border-white focus:ring-0 transition-colors"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 2: SHIPPING */}
-                    {currentStep === 1 && (
-                        <div className="space-y-8 animate-fade-in-up">
-                            <div className="border border-gray-200 dark:border-gray-800 rounded p-4 mb-6 text-sm">
-                                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-black">Contact</span>
-                                    <span className="text-black">{formData.email}</span>
-                                    <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
-                                </div>
-                                <div className="flex justify-between py-2 pt-4">
-                                    <span className="text-black ">Ship to</span>
-                                    <span className="text-black truncate max-w-[200px]">{formData.address}, {formData.city}</span>
-                                    <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Shipping Method</h2>
-                                <div className="space-y-3">
-                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'standard' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="radio"
-                                                name="shippingMethod"
-                                                value="standard"
-                                                checked={formData.shippingMethod === 'standard'}
-                                                onChange={handleInputChange}
-                                                className="text-black focus:ring-black"
-                                            />
-                                            <span className="text-black font-medium">Standard Shipping (3-7 Business Days)</span>
-                                        </div>
-                                        <span className="text-black font-bold">Free</span>
-                                    </label>
-
-                                    <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.shippingMethod === 'express' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="radio"
-                                                name="shippingMethod"
-                                                value="express"
-                                                checked={formData.shippingMethod === 'express'}
-                                                onChange={handleInputChange}
-                                                className="text-black focus:ring-black"
-                                            />
-                                            <span className="text-black font-medium">Express Shipping (1-3 Business Days)</span>
-                                        </div>
-                                        <span className="text-black font-bold">{formatPrice(25)}</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 3: PAYMENT */}
-                    {currentStep === 2 && (
-                        <div className="space-y-8 animate-fade-in-up">
-                            <div className="border border-gray-200 dark:border-gray-800 rounded p-4 mb-6 text-sm">
-                                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-black">Contact</span>
-                                    <span className="text-black">{formData.email}</span>
-                                    <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
-                                </div>
-                                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                                    <span className="text-black">Ship to</span>
-                                    <span className="text-black truncate max-w-[200px]">{formData.address}, {formData.city}</span>
-                                    <button type="button" onClick={() => setCurrentStep(0)} className="text-red-600 text-xs hover:underline">Change</button>
-                                </div>
-                                <div className="flex justify-between py-2 pt-4">
-                                    <span className="text-black">Method</span>
-                                    <span className="text-black">{formData.shippingMethod === 'standard' ? 'Standard · Free' : `Express · ${formatPrice(25)}`}</span>
-                                    <button type="button" onClick={() => setCurrentStep(1)} className="text-red-600 text-xs hover:underline">Change</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h2 className="text-black font-display uppercase tracking-widest mb-4">Payment</h2>
-                                <div className="space-y-4">
-                                    <div className="bg-gray-200 dark:bg-grey-200 border border-gray-200 dark:border-gray-800 p-6 rounded">
-                                        <p className="text-black  mb-4">
-                                            All transactions are secure and encrypted. (Note: Payment is simulated for demo purposes)
-                                        </p>
-                                        <div className="space-y-3">
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_card' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="radio"
-                                                        name="paymentMethod"
-                                                        value="paystack_card"
-                                                        checked={formData.paymentMethod === 'paystack_card'}
-                                                        onChange={handleInputChange}
-                                                        className="text-black focus:ring-black"
-                                                    />
-                                                    <span className="text-black font-medium">Credit/Debit Card (Paystack)</span>
-                                                </div>
-                                            </label>
-
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'paystack_transfer' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="radio"
-                                                        name="paymentMethod"
-                                                        value="paystack_transfer"
-                                                        checked={formData.paymentMethod === 'paystack_transfer'}
-                                                        onChange={handleInputChange}
-                                                        className="text-black focus:ring-black"
-                                                    />
-                                                    <span className="text-black font-medium">Bank Transfer (Paystack)</span>
-                                                </div>
-                                            </label>
-
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_usdt' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="radio"
-                                                        name="paymentMethod"
-                                                        value="crypto_usdt"
-                                                        checked={formData.paymentMethod === 'crypto_usdt'}
-                                                        onChange={handleInputChange}
-                                                        className="text-black focus:ring-black"
-                                                    />
-                                                    <span className="text-black font-medium">Tether (USDT)</span>
-                                                </div>
-                                            </label>
-
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_btc' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="radio"
-                                                        name="paymentMethod"
-                                                        value="crypto_btc"
-                                                        checked={formData.paymentMethod === 'crypto_btc'}
-                                                        onChange={handleInputChange}
-                                                        className="text-black focus:ring-black"
-                                                    />
-                                                    <span className="text-black font-medium">Bitcoin (BTC)</span>
-                                                </div>
-                                            </label>
-
-                                            <label className={`flex items-center justify-between border p-4 cursor-pointer transition-all ${formData.paymentMethod === 'crypto_eth' ? 'border-black dark:border-red-600 ring-1 ring-black dark:ring-white' : 'border-gray-200 dark:border-gray-800'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="radio"
-                                                        name="paymentMethod"
-                                                        value="crypto_eth"
-                                                        checked={formData.paymentMethod === 'crypto_eth'}
-                                                        onChange={handleInputChange}
-                                                        className="text-black focus:ring-black"
-                                                    />
-                                                    <span className="text-black font-medium">Ethereum (ETH)</span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Navigation Buttons */}
-                    <div className="mt-10 flex items-center justify-between">
-                        {currentStep > 0 ? (
-                            <button
-                                type="button"
-                                onClick={() => setCurrentStep((prev) => prev - 1)}
-                                className="text-sm text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors"
-                            >
-                                <ChevronLeft className="w-4 h-4" /> Return to {steps[currentStep - 1]}
-                            </button>
-                        ) : (
-                            <Link href="/cart" className="text-sm text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors">
-                                <ChevronLeft className="w-4 h-4" /> Return to Cart
-                            </Link>
+                        {currentStep === 0 && (
+                            <CheckoutIdentification 
+                                formData={formData}
+                                handleInputChange={handleInputChange}
+                                handleLogin={handleLogin}
+                                handleGuestCheckout={handleGuestCheckout}
+                                loginLoading={loginLoading}
+                                authError={authError}
+                            />
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 uppercase text-xs font-bold tracking-widest hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-all shadow-lg flex items-center gap-2"
-                        >
-                            {loading ? 'Processing...' : currentStep === steps.length - 1 ? 'Pay Now' : 'Continue to ' + steps[currentStep + 1]}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        {currentStep === 1 && (
+                            <CheckoutShipping 
+                                formData={formData}
+                                handleInputChange={handleInputChange}
+                                setCurrentStep={setCurrentStep}
+                                formatPrice={formatPrice}
+                                handleNextStep={handleNextStep}
+                            />
+                        )}
 
-            {/* Right Column - Order Summary */}
-            <div className="w-full lg:w-[42%] bg-gray-50 dark:bg-black px-6 py-8 lg:px-12 lg:py-16 order-1 lg:order-2 border-l border-gray-200 dark:border-gray-800">
-                <div className="sticky top-10">
-                    <h2 className="text-lg font-display uppercase tracking-widest mb-6">Order Summary</h2>
-                    <div className="space-y-4 mb-8 max-h-[40vh] overflow-y-auto pr-2">
-                        {items.map((item) => (
-                            <div key={`${item.productId}-${item.size}-${item.color}`} className="flex gap-4 items-center">
-                                <div className="relative w-16 h-20 bg-white rounded overflow-hidden border border-gray-200 dark:border-gray-700">
-                                    <Image
-                                        src={item.image}
-                                        alt={item.name}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                    <span className="absolute -top-2 -right-2 bg-gray-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-                                        {item.quantity}
-                                    </span>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-sm font-medium">{item.name}</h3>
-                                    <p className="text-xs text-white">{item.size} / {item.color}</p>
-                                </div>
-                                <p className="text-sm font-medium">{formatPrice(item.price * item.quantity)}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
-                        <div className="flex justify-between text-sm">
-                            <span className="text-red-600">Subtotal</span>
-                            <span>{formatPrice(subtotal)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-red-600">Shipping</span>
-                            <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-gray-200 dark:border-gray-800 mt-6 pt-6">
-                        <div className="flex justify-between items-baseline">
-                            <span className="text-base font-medium">Total</span>
-                            <div className="text-right">
-                                <span className="text-sm text-gray-400 mr-2">{useCurrencyStore.getState().currency}</span>
-                                <span className="text-2xl font-display font-bold">{formatPrice(total)}</span>
-                            </div>
-                        </div>
+                        {currentStep === 2 && (
+                            <CheckoutPayment 
+                                formData={formData}
+                                handleInputChange={handleInputChange}
+                                setCurrentStep={setCurrentStep}
+                                handlePlaceOrder={handlePlaceOrder}
+                                handleCryptoConfirm={handleCryptoConfirm}
+                                loading={loading}
+                                total={total}
+                                currency={currency}
+                            />
+                        )}
                     </div>
                 </div>
+
+                {/* Right Section - Order Summary */}
+                <OrderSummary 
+                    items={items}
+                    formatPrice={formatPrice}
+                    currency={currency}
+                    subtotal={subtotal}
+                    shippingCostUSD={shippingCostUSD}
+                    total={total}
+                />
             </div>
         </div>
     );

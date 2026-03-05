@@ -46,7 +46,11 @@ export default function CampaignInteractiveHero() {
                 />
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 bg-black/5">
                     <h2 className="text-white text-5xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] mb-16 font-tt lowercase">
-                        {title}
+                        {title.split(' ').map((word, i) => (
+                            <span key={i} className={word.toLowerCase() === 'beyond' ? 'text-[#C72f32]' : ''}>
+                                {word}{' '}
+                            </span>
+                        ))}
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg mx-auto px-4">
                         <Link

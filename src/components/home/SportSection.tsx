@@ -51,8 +51,12 @@ export default function SportSection({ image }: SportSectionProps) {
             {badgeText}
           </span>
         </div>
-        <h2 className="text-4xl md:text-7xl font-light text-white mb-10">
-          {title}
+        <h2 className="text-4xl md:text-7xl font-light text-white mb-10 lowercase font-tt">
+          {title.split(' ').map((word, i) => (
+            <span key={i} className={word.toLowerCase() === 'beyond' ? 'text-[#C72f32]' : ''}>
+              {word}{' '}
+            </span>
+          ))}
         </h2>
         <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-xs sm:max-w-none mx-auto">
           <Link

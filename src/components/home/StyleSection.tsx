@@ -53,7 +53,11 @@ export default function StyleSection({ cards }: StyleSectionProps) {
             </span>
           </div>
           <h2 className="text-sm md:text-5xl lg:text-7xl font-light text-right text-black font-tt lowercase ml-4 leading-tight">
-            {title}
+            {title.split(' ').map((word, i) => (
+              <span key={i} className={word.toLowerCase() === 'statement' ? 'text-[#C72f32]' : ''}>
+                {word}{' '}
+              </span>
+            ))}
           </h2>
         </div>
 

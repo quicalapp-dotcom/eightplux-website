@@ -237,7 +237,14 @@ export default function Navbar() {
                                 ))}
                             </div>
 
-                            <div className="mt-12 pt-12 border-t border-gray-100 flex justify-between">
+                                <Link
+                                    href="/cart"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex items-center gap-2 text-xs uppercase font-bold tracking-[0.2em] bg-black text-white px-6 py-4 justify-center"
+                                >
+                                    <ShoppingBag className="w-4 h-4" /> View Bag ({itemCount})
+                                </Link>
+                                <div className="mt-12 pt-12 border-t border-gray-100 flex justify-between">
                                 {isAdmin && (
                                     <Link
                                         href="/admin"
