@@ -67,7 +67,7 @@ export default function Navbar() {
         <>
             {/* ── Desktop Navbar ───────────────────────────────────────────── */}
             <nav className="absolute top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
-                <div className="mx-auto px-4 md:px-10 h-[60px] flex items-center relative">
+                <div className="mx-auto px-2 md:px-10 h-[60px] flex items-center relative">
 
                     {/* LEFT — Nav links */}
                     <div className="hidden md:flex items-center gap-7 flex-1">
@@ -189,7 +189,7 @@ export default function Navbar() {
                         transition={{ duration: 0.3 }}
                         className="fixed inset-0 z-50 bg-white md:hidden overflow-y-auto"
                     >
-                        <div className="p-6">
+                        <div className="p-4 ">
                             <div className="flex justify-between items-center mb-12">
                                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                                     <Image

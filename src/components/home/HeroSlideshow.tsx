@@ -61,14 +61,14 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-lg mx-auto px-4">
-          <Link 
-            href="/shop?category=men"
+          <Link
+            href="/shop/women"
             className="bg-white text-black px-12 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-[180px] text-center"
           >
             Shop XX
           </Link>
-          <Link 
-            href="/shop?category=women"
+          <Link
+            href="/shop/men"
             className="bg-white text-black px-12 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-[180px] text-center"
           >
             Shop XY

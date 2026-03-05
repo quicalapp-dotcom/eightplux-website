@@ -10,7 +10,7 @@ export default function WorldSection({ image }: WorldSectionProps) {
         className="w-full h-auto block opacity-50"
         src={image}
       />
-      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto font-tt">
+      <div className="absolute inset-0  flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto font-tt">
         <h2 className="text-white text-5xl md:text-8xl lg:text-[100px] font-thin tracking-tighter leading-[0.85] mb-4 flex flex-col items-center">
           <span className="flex items-center gap-2 md:gap-4">
             <span className="lowercase">the</span>
