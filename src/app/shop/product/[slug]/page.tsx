@@ -8,6 +8,7 @@ import { Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { getProductBySlug } from '@/lib/firebase/products';
 import { Product, ProductColor } from '@/types';
 import WorldSection from '@/components/home/WorldSection';
@@ -55,6 +56,7 @@ export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
     const slug = params.slug as string;
+    const { formatPrice } = useCurrencyStore();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
@@ -209,7 +211,7 @@ export default function ProductDetailPage() {
                                 {product.name}
                             </h1>
                             <p className="text-2xl font-bold tracking-widest">
-                                ${product.price}
+                                {formatPrice(product.price)}
                             </p>
                         </div>
 

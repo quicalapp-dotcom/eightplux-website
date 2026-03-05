@@ -7,8 +7,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 import { Product, Collection } from '@/types';
 import { getCollectionBySlug, getProductsByCollection } from '@/lib/firebase/collections';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function CollectionPage() {
+    const { formatPrice } = useCurrencyStore();
     const params = useParams();
     const router = useRouter();
     const [collection, setCollection] = useState<Collection | null>(null);
@@ -225,7 +227,7 @@ export default function CollectionPage() {
                                             <h3 className="text-xs font-display font-semibold uppercase tracking-wider">
                                                 {product.name}
                                             </h3>
-                                            <span className="text-xs font-light">${product.price.toLocaleString()}</span>
+                                            <span className="text-xs font-light">{formatPrice(product.price)}</span>
                                         </div>
                                         <p className="text-[10px] text-gray-500 uppercase tracking-widest">
                                             {product.fabric}

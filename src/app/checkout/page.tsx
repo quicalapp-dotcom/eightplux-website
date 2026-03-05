@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, ChevronLeft, CreditCard, Lock, Check } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,6 +16,7 @@ const steps = ['Information', 'Shipping', 'Payment'];
 export default function CheckoutPage() {
     const router = useRouter();
     const { items, getSubtotal, clearCart } = useCartStore();
+    const { formatPrice } = useCurrencyStore();
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
 
@@ -34,8 +36,10 @@ export default function CheckoutPage() {
 
     // Calculate totals
     const subtotal = getSubtotal();
-    const shippingCost = formData.shippingMethod === 'express' ? 25 : 0;
-    const total = subtotal + shippingCost;
+    const { convertPrice } = useCurrencyStore();
+    const shippingCostUSD = formData.shippingMethod === 'express' ? 25 : 0;
+    const shippingCost = convertPrice(shippingCostUSD);
+    const total = subtotal + shippingCostUSD;
 
     // Wait for hydration
     const [mounted, setMounted] = useState(false);
@@ -324,7 +328,7 @@ export default function CheckoutPage() {
                                             />
                                             <span className="text-black font-medium">Express Shipping (1-3 Business Days)</span>
                                         </div>
-                                        <span className="text-black font-bold">$25.00</span>
+                                        <span className="text-black font-bold">{formatPrice(25)}</span>
                                     </label>
                                 </div>
                             </div>
@@ -347,7 +351,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex justify-between py-2 pt-4">
                                     <span className="text-black">Method</span>
-                                    <span className="text-black">{formData.shippingMethod === 'standard' ? 'Standard · Free' : 'Express · $25.00'}</span>
+                                    <span className="text-black">{formData.shippingMethod === 'standard' ? 'Standard · Free' : `Express · ${formatPrice(25)}`}</span>
                                     <button type="button" onClick={() => setCurrentStep(1)} className="text-red-600 text-xs hover:underline">Change</button>
                                 </div>
                             </div>
@@ -485,7 +489,7 @@ export default function CheckoutPage() {
                                     <h3 className="text-sm font-medium">{item.name}</h3>
                                     <p className="text-xs text-white">{item.size} / {item.color}</p>
                                 </div>
-                                <p className="text-sm font-medium">${(item.price * item.quantity).toLocaleString()}</p>
+                                <p className="text-sm font-medium">{formatPrice(item.price * item.quantity)}</p>
                             </div>
                         ))}
                     </div>
@@ -493,11 +497,11 @@ export default function CheckoutPage() {
                     <div className="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
                         <div className="flex justify-between text-sm">
                             <span className="text-red-600">Subtotal</span>
-                            <span>${subtotal.toLocaleString()}</span>
+                            <span>{formatPrice(subtotal)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-red-600">Shipping</span>
-                            <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toLocaleString()}`}</span>
+                            <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
                         </div>
                     </div>
 
@@ -505,8 +509,8 @@ export default function CheckoutPage() {
                         <div className="flex justify-between items-baseline">
                             <span className="text-base font-medium">Total</span>
                             <div className="text-right">
-                                <span className="text-sm text-gray-400 mr-2">USD</span>
-                                <span className="text-2xl font-display font-bold">${total.toLocaleString()}</span>
+                                <span className="text-sm text-gray-400 mr-2">{useCurrencyStore.getState().currency}</span>
+                                <span className="text-2xl font-display font-bold">{formatPrice(total)}</span>
                             </div>
                         </div>
                     </div>

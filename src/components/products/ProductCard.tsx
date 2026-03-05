@@ -7,6 +7,7 @@ import { Heart } from 'lucide-react';
 import { Product } from '@/types';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface ProductCardProps {
     product: Product;
@@ -17,6 +18,7 @@ export default function ProductCard({ product, showQuickAdd = true }: ProductCar
     const [isHovered, setIsHovered] = useState(false);
     const { user } = useAuth();
     const { isInWishlist, addItem, removeItem } = useWishlistStore();
+    const { formatPrice } = useCurrencyStore();
     const isWishlisted = isInWishlist(product.id);
 
     const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -112,13 +114,13 @@ export default function ProductCard({ product, showQuickAdd = true }: ProductCar
                 <div className="text-right">
                     {product.isSale && product.compareAtPrice ? (
                         <>
-                            <span className="font-display text-sm text-red-700">${product.price.toLocaleString()}</span>
+                            <span className="font-display text-sm text-red-700">{formatPrice(product.price)}</span>
                             <span className="font-display text-xs line-through text-gray-400 block">
-                                ${product.compareAtPrice.toLocaleString()}
+                                {formatPrice(product.compareAtPrice)}
                             </span>
                         </>
                     ) : (
-                        <span className="font-display text-sm">${product.price.toLocaleString()}</span>
+                        <span className="font-display text-sm">{formatPrice(product.price)}</span>
                     )}
                 </div>
             </div>

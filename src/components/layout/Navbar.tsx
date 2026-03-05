@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
 import { Collection } from '@/types';
 import { subscribeToCollections } from '@/lib/firebase/admin';
+import CountrySelector from './CountrySelector';
 
 const baseNavLinks = [
     { name: 'Home', href: '/' },
@@ -130,6 +131,9 @@ export default function Navbar() {
 
                     {/* RIGHT — Icons */}
                     <div className="flex items-center gap-1.5 md:gap-5 ml-auto">
+                        {/* Country Selector */}
+                        <CountrySelector />
+
                         {/* Search */}
                         <button
                             onClick={() => setSearchOpen(true)}

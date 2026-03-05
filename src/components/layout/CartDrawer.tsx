@@ -5,9 +5,11 @@ import { X, Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCartStore } from '@/stores/cartStore';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function CartDrawer() {
     const { items, isOpen, closeCart, updateQuantity, removeItem, getSubtotal } = useCartStore();
+    const { formatPrice } = useCurrencyStore();
     const subtotal = getSubtotal();
 
     return (
@@ -71,10 +73,10 @@ export default function CartDrawer() {
                                                 <p className="text-xs text-gray-00 mb-3">
                                                     {item.size} / {item.color}
                                                 </p>
-                                                <p className="text-sm font-medium">${item.price.toLocaleString()}</p>
+                                                <p className="text-sm font-medium">{formatPrice(item.price)}</p>
 
                                                 <div className="flex items-center justify-between mt-4">
-                                                    <div className="flex items-center border border-gray-200 dark:border-gray-700">
+                                                    <div className="flex items-center border border-gray-200">
                                                         <button
                                                             onClick={() => updateQuantity(
                                                                 item.productId,
@@ -82,7 +84,7 @@ export default function CartDrawer() {
                                                                 item.color,
                                                                 item.quantity - 1
                                                             )}
-                                                            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-00"
+                                                            className="p-2 hover:bg-gray-100"
                                                         >
                                                             <Minus className="w-3 h-3" />
                                                         </button>
@@ -94,16 +96,17 @@ export default function CartDrawer() {
                                                                 item.color,
                                                                 item.quantity + 1
                                                             )}
-                                                            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-00"
+                                                            className="p-2 hover:bg-gray-100"
                                                         >
                                                             <Plus className="w-3 h-3" />
                                                         </button>
                                                     </div>
                                                     <button
                                                         onClick={() => removeItem(item.productId, item.size, item.color)}
-                                                        className="text-gray-400 hover:text-red-500"
+                                                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 uppercase tracking-widest font-bold"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
+                                                        Remove
                                                     </button>
                                                 </div>
                                             </div>
@@ -118,7 +121,7 @@ export default function CartDrawer() {
                             <div className="border-t border-gray-200 dark:border-gray-800 px-6 py-6">
                                 <div className="flex justify-between items-center mb-6">
                                     <span className="text-sm uppercase tracking-widest">Subtotal</span>
-                                    <span className="text-lg font-display">${subtotal.toLocaleString()}</span>
+                                    <span className="text-lg font-display">{formatPrice(subtotal)}</span>
                                 </div>
                                 <p className="text-[12px] text-lg text-center mb-4">
                                     Shipping & taxes calculated at checkout

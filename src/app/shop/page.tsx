@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { Product, Collection } from '@/types';
 import { subscribeToProducts, subscribeToCollections } from '@/lib/firebase/admin';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function ShopPage() {
+    const { formatPrice } = useCurrencyStore();
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
     const [tempSelectedCollections, setTempSelectedCollections] = useState<string[]>([]);
@@ -142,11 +144,11 @@ export default function ShopPage() {
                                         <div className="flex gap-2 text-gray-500">
                                             {product.isSale && product.compareAtPrice ? (
                                                 <>
-                                                    <span className="text-[#C72f32] underline decoration-1 underline-offset-4">${product.price}</span>
-                                                    <span className="line-through opacity-50">${product.compareAtPrice}</span>
+                                                    <span className="text-[#C72f32] underline decoration-1 underline-offset-4">{formatPrice(product.price)}</span>
+                                                    <span className="line-through opacity-50">{formatPrice(product.compareAtPrice)}</span>
                                                 </>
                                             ) : (
-                                                <span>${product.price}</span>
+                                                <span>{formatPrice(product.price)}</span>
                                             )}
                                         </div>
                                     </div>
