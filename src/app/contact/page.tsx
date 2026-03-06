@@ -24,7 +24,7 @@ const faqs = [
         category: 'Payments',
         questions: [
             { q: 'What payment methods do you accept?', a: 'We accept Visa, MasterCard, American Express, PayPal, and Crypto via NOWPayments.' },
-            { q: 'Is my payment information secure?', a: 'Yes, all transactions are encrypted and processed through secure payment gateways (Stripe, Paystack, Coinbase).' }
+            { q: 'Is my payment information secure?', a: 'Yes, all transactions are encrypted and processed through secure payment gateways (Stripe, Paystack, NOWPayments).' }
         ]
     },
     {

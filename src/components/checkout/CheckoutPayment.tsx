@@ -10,6 +10,7 @@ interface CheckoutPaymentProps {
   setCurrentStep: (step: number) => void;
   handlePlaceOrder: () => void;
   handleCryptoConfirm: (txHash: string, coin: string) => void;
+  handleNowPaymentsOrder: () => void;
   loading: boolean;
   total: number;
   currency: string;
@@ -21,6 +22,7 @@ export default function CheckoutPayment({
   setCurrentStep,
   handlePlaceOrder,
   handleCryptoConfirm,
+  handleNowPaymentsOrder,
   loading,
   total,
   currency,
@@ -30,52 +32,68 @@ export default function CheckoutPayment({
       <div className="space-y-8">
         <h2 className="font-tt text-2xl lowercase">payment</h2>
 
-        {/* Payment method selector — Paystack commented out */}
+        {/* Payment method selector */}
         <div className="space-y-3">
-          {[
-            // { id: 'paystack_card', label: 'credit / debit card (coming soon)', icon: <CreditCard className="w-4 h-4" /> },
-            { id: 'crypto', label: 'crypto (usdt / btc / eth)', icon: <Bitcoin className="w-4 h-4 text-[#f7931a]" /> },
-          ].map((method) => (
-            <label
-              key={method.id}
-              className={`flex items-center justify-between p-6 border transition-all cursor-pointer ${
-                formData.paymentMethod === method.id
-                  ? 'border-black scale-[1.01] bg-gray-50/30'
-                  : 'border-gray-50 opacity-60 hover:opacity-100'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value={method.id}
-                  checked={formData.paymentMethod === method.id}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 accent-black"
-                />
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold">{method.label}</span>
-              </div>
-              {method.icon}
-            </label>
-          ))}
+          <label
+            className={`flex items-center justify-between p-6 border transition-all cursor-pointer ${
+              formData.paymentMethod === 'crypto'
+                ? 'border-black scale-[1.01] bg-gray-50/30'
+                : 'border-gray-50 opacity-60 hover:opacity-100'
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="crypto"
+                checked={formData.paymentMethod === 'crypto'}
+                onChange={handleInputChange}
+                className="w-4 h-4 accent-black"
+              />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">crypto (300+ coins)</span>
+            </div>
+            <Bitcoin className="w-4 h-4 text-[#f7931a]" />
+          </label>
         </div>
 
         {/* Security note */}
         <div className="bg-gray-50 p-8 border border-gray-100/50">
           <p className="text-[9px] uppercase tracking-[0.2em] text-gray-400 leading-relaxed font-bold">
-            all transactions are verified on-chain. send the exact amount to the provided address and share your transaction hash.
+            all transactions are secured via NOWPayments. you will be redirected to their checkout to complete payment.
           </p>
         </div>
       </div>
 
-      {/* Crypto panel renders inline when crypto is selected */}
+      {/* NOWPayments panel */}
       {formData.paymentMethod === 'crypto' && (
-        <CryptoPaymentPanel
-          total={total}
-          currency={currency}
-          onConfirm={handleCryptoConfirm}
-          loading={loading}
-        />
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="bg-black text-white p-6 flex justify-between items-center">
+            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400">Amount due</p>
+            <p className="font-black text-sm tracking-widest">{currency === 'NGN' ? '₦' : '$'}{total.toLocaleString()}</p>
+          </div>
+          
+          <button
+            type="button"
+            onClick={handleNowPaymentsOrder}
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-5 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-green-700 transition-all disabled:opacity-40 flex items-center justify-center gap-3"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Creating Invoice...</span>
+              </>
+            ) : (
+              <>
+                <span>Proceed to Crypto Payment</span>
+              </>
+            )}
+          </button>
+          
+          <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest leading-relaxed">
+            You will be redirected to NOWPayments secure checkout
+          </p>
+        </div>
       )}
 
       {/* Return to shipping */}

@@ -159,12 +159,16 @@ service cloud.firestore {
      match /orders/{orderId} {
        // Users see their own orders
        // Order Managers & Super Admins see all
-       allow read: if isOwner(resource.data.userId) || isOrderManager();
+       allow read: if isOwner(resource.data.userId) 
+         || isOrderManager() 
+         || (resource.data.email == request.resource.data.email);
 
-       // Users can create orders (must be authenticated)
-       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+       // Users can create orders (authenticated or guest with email)
+       allow create: if isAuthenticated()
+         || (request.resource.data.userId == 'guest' && request.resource.data.email is string);
 
-       // Only Admins can update status (users cannot modify placed orders except maybe cancel?)
+       // Only Admins can update order status
+       // (Webhook uses Admin SDK which bypasses rules)
        allow update: if isOrderManager();
      }
 

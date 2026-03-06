@@ -109,10 +109,11 @@ export default function CheckoutPage() {
         }
     };
 
-    const finalizeOrder = async (reference: string, paymentStatus: 'paid' | 'pending') => {
+    const finalizeOrder = async (reference: string, paymentStatus: 'paid' | 'pending', nowPaymentsOrderId?: string) => {
         const orderRef = doc(collection(db, 'orders'));
         const orderData = {
             id: orderRef.id,
+            orderId: nowPaymentsOrderId || `ORDER_${Date.now()}`,
             userId: user?.uid || 'guest',
             items: items.map(item => ({
                 productId: item.productId,
@@ -156,7 +157,7 @@ export default function CheckoutPage() {
         setLoading(true);
         try {
             const ref = 'CRYPTO-' + Date.now();
-            const orderId = await finalizeOrder(ref, 'pending');
+            const orderId = await finalizeOrder(ref, 'pending', `ORDER_${Date.now()}`);
             // Store tx hash on the order
             const { doc, updateDoc } = await import('firebase/firestore');
             await updateDoc(doc(db, 'orders', orderId), {
@@ -164,10 +165,52 @@ export default function CheckoutPage() {
                 cryptoCoin: coin,
             });
             clearCart();
-            router.push('/checkout/success');
+            router.push(`/checkout/success?orderId=${orderId}`);
         } catch (err) {
             console.error('Crypto confirm error:', err);
             alert('Order creation failed. Please contact support.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle NOWPayments redirect - creates order before redirecting to payment
+    const handleNowPaymentsOrder = async () => {
+        setLoading(true);
+        try {
+            const nowPaymentsOrderId = `ORDER_${Date.now()}`;
+            const orderId = await finalizeOrder('NOWPAYMENTS-' + Date.now(), 'pending', nowPaymentsOrderId);
+
+            // Call NOWPayments API to get invoice URL
+            // NOTE: NOWPayments requires USD as the base currency
+            const res = await fetch('/api/payments/crypto/create-charge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: total,
+                    currency: 'usd', // Always use USD for NOWPayments
+                    email: formData.email,
+                    orderId: nowPaymentsOrderId,
+                }),
+            });
+            
+            const data = await res.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            if (data.invoice_url) {
+                // Store firestore orderId for success page redirect after payment
+                sessionStorage.setItem('pendingOrderId', orderId);
+                // Redirect to NOWPayments checkout
+                window.location.href = data.invoice_url;
+            } else {
+                throw new Error('Failed to create payment invoice');
+            }
+        } catch (err: any) {
+            console.error('NOWPayments error:', err);
+            alert(err.message || 'Payment creation failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -220,12 +263,13 @@ export default function CheckoutPage() {
                         )}
 
                         {currentStep === 2 && (
-                            <CheckoutPayment 
+                            <CheckoutPayment
                                 formData={formData}
                                 handleInputChange={handleInputChange}
                                 setCurrentStep={setCurrentStep}
                                 handlePlaceOrder={handlePlaceOrder}
                                 handleCryptoConfirm={handleCryptoConfirm}
+                                handleNowPaymentsOrder={handleNowPaymentsOrder}
                                 loading={loading}
                                 total={total}
                                 currency={currency}
