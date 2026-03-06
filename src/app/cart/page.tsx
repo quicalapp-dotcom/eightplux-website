@@ -5,11 +5,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Minus, Plus, X, ChevronRight } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
 export default function CartPage() {
     const { items, updateQuantity, removeItem, getSubtotal } = useCartStore();
+    const { formatPrice } = useCurrencyStore();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -124,14 +126,14 @@ export default function CartPage() {
                                     <div className="flex flex-col items-end">
                                         {item.price === 20 && item.name.toLowerCase().includes('shirt') ? (
                                             <>
-                                                <span className="text-[10px] text-gray-400 line-through tracking-[0.15em] mb-1">$20</span>
-                                                <span className="text-[11px] font-bold tracking-[0.15em] text-black">$16</span>
+                                                <span className="text-[10px] text-gray-400 line-through tracking-[0.15em] mb-1">{formatPrice(20)}</span>
+                                                <span className="text-[11px] font-bold tracking-[0.15em] text-black">{formatPrice(16)}</span>
                                             </>
                                         ) : (
-                                            <span className="text-[11px] font-bold tracking-[0.15em] text-black">${item.price * item.quantity}</span>
+                                            <span className="text-[11px] font-bold tracking-[0.15em] text-black">{formatPrice(item.price * item.quantity)}</span>
                                         )}
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={() => removeItem(item.productId, item.size, item.color)}
                                         className="text-gray-200 hover:text-black transition-colors p-2"
                                     >
@@ -207,11 +209,11 @@ export default function CartPage() {
                                 <div className="flex flex-col items-end">
                                     {item.price === 20 && item.name.toLowerCase().includes('shirt') ? (
                                         <>
-                                            <span className="text-[10px] text-gray-400 line-through tracking-[0.15em] mb-1">$20</span>
-                                            <span className="text-[11px] font-bold tracking-[0.15em] text-black">$16</span>
+                                            <span className="text-[10px] text-gray-400 line-through tracking-[0.15em] mb-1">{formatPrice(20)}</span>
+                                            <span className="text-[11px] font-bold tracking-[0.15em] text-black">{formatPrice(16)}</span>
                                         </>
                                     ) : (
-                                        <span className="text-[11px] font-bold tracking-[0.15em] text-black">${item.price * item.quantity}</span>
+                                        <span className="text-[11px] font-bold tracking-[0.15em] text-black">{formatPrice(item.price * item.quantity)}</span>
                                     )}
                                 </div>
                             </div>
@@ -224,7 +226,7 @@ export default function CartPage() {
             <div className="flex flex-col items-center space-y-12">
                 <div className="text-center space-y-2">
                     <h2 className="text-2xl font-bold uppercase tracking-[0.3em]">
-                        Total: ${subtotal}
+                        Total: {formatPrice(subtotal)}
                     </h2>
                 </div>
 
