@@ -53,7 +53,15 @@ export default function CasualSection({ image }: CasualSectionProps) {
           </span>
         </div>
         <h2 className="text-4xl md:text-7xl font-light text-white mb-10 font-tt">
-          {title}
+          {title.split(' ').map((word, i) => (
+            <span key={i}>
+              {word.toLowerCase() === 'bold' ? (
+                <span className="text-[#C72f32] font-bold">{word} </span>
+              ) : (
+                <span>{word} </span>
+              )}
+            </span>
+          ))}
         </h2>
         <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-xs sm:max-w-none mx-auto">
           <Link

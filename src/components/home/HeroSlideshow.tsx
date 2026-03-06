@@ -76,7 +76,15 @@ export default function HeroSlideshow() {
 
             <div className="relative z-10 text-center px-4 w-full max-w-7xl mx-auto mt-32">
                 <h1 className="text-4xl md:text-6xl lg:text-8xl font-light text-white leading-tight tracking-tight mb-8">
-                    {title}
+                    {title.split(' ').map((word, i) => (
+                        <span key={i}>
+                            {word.toLowerCase() === 'grounded' ? (
+                                <span className="text-[#C72f32] font-bold">{word} </span>
+                            ) : (
+                                <span>{word} </span>
+                            )}
+                        </span>
+                    ))}
                 </h1>
                 <div className="relative mb-16 flex justify-center">
                     <img

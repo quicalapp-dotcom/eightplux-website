@@ -47,7 +47,17 @@ export default function CampaignBanner() {
                 />
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
                     <h1 className="text-white text-5xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] font-tt lowercase mb-8">
-                        {title}
+                        {title.split(' ').map((word, i) => (
+                            <span key={i}>
+                                {word.toLowerCase() === 'bold' ? (
+                                    <span className="text-[#C72f32] font-medium">{word}</span>
+                                ) : word.toLowerCase() === 'easy' ? (
+                                    <span>{word}, </span>
+                                ) : (
+                                    <span>{word} </span>
+                                )}
+                            </span>
+                        ))}
                     </h1>
                     {showButtons && (
                         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg mx-auto px-4">

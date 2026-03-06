@@ -10,14 +10,14 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: "#FF0000", // Bright Red seen in the text
+                primary: "#C72F32", // Bright Red seen in the text
                 "background-light": "#FFFFFF",
                 "background-dark": "#0A0A0A",
                 "secondary-dark": "#1A1A1A",
                 brand: {
                     cream: "#F4F1E9",
                     charcoal: "#060708",
-                    red: "#FF0000",
+                    red: "#C72F32",
                     grey: "#CCCCCC",
                 },
                 "text-dark": "#1A1A1A",
