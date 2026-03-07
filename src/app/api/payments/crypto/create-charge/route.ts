@@ -1,4 +1,17 @@
 import { NextResponse } from "next/server";
+import admin from "firebase-admin";
+import { getApps, initializeApp, cert } from "firebase-admin/app";
+
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
 // NOWPayments uses the same endpoint for both sandbox and production
 // The API key type determines the mode
@@ -7,14 +20,42 @@ const NOWPAYMENTS_BASE_URL = "https://api.nowpayments.io";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { amount, currency, email, orderId } = body;
+    const { email, orderId } = body;
+
+    // Get user from Firebase Auth (you need to implement your own authentication logic here)
+    // For now, let's assume we have the user's ID from the request
+    const userId = request.headers.get('x-user-id');
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch order from database to get the actual amount
+    const orderRef = admin.firestore().collection('orders').doc(orderId);
+    const orderDoc = await orderRef.get();
+    
+    if (!orderDoc.exists) {
+      return NextResponse.json({ error: 'Invalid order' }, { status: 400 });
+    }
+
+    const orderData = orderDoc.data();
+    if (!orderData) {
+      return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
+    }
+
+    // Check if user is the owner of the order
+    if (orderData.userId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const amount = orderData.total;
 
     const apiKey = process.env.NOWPAYMENTS_API_KEY;
     
     console.log("NOWPayments request:", {
       amount,
-      currency: currency || "usd",
-      orderId: orderId || `ORDER_${Date.now()}`,
+      currency: "usd",
+      orderId: orderId,
       apiKeySet: !!apiKey,
       apiKeyStart: apiKey ? apiKey.substring(0, 8) : "none",
       baseUrl: NOWPAYMENTS_BASE_URL,
@@ -38,7 +79,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         price_amount: parseFloat(amount.toString()),
-        price_currency: currency || "usd",
+        price_currency: "usd",
         order_id: orderId || `ORDER_${Date.now()}`,
         order_description: "Eightplux Payment",
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
@@ -96,10 +137,11 @@ export async function POST(request: Request) {
       console.error("NOWPayments no invoice URL:", data);
       return NextResponse.json({ error: "Failed to create payment - no invoice URL" }, { status: 500 });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error("Crypto payment creation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

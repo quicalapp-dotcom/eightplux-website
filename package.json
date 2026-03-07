@@ -12,6 +12,8 @@
     "@fontsource/bodoni-moda": "^5.2.7",
     "@fontsource/space-grotesk": "^5.2.10",
     "@types/nodemailer": "^7.0.11",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.3",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

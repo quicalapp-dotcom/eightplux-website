@@ -10,11 +10,13 @@ interface CurrencyState {
     currency: Currency;
     exchangeRate: number; // USD to NGN rate
     lastUpdated: Date | null;
+    loading: boolean;
 
     // Actions
     setCountry: (country: Country) => void;
     setExchangeRate: (rate: number) => void;
     toggleCountry: () => void;
+    fetchExchangeRate: () => Promise<void>;
 
     // Computed
     getSymbol: () => string;
@@ -32,6 +34,7 @@ export const useCurrencyStore = create<CurrencyState>()(
             currency: 'USD',
             exchangeRate: DEFAULT_EXCHANGE_RATE,
             lastUpdated: null,
+            loading: false,
 
             setCountry: (country) => {
                 set({
@@ -58,6 +61,31 @@ export const useCurrencyStore = create<CurrencyState>()(
                 });
             },
 
+            fetchExchangeRate: async () => {
+                set({ loading: true });
+                try {
+                    const response = await fetch('/api/exchange-rate');
+                    const data = await response.json();
+                    
+                    if (data.rate) {
+                        set({
+                            exchangeRate: data.rate,
+                            lastUpdated: new Date(),
+                        });
+                    } else if (data.fallbackRate) {
+                        set({
+                            exchangeRate: data.fallbackRate,
+                            lastUpdated: new Date(),
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch exchange rate:', error);
+                    // Keep current rate if fetch fails
+                } finally {
+                    set({ loading: false });
+                }
+            },
+
             getSymbol: () => {
                 return get().currency === 'NGN' ? '₦' : '$';
             },
@@ -65,6 +93,13 @@ export const useCurrencyStore = create<CurrencyState>()(
             formatPrice: (price: number) => {
                 const { currency, exchangeRate } = get();
                 const convertedPrice = currency === 'NGN' ? price * exchangeRate : price;
+                
+                console.log('Price conversion:', {
+                    originalPrice: price,
+                    currency,
+                    exchangeRate,
+                    convertedPrice,
+                });
                 
                 if (currency === 'NGN') {
                     return `₦${convertedPrice.toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -74,11 +109,23 @@ export const useCurrencyStore = create<CurrencyState>()(
 
             convertPrice: (price: number) => {
                 const { currency, exchangeRate } = get();
-                return currency === 'NGN' ? price * exchangeRate : price;
+                const convertedPrice = currency === 'NGN' ? price * exchangeRate : price;
+                
+                console.log('Convert price:', {
+                    originalPrice: price,
+                    currency,
+                    exchangeRate,
+                    convertedPrice,
+                });
+                
+                return convertedPrice;
             },
         }),
         {
             name: 'eightplux-currency',
+            onRehydrateStorage: () => (state) => {
+                state?.fetchExchangeRate();
+            },
         }
     )
 );

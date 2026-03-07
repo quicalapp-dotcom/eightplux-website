@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Bitcoin, Loader2 } from 'lucide-react';
+import { Bitcoin, Loader2, CreditCard } from 'lucide-react';
 
 import { useCurrencyStore } from '@/stores/currencyStore';
+import PaystackButton from './PaystackButton';
 
 interface CheckoutPaymentProps {
   formData: any;
@@ -15,6 +16,8 @@ interface CheckoutPaymentProps {
   loading: boolean;
   total: number;
   currency: string;
+  email: string;
+  orderId: string;
 }
 
 export default function CheckoutPayment({
@@ -24,6 +27,8 @@ export default function CheckoutPayment({
   handleNowPaymentsOrder,
   loading,
   total,
+  email,
+  orderId,
 }: CheckoutPaymentProps) {
   const { formatPrice } = useCurrencyStore();
   return (
@@ -52,6 +57,27 @@ export default function CheckoutPayment({
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold">crypto (300+ coins)</span>
             </div>
             <Bitcoin className="w-4 h-4 text-[#f7931a]" />
+          </label>
+
+          <label
+            className={`flex items-center justify-between p-6 border transition-all cursor-pointer ${
+              formData.paymentMethod === 'paystack'
+                ? 'border-black scale-[1.01] bg-gray-50/30'
+                : 'border-gray-50 opacity-60 hover:opacity-100'
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="paystack"
+                checked={formData.paymentMethod === 'paystack'}
+                onChange={handleInputChange}
+                className="w-4 h-4 accent-black"
+              />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">paystack (cards & transfers)</span>
+            </div>
+            <CreditCard className="w-4 h-4 text-[#003377]" />
           </label>
         </div>
 
@@ -91,6 +117,26 @@ export default function CheckoutPayment({
           
           <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest leading-relaxed">
             You will be redirected to NOWPayments secure checkout
+          </p>
+        </div>
+      )}
+
+      {/* Paystack panel */}
+      {formData.paymentMethod === 'paystack' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="bg-black text-white p-6 flex justify-between items-center">
+            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400">Amount due</p>
+            <p className="font-black text-sm tracking-widest">{formatPrice(total)}</p>
+          </div>
+          
+          <PaystackButton
+            email={email}
+            amount={total}
+            orderId={orderId}
+          />
+          
+          <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest leading-relaxed">
+            You will be redirected to Paystack secure checkout
           </p>
         </div>
       )}

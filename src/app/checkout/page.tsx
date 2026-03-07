@@ -52,7 +52,7 @@ export default function CheckoutPage() {
         postalCode: '',
         phone: '',
         shippingMethod: 'standard',
-        paymentMethod: 'crypto',
+        paymentMethod: 'paystack',
     });
 
     // Sync email if user is logged in
@@ -282,6 +282,8 @@ export default function CheckoutPage() {
                                 loading={loading}
                                 total={totalWithDiscount}
                                 currency={currency}
+                                email={formData.email}
+                                orderId={`ORDER_${Date.now()}`}
                             />
                         )}
                     </div>
@@ -302,3 +304,4 @@ export default function CheckoutPage() {
         </div>
     );
 }
+
