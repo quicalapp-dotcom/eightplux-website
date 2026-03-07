@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Bitcoin, Loader2 } from 'lucide-react';
-import CryptoPaymentPanel from './CryptoPaymentPanel';
+
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface CheckoutPaymentProps {
   formData: any;
@@ -20,13 +21,11 @@ export default function CheckoutPayment({
   formData,
   handleInputChange,
   setCurrentStep,
-  handlePlaceOrder,
-  handleCryptoConfirm,
   handleNowPaymentsOrder,
   loading,
   total,
-  currency,
 }: CheckoutPaymentProps) {
+  const { formatPrice } = useCurrencyStore();
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
       <div className="space-y-8">
@@ -69,7 +68,7 @@ export default function CheckoutPayment({
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="bg-black text-white p-6 flex justify-between items-center">
             <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400">Amount due</p>
-            <p className="font-black text-sm tracking-widest">{currency === 'NGN' ? '₦' : '$'}{total.toLocaleString()}</p>
+            <p className="font-black text-sm tracking-widest">{formatPrice(total)}</p>
           </div>
           
           <button

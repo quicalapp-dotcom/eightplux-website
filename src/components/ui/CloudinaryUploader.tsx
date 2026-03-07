@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Upload, X, Image as ImageIcon, Video } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, X, Image as ImageIcon, Video, Loader2 } from 'lucide-react';
 
 interface CloudinaryUploaderProps {
   onUpload: (result: any) => void;
@@ -11,6 +11,7 @@ interface CloudinaryUploaderProps {
   maxSize?: number; // in MB
   label?: string;
   isVideo?: boolean;
+  compact?: boolean;
 }
 
 export default function CloudinaryUploader({
@@ -21,6 +22,7 @@ export default function CloudinaryUploader({
   maxSize = 10,
   label = 'Upload File',
   isVideo = false,
+  compact = false,
 }: CloudinaryUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -96,6 +98,41 @@ export default function CloudinaryUploader({
       handleFileSelect(file);
     }
   };
+
+  // Generate a stable unique id
+  const uploadId = React.useId();
+
+  if (compact) {
+    return (
+      <div className="relative">
+        <input
+          type="file"
+          accept={accept}
+          onChange={handleFileInputChange}
+          className="hidden"
+          id={`compact-upload-input-${uploadId}`}
+        />
+        <label
+          htmlFor={`compact-upload-input-${uploadId}`}
+          className="p-2 text-gray-600 hover:bg-gray-200 rounded-md cursor-pointer transition-colors"
+          title={label}
+        >
+          {isUploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : isVideo ? (
+            <Video className="w-4 h-4" />
+          ) : (
+            <ImageIcon className="w-4 h-4" />
+          )}
+        </label>
+        {error && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded whitespace-nowrap">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (currentUrl) {
     return (

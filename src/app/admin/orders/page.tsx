@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Eye, Filter, Search, MoreHorizontal, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
-import { subscribeToOrders, updateOrderStatus } from '@/lib/firebase/admin';
+import { subscribeToOrders, updateOrderStatus } from '@/lib/firebase/orders';
 import { Order } from '@/types';
 import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';

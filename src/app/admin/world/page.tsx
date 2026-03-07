@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Search, Filter, Edit, Trash2, Eye, FileText, Calendar, Globe } from 'lucide-react';
-import { subscribeToWorldContent, deleteWorldContent } from '@/lib/firebase/admin';
+import { subscribeToWorldContent, deleteWorldContent } from '@/lib/firebase/world';
 import { WorldContent } from '@/types';
 import { format } from 'date-fns';
 

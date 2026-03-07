@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, Upload, X, Loader2, Save, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { addCampaign, uploadAdminImage, subscribeToProducts } from '@/lib/firebase/admin';
+import { addCampaign } from '@/lib/firebase/campaigns';
+import { uploadAdminImage } from '@/lib/firebase/storage';
+import { subscribeToProducts } from '@/lib/firebase/products';
 import { Product } from '@/types';
 
 export default function NewCampaignPage() {

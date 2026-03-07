@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, Save, Loader2, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { addWorldContent, uploadAdminImage } from '@/lib/firebase/admin';
+import { addWorldContent } from '@/lib/firebase/world';
+import { uploadAdminImage } from '@/lib/firebase/storage';
 
 export default function NewWorldStoryPage() {
     const router = useRouter();

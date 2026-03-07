@@ -33,6 +33,12 @@ export default function CheckoutPage() {
     const [loginLoading, setLoginLoading] = useState(false);
     const [authError, setAuthError] = useState('');
     const [mounted, setMounted] = useState(false);
+    const [discountData, setDiscountData] = useState<{
+        discountAmount: number;
+        finalTotal: number;
+        discountId: string;
+        code: string;
+    } | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -72,7 +78,7 @@ export default function CheckoutPage() {
     // Totals
     const subtotal = getSubtotal();
     const shippingCostUSD = formData.shippingMethod === 'express' ? 25 : 0;
-    const total = subtotal + shippingCostUSD;
+    const totalWithDiscount = discountData ? discountData.finalTotal : subtotal + shippingCostUSD;
 
     // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -126,7 +132,10 @@ export default function CheckoutPage() {
             })),
             subtotal,
             shipping: shippingCostUSD,
-            total,
+            discount: discountData?.discountAmount || 0,
+            discountCode: discountData?.code || null,
+            discountId: discountData?.discountId || null,
+            total: totalWithDiscount,
             orderStatus: paymentStatus === 'paid' ? 'confirmed' : 'pending',
             paymentMethod: formData.paymentMethod,
             paymentStatus,
@@ -187,7 +196,7 @@ export default function CheckoutPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    amount: total,
+                    amount: totalWithDiscount,
                     currency: 'usd', // Always use USD for NOWPayments
                     email: formData.email,
                     orderId: nowPaymentsOrderId,
@@ -271,7 +280,7 @@ export default function CheckoutPage() {
                                 handleCryptoConfirm={handleCryptoConfirm}
                                 handleNowPaymentsOrder={handleNowPaymentsOrder}
                                 loading={loading}
-                                total={total}
+                                total={totalWithDiscount}
                                 currency={currency}
                             />
                         )}
@@ -279,13 +288,15 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Right Section - Order Summary */}
-                <OrderSummary 
+                <OrderSummary
                     items={items}
                     formatPrice={formatPrice}
                     currency={currency}
                     subtotal={subtotal}
                     shippingCostUSD={shippingCostUSD}
-                    total={total}
+                    total={subtotal + shippingCostUSD}
+                    onDiscountChange={setDiscountData}
+                    userEmail={formData.email}
                 />
             </div>
         </div>

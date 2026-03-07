@@ -3,8 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { subscribeToProducts, deleteProduct, subscribeToCollections } from '@/lib/firebase/admin';
+import { subscribeToProducts } from '@/lib/firebase/products';
+import { deleteProduct } from '@/lib/firebase/products';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import { Product, Collection } from '@/types';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -133,7 +136,7 @@ export default function ProductsPage() {
                                         </span>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-black">
-                                        ₦{product.price.toLocaleString()}
+                                        {useCurrencyStore.getState().formatPrice(product.price)}
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
                                         <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${product.inventory > 0

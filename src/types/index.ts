@@ -54,17 +54,21 @@ export interface Campaign {
     name: string;
     slug: string;
     story: string;
+    isActive: boolean;
+    startDate: Date | null;
+    endDate: Date | null;
     heroMedia: {
         type: 'image' | 'video';
         url: string;
     };
+    products: string[];
     images: string[];
-    products: string[]; // Product IDs
-    behindTheScenes?: string[];
-    isActive: boolean;
-    startDate: Date;
-    endDate?: Date;
+    behindTheScenes: Array<{
+        type: 'image' | 'video';
+        url: string;
+    }>;
     createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface User {

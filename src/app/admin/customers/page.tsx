@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, Eye, Mail, ShoppingBag, ArrowUpRight, TrendingUp } from 'lucide-react';
-import { subscribeToCustomers } from '@/lib/firebase/admin';
+import { subscribeToCustomers } from '@/lib/firebase/users';
 import { UserProfile } from '@/types';
 import { format } from 'date-fns';
 

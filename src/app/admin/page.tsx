@@ -11,8 +11,9 @@ import {
     Package
 } from 'lucide-react';
 import Link from 'next/link';
-import { subscribeToDashboardStats } from '@/lib/firebase/admin';
+import { subscribeToDashboardStats } from '@/lib/firebase/dashboard';
 import { format } from 'date-fns';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<any>(null);
@@ -26,10 +27,12 @@ export default function AdminDashboard() {
         return () => unsubscribe();
     }, []);
 
+    const { formatPrice } = useCurrencyStore();
+
     const metrics = [
         {
             label: 'Total Revenue',
-            value: stats ? `₦${stats.totalRevenue.toLocaleString()}` : '₦0',
+            value: stats ? formatPrice(stats.totalRevenue) : formatPrice(0),
             change: '+12.5%',
             trend: 'up',
             icon: DollarSign,
@@ -129,7 +132,7 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                                 <div className="sm:text-right">
-                                    <p className="font-bold text-sm tracking-tight text-black">₦{order.totalAmount?.toLocaleString() || order.total?.toLocaleString()}</p>
+                                    <p className="font-bold text-sm tracking-tight text-black">{formatPrice(order.totalAmount || order.total || 0)}</p>
                                     <p className="text-[10px] sm:text-xs text-gray-500 uppercase font-medium">
                                         {order.createdAt ? format(order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt), 'hh:mm a') : 'Now'}
                                     </p>

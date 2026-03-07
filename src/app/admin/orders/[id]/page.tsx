@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Order } from '@/types';
-import { updateOrderStatus } from '@/lib/firebase/admin';
+import { updateOrderStatus } from '@/lib/firebase/orders';
 import { updateDoc } from 'firebase/firestore';
 import { ArrowLeft, MapPin, CreditCard, Box, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';

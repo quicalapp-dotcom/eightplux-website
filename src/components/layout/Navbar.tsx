@@ -9,7 +9,7 @@ import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from '
 import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
 import { Collection } from '@/types';
-import { subscribeToCollections } from '@/lib/firebase/admin';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import CountrySelector from './CountrySelector';
 
 const baseNavLinks = [

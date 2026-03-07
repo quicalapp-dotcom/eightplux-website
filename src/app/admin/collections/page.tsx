@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Search, Filter, Edit, Trash2, Eye, Grid } from 'lucide-react';
-import { subscribeToCollections, deleteCollection, updateCollection } from '@/lib/firebase/admin';
+import { subscribeToCollections, deleteCollection, updateCollection } from '@/lib/firebase/collections';
 import { Collection } from '@/types';
 
 export default function CollectionsManagementPage() {

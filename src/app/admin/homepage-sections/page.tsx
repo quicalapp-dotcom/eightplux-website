@@ -20,7 +20,8 @@ import {
     updateStyleCards,
     initializeAllHomepageSections
 } from '@/lib/firebase/homepage-sections';
-import { uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
+import { uploadAdminImage } from '@/lib/firebase/storage';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import { HeroSlide, StyleCard, Collection } from '@/types';
 
 export default function HomepageManagementPage() {

@@ -5,7 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft, Save, Loader2, Upload, X, Search, Grid } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getCollectionById, updateCollection, uploadAdminImage, subscribeToProducts } from '@/lib/firebase/admin';
+import { getCollectionById, updateCollection } from '@/lib/firebase/collections';
+import { uploadAdminImage } from '@/lib/firebase/storage';
+import { subscribeToProducts } from '@/lib/firebase/products';
 import { Product, Collection } from '@/types';
 
 export default function EditCollectionPage() {

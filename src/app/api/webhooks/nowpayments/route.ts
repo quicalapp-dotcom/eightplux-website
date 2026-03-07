@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase/config";
+import admin from "firebase-admin";
+import { getApps, initializeApp, cert } from "firebase-admin/app";
+
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 
@@ -51,9 +62,9 @@ export async function POST(request: Request) {
     });
 
     // Find order by order_id in Firestore
-    const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, where("orderId", "==", orderId));
-    const querySnapshot = await getDocs(q);
+    const ordersRef = admin.firestore().collection("orders");
+    const q = ordersRef.where("orderId", "==", orderId);
+    const querySnapshot = await q.get();
 
     if (querySnapshot.empty) {
       console.warn(`No order found for order_id: ${orderId}`);
@@ -77,13 +88,13 @@ export async function POST(request: Request) {
       if (Math.abs(receivedAmount - expectedAmount) > tolerance) {
         console.warn(`Payment amount mismatch: expected ${expectedAmount}, received ${receivedAmount}`);
         // Don't fail immediately - mark for manual review
-        await updateDoc(doc(db, "orders", orderDoc.id), {
+        await admin.firestore().doc(`orders/${orderDoc.id}`).update({
           paymentStatus: "review",
           orderStatus: "on_hold",
           paymentAmountReceived: receivedAmount,
           paymentAmountExpected: expectedAmount,
           amountMismatch: true,
-          updatedAt: serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         return NextResponse.json({ received: true });
       }
@@ -91,39 +102,68 @@ export async function POST(request: Request) {
 
     // Process based on payment status
     if (paymentStatus === "finished") {
-      await updateDoc(doc(db, "orders", orderDoc.id), {
+      const updateData: any = {
         paymentStatus: "paid",
         orderStatus: "confirmed",
-        cryptoTransactionHash: payinHash || paymentId, // Use actual blockchain hash
+        cryptoTransactionHash: payinHash || paymentId,
         cryptoCoin: receivedCurrency?.toUpperCase() || "UNKNOWN",
         paymentProvider: "nowpayments",
         nowPaymentsId: paymentId,
-        paymentConfirmedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+        paymentConfirmedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      // Mark discount as used if order has one
+      if (orderData.discountId && orderData.email) {
+        try {
+          // Update discount usage count
+          const discountRef = admin.firestore().doc(`discounts/${orderData.discountId}`);
+          await discountRef.update({
+            usageCount: admin.firestore.FieldValue.increment(1),
+          });
+
+          // Mark discount as used for this subscriber
+          const subscribersRef = admin.firestore().collection("subscribers");
+          const subQ = subscribersRef
+            .where("email", "==", orderData.email)
+            .where("discountCode", "==", orderData.discountCode);
+          const subSnapshot = await subQ.get();
+          if (!subSnapshot.empty) {
+            await subSnapshot.docs[0].ref.update({
+              discountUsed: true,
+              usedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+          updateData.discountUsed = true;
+        } catch (err) {
+          console.error("Failed to mark discount as used:", err);
+        }
+      }
+
+      await admin.firestore().doc(`orders/${orderDoc.id}`).update(updateData);
       console.log(`Order ${orderDoc.id} updated to paid via NOWPayments webhook`);
     } else if (paymentStatus === "failed" || paymentStatus === "refunded") {
-      await updateDoc(doc(db, "orders", orderDoc.id), {
+      await admin.firestore().doc(`orders/${orderDoc.id}`).update({
         paymentStatus: "failed",
         orderStatus: "cancelled",
         cryptoTransactionHash: payinHash,
         paymentProvider: "nowpayments",
         nowPaymentsId: paymentId,
-        updatedAt: serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`Order ${orderDoc.id} marked as failed via NOWPayments webhook`);
     } else if (paymentStatus === "confirming" || paymentStatus === "confirmed") {
       // Payment detected but not yet finished - update to processing
-      await updateDoc(doc(db, "orders", orderDoc.id), {
+      await admin.firestore().doc(`orders/${orderDoc.id}`).update({
         paymentStatus: "processing",
         cryptoTransactionHash: payinHash,
         paymentProvider: "nowpayments",
         nowPaymentsId: paymentId,
-        updatedAt: serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`Order ${orderDoc.id} is processing via NOWPayments webhook`);
     } else if (paymentStatus === "partially_paid") {
-      await updateDoc(doc(db, "orders", orderDoc.id), {
+      await admin.firestore().doc(`orders/${orderDoc.id}`).update({
         paymentStatus: "partial",
         orderStatus: "on_hold",
         cryptoTransactionHash: payinHash,
@@ -131,7 +171,7 @@ export async function POST(request: Request) {
         paymentProvider: "nowpayments",
         nowPaymentsId: paymentId,
         partiallyPaid: true,
-        updatedAt: serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`Order ${orderDoc.id} partially paid via NOWPayments webhook`);
     }

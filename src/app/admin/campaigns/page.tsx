@@ -14,8 +14,10 @@ import {
     updateCampaignBanner,
     initializeAllCampaignSections
 } from '@/lib/firebase/campaign-sections';
-import { uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
+import { uploadAdminImage } from '@/lib/firebase/storage';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import { Collection, CampaignFeatureItem } from '@/types';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 export default function CampaignManagementPage() {
     const [saving, setSaving] = useState(false);
@@ -432,16 +434,15 @@ export default function CampaignManagementPage() {
                                                         onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_1', item.id, 'mediaUrl', e.target.value, setFeatureRow1)}
                                                         className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
                                                     />
-                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                                        <Upload className="w-4 h-4" />
-                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_1', item.id, e.target.files[0], setFeatureRow1)} />
-                                                    </label>
+                                                    <CloudinaryUploader
+                                                        label="Upload"
+                                                        onUpload={(result) => handleUpdateFeatureItem('campaign_feature_row_1', item.id, 'mediaUrl', result.secure_url, setFeatureRow1)}
+                                                        currentUrl={item.mediaUrl}
+                                                        onRemove={() => handleUpdateFeatureItem('campaign_feature_row_1', item.id, 'mediaUrl', '', setFeatureRow1)}
+                                                        accept="image/*,video/*"
+                                                        maxSize={20}
+                                                    />
                                                 </div>
-                                                {item.mediaUrl && (
-                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                                    </div>
-                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>
@@ -608,16 +609,15 @@ export default function CampaignManagementPage() {
                                                         onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_2', item.id, 'mediaUrl', e.target.value, setFeatureRow2)}
                                                         className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
                                                     />
-                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                                        <Upload className="w-4 h-4" />
-                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_2', item.id, e.target.files[0], setFeatureRow2)} />
-                                                    </label>
+                                                    <CloudinaryUploader
+                                                        label="Upload"
+                                                        onUpload={(result) => handleUpdateFeatureItem('campaign_feature_row_2', item.id, 'mediaUrl', result.secure_url, setFeatureRow2)}
+                                                        currentUrl={item.mediaUrl}
+                                                        onRemove={() => handleUpdateFeatureItem('campaign_feature_row_2', item.id, 'mediaUrl', '', setFeatureRow2)}
+                                                        accept="image/*,video/*"
+                                                        maxSize={20}
+                                                    />
                                                 </div>
-                                                {item.mediaUrl && (
-                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                                    </div>
-                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>
@@ -799,16 +799,15 @@ export default function CampaignManagementPage() {
                                                         onChange={(e) => handleUpdateFeatureItem('campaign_feature_row_3', item.id, 'mediaUrl', e.target.value, setFeatureRow3)}
                                                         className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
                                                     />
-                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                                        <Upload className="w-4 h-4" />
-                                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadFeatureItemMedia('campaign_feature_row_3', item.id, e.target.files[0], setFeatureRow3)} />
-                                                    </label>
+                                                    <CloudinaryUploader
+                                                        label="Upload"
+                                                        onUpload={(result) => handleUpdateFeatureItem('campaign_feature_row_3', item.id, 'mediaUrl', result.secure_url, setFeatureRow3)}
+                                                        currentUrl={item.mediaUrl}
+                                                        onRemove={() => handleUpdateFeatureItem('campaign_feature_row_3', item.id, 'mediaUrl', '', setFeatureRow3)}
+                                                        accept="image/*,video/*"
+                                                        maxSize={20}
+                                                    />
                                                 </div>
-                                                {item.mediaUrl && (
-                                                    <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
-                                                        <img src={item.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
-                                                    </div>
-                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Collection Link</label>

@@ -5,7 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft, Save, Loader2, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getWorldContentById, updateWorldContent, uploadAdminImage } from '@/lib/firebase/admin';
+import { getWorldContentById, updateWorldContent } from '@/lib/firebase/world';
+import { uploadAdminImage } from '@/lib/firebase/storage';
 import { WorldContent } from '@/types';
 
 export default function EditWorldStoryPage() {

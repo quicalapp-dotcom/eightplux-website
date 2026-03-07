@@ -40,6 +40,7 @@ const adminLinks = [
 
     // Analytics & Settings
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, category: 'settings' },
+    { name: 'Newsletter', href: '/admin/newsletter', icon: Megaphone, category: 'settings' },
     { name: 'Settings', href: '/admin/settings', icon: Settings, category: 'settings' },
     { name: 'Audit Logs', href: '/admin/audit', icon: ShieldAlert, category: 'settings' },
 ];

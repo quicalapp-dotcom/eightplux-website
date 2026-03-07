@@ -195,5 +195,21 @@ service cloud.firestore {
     match /analytics/{docId} {
       allow read, write: if isAdmin();
     }
+
+    // Newsletter Subscribers
+    match /subscribers/{email} {
+      // Anyone can read (for public subscriber count if needed)
+      allow read: if true;
+      // Only server/admin can write (subscription goes through API)
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // Discount Codes
+    match /discounts/{discountId} {
+      // Admins can manage all discounts
+      allow read: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
   }
 }

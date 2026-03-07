@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Save, Loader2, Upload, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getProductById, updateProduct, uploadAdminImage, subscribeToCollections } from '@/lib/firebase/admin';
+import { getProductById, updateProduct } from '@/lib/firebase/products';
+import { uploadAdminImage } from '@/lib/firebase/storage';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import { Product, Collection } from '@/types';
 
 export default function EditProductPage() {
