@@ -153,7 +153,7 @@ export async function sendWelcomeEmail({ to, discountCode }: WelcomeEmailData): 
       console.error('Stack trace:', error.stack);
     }
 
-    throw error; // Re-throw to let the API route handle it
+    // Don't re-throw the error - just log it
   }
 }
 
@@ -207,7 +207,7 @@ export async function sendNewsletterEmail({
       console.error('Stack trace:', error.stack);
     }
 
-    throw error; // Re-throw to let the API route handle it
+    // Don't re-throw the error - just log it
   }
 }
 
@@ -276,3 +276,4 @@ export async function sendOrderConfirmationEmail({
     console.error('Failed to send order confirmation email:', error);
   }
 }
+
