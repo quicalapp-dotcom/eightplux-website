@@ -194,10 +194,11 @@ export default function CheckoutPage() {
             // NOTE: NOWPayments requires USD as the base currency
             const res = await fetch('/api/payments/crypto/create-charge', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': user?.uid || 'guest',
+                },
                 body: JSON.stringify({
-                    amount: totalWithDiscount,
-                    currency: 'usd', // Always use USD for NOWPayments
                     email: formData.email,
                     orderId: nowPaymentsOrderId,
                 }),
@@ -284,6 +285,7 @@ export default function CheckoutPage() {
                                 currency={currency}
                                 email={formData.email}
                                 orderId={`ORDER_${Date.now()}`}
+                                userId={user?.uid || 'guest'}
                             />
                         )}
                     </div>

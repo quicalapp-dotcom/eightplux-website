@@ -7,9 +7,10 @@ interface PaystackButtonProps {
   email: string;
   amount: number;
   orderId: string;
+  userId: string;
 }
 
-export default function PaystackButton({ email, amount, orderId }: PaystackButtonProps) {
+export default function PaystackButton({ email, amount, orderId, userId }: PaystackButtonProps) {
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrencyStore();
   
@@ -18,6 +19,7 @@ export default function PaystackButton({ email, amount, orderId }: PaystackButto
     amount,
     orderId,
     currency,
+    userId,
   });
 
   const handlePay = async () => {
@@ -28,12 +30,12 @@ export default function PaystackButton({ email, amount, orderId }: PaystackButto
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": userId,
         },
         body: JSON.stringify({
           email,
-          amount,
           orderId,
-          currency: "USD",
+          amount,
         }),
       });
 

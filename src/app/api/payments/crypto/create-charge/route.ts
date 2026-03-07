@@ -31,13 +31,15 @@ export async function POST(request: Request) {
     }
 
     // Fetch order from database to get the actual amount
-    const orderRef = admin.firestore().collection('orders').doc(orderId);
-    const orderDoc = await orderRef.get();
+    const ordersRef = admin.firestore().collection('orders');
+    const orderQuery = ordersRef.where('orderId', '==', orderId).limit(1);
+    const orderSnapshot = await orderQuery.get();
     
-    if (!orderDoc.exists) {
+    if (orderSnapshot.empty) {
       return NextResponse.json({ error: 'Invalid order' }, { status: 400 });
     }
 
+    const orderDoc = orderSnapshot.docs[0];
     const orderData = orderDoc.data();
     if (!orderData) {
       return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
