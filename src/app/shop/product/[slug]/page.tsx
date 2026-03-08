@@ -241,7 +241,7 @@ export default function ProductDetailPage() {
                                 <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Summary</h4>
                                 <div className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60 space-y-1">
                                     <p>Color: {selectedColor?.name || 'Navy Blue'}</p>
-                                    <p>Height of model: 177 cm. / 5' 9"</p>
+                                    <p>Height of model: 177 cm. / 5&apos; 9&quot;</p>
                                     <p className="opacity-40">{product.id}</p>
                                 </div>
                             </div>
@@ -287,9 +287,15 @@ export default function ProductDetailPage() {
 
                             <button
                                 onClick={handleAddToBag}
-                                className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-between px-8 items-center hover:bg-black transition-colors"
+                                disabled={product.inventory <= 0}
+                                className={`w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-between px-8 items-center transition-colors ${
+                                    product.inventory <= 0 
+                                        ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                        : 'bg-[#333] text-white hover:bg-black'
+                                }`}
                             >
-                                Add to cart <span className="text-xl">+</span>
+                                {product.inventory <= 0 ? 'Sold Out' : 'Add to cart'} 
+                                {product.inventory > 0 && <span className="text-xl">+</span>}
                             </button>
                         </div>
 
@@ -358,3 +364,4 @@ export default function ProductDetailPage() {
         </>
     );
 }
+

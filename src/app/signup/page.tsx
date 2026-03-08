@@ -42,6 +42,20 @@ export default function SignUpPage() {
                 newsletter: newsletter,
             });
 
+            // Send welcome email and generate discount code (async - don't wait for it)
+            try {
+                await fetch('/api/newsletter/welcome', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+            } catch (emailError) {
+                console.error('Failed to process welcome email:', emailError);
+                // Don't fail the signup if email process fails
+            }
+
             router.push('/account'); // Redirect to account page after signup
         } catch (err: any) {
             console.error('Signup error:', err);

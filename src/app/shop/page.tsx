@@ -134,6 +134,11 @@ export default function ShopPage() {
                                                     Sale
                                                 </div>
                                             )}
+                                            {product.inventory <= 0 && (
+                                                <div className="absolute top-4 left-4 z-10 bg-gray-400 text-white px-3 py-1 text-[10px] uppercase font-bold tracking-widest">
+                                                    Sold Out
+                                                </div>
+                                            )}
                                         </div>
                                     </Link>
 

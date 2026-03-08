@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -154,6 +154,22 @@ export default function CheckoutPage() {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         };
+        
+        // Update product inventory
+        for (const item of items) {
+            const productRef = doc(db, 'products', item.productId);
+            const productDoc = await getDoc(productRef);
+            
+            if (productDoc.exists()) {
+                const productData = productDoc.data();
+                const newInventory = (productData.inventory || 0) - item.quantity;
+                await updateDoc(productRef, {
+                    inventory: newInventory,
+                    updatedAt: serverTimestamp()
+                });
+            }
+        }
+        
         await setDoc(orderRef, orderData);
         return orderRef.id;
     };
