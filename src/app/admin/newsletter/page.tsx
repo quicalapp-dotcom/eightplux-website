@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, Users, Loader2, Check, X, RefreshCw, Image as ImageIcon, Video, Link as LinkIcon, Bold, Italic, List, ListOrdered } from 'lucide-react';
+import { Send, Users, Loader2, Check, X, RefreshCw } from 'lucide-react';
 import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 interface Subscriber {
@@ -23,39 +23,31 @@ export default function NewsletterPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Form state
+  // Form state for the luxury newsletter template
   const [subject, setSubject] = useState('');
-  const [htmlContent, setHtmlContent] = useState('');
-  const [textContent, setTextContent] = useState('');
+  const [collectionTitle, setCollectionTitle] = useState('');
+  const [collectionDescription, setCollectionDescription] = useState('');
+  const [collectionLink, setCollectionLink] = useState('');
+  const [heroImage, setHeroImage] = useState('');
+  const [videoThumbnail, setVideoThumbnail] = useState('');
+  const [videoLink, setVideoLink] = useState('');
+  const [product1Image, setProduct1Image] = useState('');
+  const [product1Title, setProduct1Title] = useState('');
+  const [product1Link, setProduct1Link] = useState('');
+  const [product2Image, setProduct2Image] = useState('');
+  const [product2Title, setProduct2Title] = useState('');
+  const [product2Link, setProduct2Link] = useState('');
+  const [product3Image, setProduct3Image] = useState('');
+  const [product3Title, setProduct3Title] = useState('');
+  const [product3Link, setProduct3Link] = useState('');
+  const [product4Image, setProduct4Image] = useState('');
+  const [product4Title, setProduct4Title] = useState('');
+  const [product4Link, setProduct4Link] = useState('');
 
   // Load subscribers on page load
   useEffect(() => {
     fetchSubscribers();
   }, []);
-
-  // Helper functions for rich text editing
-  const insertHtml = (html: string) => {
-    setHtmlContent(prev => prev + html);
-  };
-
-  const insertImage = (url: string) => {
-    const imgHtml = `<img src="${url}" alt="Newsletter image" style="max-width: 100%; height: auto; margin: 10px 0;" />`;
-    insertHtml(imgHtml);
-  };
-
-  const insertVideo = (url: string) => {
-    const videoHtml = `<video src="${url}" controls style="max-width: 100%; height: auto; margin: 10px 0;"></video>`;
-    insertHtml(videoHtml);
-  };
-
-  const insertLink = () => {
-    const url = prompt('Enter URL:');
-    const text = prompt('Enter link text:');
-    if (url && text) {
-      const linkHtml = `<a href="${url}" style="color: #C72f32; text-decoration: none;" target="_blank" rel="noopener noreferrer">${text}</a>`;
-      insertHtml(linkHtml);
-    }
-  };
 
   const fetchSubscribers = async () => {
     try {
@@ -75,11 +67,218 @@ export default function NewsletterPage() {
     }
   };
 
+  // Generate HTML content from template and form data
+  const generateHtmlContent = () => {
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  margin:0;
+  padding:0;
+  background:#f5f5f5;
+  font-family:Helvetica, Arial, sans-serif;
+}
+.container{
+  max-width:600px;
+  margin:auto;
+  background:#ffffff;
+}
+.header{
+  background:#000;
+  color:#fff;
+  text-align:center;
+  padding:30px;
+  letter-spacing:4px;
+  font-size:22px;
+}
+.hero img{
+  width:100%;
+  display:block;
+}
+.section{
+  padding:40px 30px;
+}
+.title{
+  font-size:28px;
+  font-weight:bold;
+  text-align:center;
+  letter-spacing:2px;
+}
+.subtitle{
+  text-align:center;
+  color:#666;
+  margin-top:10px;
+}
+.button{
+  display:inline-block;
+  padding:14px 35px;
+  background:#000;
+  color:#fff;
+  text-decoration:none;
+  letter-spacing:2px;
+  margin-top:20px;
+}
+.product-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:20px;
+}
+.product img{
+  width:100%;
+}
+.product-title{
+  font-size:14px;
+  margin-top:8px;
+}
+.video-section img{
+  width:100%;
+}
+.footer{
+  background:#111;
+  color:#aaa;
+  text-align:center;
+  padding:30px;
+  font-size:12px;
+}
+.social{
+  margin-top:15px;
+}
+.social a{
+  margin:0 10px;
+  color:#aaa;
+  text-decoration:none;
+}
+@media(max-width:600px){
+  .product-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">EIGHTPLUX</div>
+${heroImage ? `
+<div class="hero">
+<a href="${collectionLink || 'https://eightplux.com/shop'}">
+<img src="${heroImage}">
+</a>
+</div>` : ''}
+<div class="section">
+<div class="title">${collectionTitle || 'NEW SEASON COLLECTION'}</div>
+<p class="subtitle">${collectionDescription || 'Discover the latest statement pieces crafted for modern luxury.'}</p>
+<center>
+<a href="${collectionLink || 'https://eightplux.com/shop'}" class="button">${collectionTitle ? 'SHOP COLLECTION' : 'SHOP NOW'}</a>
+</center>
+</div>
+${videoThumbnail ? `
+<div class="video-section">
+<a href="${videoLink || 'https://eightplux.com/lookbook-video'}">
+<img src="${videoThumbnail}">
+</a>
+</div>
+<div class="section">
+<p style="text-align:center; font-size:16px;">
+Watch the full runway experience and explore the inspiration behind our latest designs.
+</p>
+<center>
+<a href="${videoLink || 'https://eightplux.com/lookbook-video'}" class="button">WATCH FILM</a>
+</center>
+</div>` : ''}
+<div class="section">
+<div class="title">EDITOR'S PICKS</div>
+<div class="product-grid">
+${product1Image ? `
+<div class="product">
+<a href="${product1Link || 'https://eightplux.com/shop'}">
+<img src="${product1Image}">
+</a>
+<div class="product-title">${product1Title || 'Product 1'}</div>
+</div>` : ''}
+${product2Image ? `
+<div class="product">
+<a href="${product2Link || 'https://eightplux.com/shop'}">
+<img src="${product2Image}">
+</a>
+<div class="product-title">${product2Title || 'Product 2'}</div>
+</div>` : ''}
+${product3Image ? `
+<div class="product">
+<a href="${product3Link || 'https://eightplux.com/shop'}">
+<img src="${product3Image}">
+</a>
+<div class="product-title">${product3Title || 'Product 3'}</div>
+</div>` : ''}
+${product4Image ? `
+<div class="product">
+<a href="${product4Link || 'https://eightplux.com/shop'}">
+<img src="${product4Image}">
+</a>
+<div class="product-title">${product4Title || 'Product 4'}</div>
+</div>` : ''}
+</div>
+<center>
+<a href="https://eightplux.com/shop" class="button">SHOP ALL PRODUCTS</a>
+</center>
+</div>
+<div class="footer">
+<p>© 2026 Eightplux</p>
+<p>Luxury Fashion Redefined</p>
+<p style="margin-top:10px;">7, Tajudeen Anjorin, Onilekere, Ikeja</p>
+<div class="social">
+<a href="https://instagram.com/eightplux">@eightplux</a>
+<a href="https://twitter.com/eightplux">@eightplux</a>
+<a href="https://tiktok.com/@eightplux">@eightplux</a>
+</div>
+<p style="margin-top:20px;">
+<a href="{{unsubscribe_link}}" style="color:#aaa;">Unsubscribe</a>
+</p>
+</div>
+</div>
+</body>
+</html>`;
+  };
+
+  // Generate plain text content
+  const generateTextContent = () => {
+    return `EIGHTPLUX - ${collectionTitle || 'NEW SEASON COLLECTION'}
+
+${collectionDescription || 'Discover the latest statement pieces crafted for modern luxury.'}
+
+SHOP NOW: ${collectionLink || 'https://eightplux.com/shop'}
+
+${videoLink ? `WATCH OUR LATEST FILM: ${videoLink}` : ''}
+
+EDITOR'S PICKS:
+${product1Title ? `${product1Title}: ${product1Link}\n` : ''}
+${product2Title ? `${product2Title}: ${product2Link}\n` : ''}
+${product3Title ? `${product3Title}: ${product3Link}\n` : ''}
+${product4Title ? `${product4Title}: ${product4Link}\n` : ''}
+
+SHOP ALL PRODUCTS: https://eightplux.com/shop
+
+Luxury Fashion Redefined
+© 2026 Eightplux
+
+Address: 7, Tajudeen Anjorin, Onilekere, Ikeja
+
+Follow us:
+Instagram: @eightplux
+Twitter: @eightplux
+TikTok: @eightplux
+
+To unsubscribe: {{unsubscribe_link}}`;
+  };
+
   const handleSendNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!subject || !htmlContent || !textContent) {
-      setErrorMessage('Please fill in all required fields');
+    if (!subject) {
+      setErrorMessage('Please fill in the email subject');
       return;
     }
 
@@ -90,6 +289,9 @@ export default function NewsletterPage() {
     setFailedCount(0);
 
     try {
+      const htmlContent = generateHtmlContent();
+      const textContent = generateTextContent();
+
       const response = await fetch('/api/newsletter/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -109,8 +311,24 @@ export default function NewsletterPage() {
         
         // Reset form
         setSubject('');
-        setHtmlContent('');
-        setTextContent('');
+        setCollectionTitle('');
+        setCollectionDescription('');
+        setCollectionLink('');
+        setHeroImage('');
+        setVideoThumbnail('');
+        setVideoLink('');
+        setProduct1Image('');
+        setProduct1Title('');
+        setProduct1Link('');
+        setProduct2Image('');
+        setProduct2Title('');
+        setProduct2Link('');
+        setProduct3Image('');
+        setProduct3Title('');
+        setProduct3Link('');
+        setProduct4Image('');
+        setProduct4Title('');
+        setProduct4Link('');
       } else {
         setErrorMessage(data.error || 'Failed to send newsletter');
       }
@@ -179,7 +397,7 @@ export default function NewsletterPage() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold">Send Newsletter</h2>
-          <p className="text-sm text-gray-600">Send an email to all active subscribers</p>
+          <p className="text-sm text-gray-600">Send an email to all active subscribers using the luxury template</p>
         </div>
         
         <form onSubmit={handleSendNewsletter} className="p-6 space-y-4">
@@ -198,100 +416,255 @@ export default function NewsletterPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Rich Text Content (HTML)
-            </label>
+          {/* Collection Section */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="font-medium mb-3">Collection Section</h3>
             
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-2 p-2 bg-gray-50 border border-gray-300 rounded-md mb-2">
-              <button
-                type="button"
-                onClick={() => insertHtml('<strong>bold</strong>')}
-                className="p-2 text-gray-600 hover:bg-gray-200 rounded-md"
-                title="Bold"
-              >
-                <Bold className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertHtml('<em>italic</em>')}
-                className="p-2 text-gray-600 hover:bg-gray-200 rounded-md"
-                title="Italic"
-              >
-                <Italic className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertHtml('<ul><li>list item</li></ul>')}
-                className="p-2 text-gray-600 hover:bg-gray-200 rounded-md"
-                title="Bullet List"
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => insertHtml('<ol><li>list item</li></ol>')}
-                className="p-2 text-gray-600 hover:bg-gray-200 rounded-md"
-                title="Numbered List"
-              >
-                <ListOrdered className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={insertLink}
-                className="p-2 text-gray-600 hover:bg-gray-200 rounded-md"
-                title="Insert Link"
-              >
-                <LinkIcon className="w-4 h-4" />
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Collection Title</label>
+                <input
+                  type="text"
+                  value={collectionTitle}
+                  onChange={(e) => setCollectionTitle(e.target.value)}
+                  placeholder="e.g., New Season Collection"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
               
-              <div className="w-px h-6 bg-gray-300 mx-2"></div>
-              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Collection Link</label>
+                <input
+                  type="url"
+                  value={collectionLink}
+                  onChange={(e) => setCollectionLink(e.target.value)}
+                  placeholder="https://eightplux.com/collection"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Collection Description</label>
+              <textarea
+                value={collectionDescription}
+                onChange={(e) => setCollectionDescription(e.target.value)}
+                placeholder="Describe your collection"
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
               <CloudinaryUploader
-                label="Insert Image"
-                onUpload={(result) => insertImage(result.secure_url)}
+                label="Upload Hero Image"
+                onUpload={(result) => setHeroImage(result.secure_url)}
                 accept="image/*"
                 maxSize={5}
                 compact={true}
               />
-              
-              <CloudinaryUploader
-                label="Insert Video"
-                onUpload={(result) => insertVideo(result.secure_url)}
-                accept="video/*"
-                maxSize={20}
-                isVideo={true}
-                compact={true}
-              />
+              {heroImage && (
+                <img src={heroImage} alt="Hero" className="mt-2 w-32 h-32 object-cover rounded-md" />
+              )}
             </div>
-
-            <textarea
-              value={htmlContent}
-              onChange={(e) => setHtmlContent(e.target.value)}
-              placeholder="Enter HTML version of the email. You can also use the toolbar to add formatting and media."
-              rows={12}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              HTML content should include complete email structure with doctype, html, head, and body tags.
-            </p>
           </div>
 
-          <div>
-            <label htmlFor="textContent" className="block text-sm font-medium text-gray-700 mb-1">
-              Plain Text Content
-            </label>
-            <textarea
-              id="textContent"
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-              placeholder="Enter plain text version of the email"
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+          {/* Video Section */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="font-medium mb-3">Video Section (Optional)</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Video Link</label>
+                <input
+                  type="url"
+                  value={videoLink}
+                  onChange={(e) => setVideoLink(e.target.value)}
+                  placeholder="https://eightplux.com/video"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Video Thumbnail</label>
+              <CloudinaryUploader
+                label="Upload Thumbnail"
+                onUpload={(result) => setVideoThumbnail(result.secure_url)}
+                accept="image/*"
+                maxSize={5}
+                compact={true}
+              />
+              {videoThumbnail && (
+                <img src={videoThumbnail} alt="Video Thumbnail" className="mt-2 w-32 h-32 object-cover rounded-md" />
+              )}
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="font-medium mb-3">Editors Picks (Products)</h3>
+            
+            {/* Product 1 */}
+            <div className="border border-gray-200 p-3 rounded-md mb-3">
+              <h4 className="font-medium mb-2 text-sm">Product 1</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={product1Title}
+                    onChange={(e) => setProduct1Title(e.target.value)}
+                    placeholder="Product title"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Link</label>
+                  <input
+                    type="url"
+                    value={product1Link}
+                    onChange={(e) => setProduct1Link(e.target.value)}
+                    placeholder="Product URL"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Image</label>
+                  <CloudinaryUploader
+                    label="Upload Image"
+                    onUpload={(result) => setProduct1Image(result.secure_url)}
+                    accept="image/*"
+                    maxSize={5}
+                    compact={true}
+                  />
+                </div>
+              </div>
+              {product1Image && (
+                <img src={product1Image} alt="Product 1" className="mt-2 w-24 h-24 object-cover rounded-md" />
+              )}
+            </div>
+
+            {/* Product 2 */}
+            <div className="border border-gray-200 p-3 rounded-md mb-3">
+              <h4 className="font-medium mb-2 text-sm">Product 2</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={product2Title}
+                    onChange={(e) => setProduct2Title(e.target.value)}
+                    placeholder="Product title"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Link</label>
+                  <input
+                    type="url"
+                    value={product2Link}
+                    onChange={(e) => setProduct2Link(e.target.value)}
+                    placeholder="Product URL"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Image</label>
+                  <CloudinaryUploader
+                    label="Upload Image"
+                    onUpload={(result) => setProduct2Image(result.secure_url)}
+                    accept="image/*"
+                    maxSize={5}
+                    compact={true}
+                  />
+                </div>
+              </div>
+              {product2Image && (
+                <img src={product2Image} alt="Product 2" className="mt-2 w-24 h-24 object-cover rounded-md" />
+              )}
+            </div>
+
+            {/* Product 3 */}
+            <div className="border border-gray-200 p-3 rounded-md mb-3">
+              <h4 className="font-medium mb-2 text-sm">Product 3</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={product3Title}
+                    onChange={(e) => setProduct3Title(e.target.value)}
+                    placeholder="Product title"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Link</label>
+                  <input
+                    type="url"
+                    value={product3Link}
+                    onChange={(e) => setProduct3Link(e.target.value)}
+                    placeholder="Product URL"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Image</label>
+                  <CloudinaryUploader
+                    label="Upload Image"
+                    onUpload={(result) => setProduct3Image(result.secure_url)}
+                    accept="image/*"
+                    maxSize={5}
+                    compact={true}
+                  />
+                </div>
+              </div>
+              {product3Image && (
+                <img src={product3Image} alt="Product 3" className="mt-2 w-24 h-24 object-cover rounded-md" />
+              )}
+            </div>
+
+            {/* Product 4 */}
+            <div className="border border-gray-200 p-3 rounded-md">
+              <h4 className="font-medium mb-2 text-sm">Product 4</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={product4Title}
+                    onChange={(e) => setProduct4Title(e.target.value)}
+                    placeholder="Product title"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Link</label>
+                  <input
+                    type="url"
+                    value={product4Link}
+                    onChange={(e) => setProduct4Link(e.target.value)}
+                    placeholder="Product URL"
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Image</label>
+                  <CloudinaryUploader
+                    label="Upload Image"
+                    onUpload={(result) => setProduct4Image(result.secure_url)}
+                    accept="image/*"
+                    maxSize={5}
+                    compact={true}
+                  />
+                </div>
+              </div>
+              {product4Image && (
+                <img src={product4Image} alt="Product 4" className="mt-2 w-24 h-24 object-cover rounded-md" />
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-4 pt-2">

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Instagram, Twitter, Youtube } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -34,7 +34,7 @@ export default function Footer() {
             <div className="space-y-6 text-[10px] font-medium opacity-80 uppercase tracking-widest">
               <div>
                 <p className="mb-1 opacity-60">Address:</p>
-                <p>123 Eight Close, Lagos</p>
+                <p>7, Tajudeen Anjorin, Onilekere, Ikeja</p>
               </div>
               <div>
                 <p className="mb-1 opacity-60">Phone:</p>
@@ -42,7 +42,7 @@ export default function Footer() {
               </div>
               <div>
                 <p className="mb-1 opacity-60">Email:</p>
-                <p>Hello@eightplux.com</p>
+                <p>eightplux@gmail.com</p>
               </div>
               <div>
                 <p className="mb-1 opacity-60">Working Days/Hours:</p>
@@ -56,21 +56,21 @@ export default function Footer() {
             <h3 className="text-sm font-black uppercase mb-8 tracking-widest">FOLLOW US</h3>
             <ul className="space-y-6 text-[10px] font-medium opacity-80 uppercase tracking-widest">
               <li>
-                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
-                  <span className="p-1 bg-white text-black"><Facebook size={14} fill="currentColor" /></span>
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
-                  <span className="p-1 bg-white text-black"><Twitter size={14} fill="currentColor" /></span>
-                  Twitter
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                <a href="https://instagram.com/eightplux" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
                   <span className="p-1 bg-white text-black"><Instagram size={14} fill="currentColor" /></span>
-                  Instagram
+                  @eightplux
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/eightplux" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                  <span className="p-1 bg-white text-black"><Twitter size={14} fill="currentColor" /></span>
+                  @eightplux
+                </a>
+              </li>
+              <li>
+                <a href="https://tiktok.com/@eightplux" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:opacity-100 transition-opacity">
+                  <span className="p-1 bg-white text-black"><Youtube size={14} fill="currentColor" /></span>
+                  @eightplux
                 </a>
               </li>
             </ul>
