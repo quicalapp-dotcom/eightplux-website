@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { subscribeToWorldSection } from '@/lib/firebase/homepage-sections';
-import { WorldSectionData } from '@/types';
+import { subscribeToWorldHero } from '@/lib/firebase/world';
+import { WorldHeroData } from '@/types';
 
 interface WorldHeroProps {
   image?: string;
@@ -14,16 +14,16 @@ interface WorldHeroProps {
 const DEFAULT_IMAGE = '/whero.jpg';
 
 export default function WorldHero({ image }: WorldHeroProps) {
-  const [worldData, setWorldData] = useState<WorldSectionData | null>(null);
+  const [worldHeroData, setWorldHeroData] = useState<WorldHeroData | null>(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeToWorldSection((data) => {
-      setWorldData(data);
+    const unsubscribe = subscribeToWorldHero((data) => {
+      setWorldHeroData(data);
     });
     return () => unsubscribe();
   }, []);
 
-  const mediaUrl = worldData?.mediaUrl || image || DEFAULT_IMAGE;
+  const mediaUrl = worldHeroData?.mediaUrl || image || DEFAULT_IMAGE;
 
   return (
     <section className="relative w-full overflow-hidden bg-black">

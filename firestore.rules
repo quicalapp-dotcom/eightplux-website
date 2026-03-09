@@ -96,6 +96,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // World Sections (Public Read, Admin Write) - for hero and other world page sections
+    match /world_sections/{sectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // World Mosaic (Public Read, Admin Write)
     match /world_mosaic/{contentId} {
       allow read: if true;

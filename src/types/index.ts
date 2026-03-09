@@ -193,6 +193,14 @@ export interface WorldContent {
     createdAt: Date;
 }
 
+export interface WorldHeroData {
+    id: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    isActive: boolean;
+    updatedAt: Date;
+}
+
 export interface UserProfile {
     id: string;
     email: string;

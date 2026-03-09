@@ -1,6 +1,7 @@
-import { collection, doc, getDoc, getDocs, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './config';
 import { Unsubscribe } from 'firebase/firestore';
+import { WorldHeroData } from '@/types';
 
 export interface WorldContent {
   id: string;
@@ -26,6 +27,40 @@ export interface WorldMosaicImage {
   socialLink?: string;
   sortOrder: number;
 }
+
+// World Hero Section
+const WORLD_HERO_ID = 'world_hero';
+
+export const subscribeToWorldHero = (callback: (data: WorldHeroData | null) => void): Unsubscribe => {
+  const docRef = doc(db, 'world_sections', WORLD_HERO_ID);
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      callback({ id: docSnap.id, ...docSnap.data() } as WorldHeroData);
+    } else {
+      callback(null);
+    }
+  });
+};
+
+export const updateWorldHero = async (data: Partial<WorldHeroData>): Promise<void> => {
+  const ref = doc(db, 'world_sections', WORLD_HERO_ID);
+  await updateDoc(ref, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
+};
+
+export const initializeWorldHero = async (): Promise<void> => {
+  const ref = doc(db, 'world_sections', WORLD_HERO_ID);
+  const defaultData: WorldHeroData = {
+    id: WORLD_HERO_ID,
+    mediaUrl: '/whero.jpg',
+    mediaType: 'image',
+    isActive: true,
+    updatedAt: new Date()
+  };
+  await setDoc(ref, defaultData);
+};
 
 // Subscribe to all world content (real-time)
 export const subscribeToWorldContent = (
