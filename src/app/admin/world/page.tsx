@@ -43,13 +43,22 @@ export default function WorldManagementPage() {
                     <h1 className="text-xl sm:text-2xl font-bold text-black">World of 8+ Content</h1>
                     <p className="text-sm text-gray-600">Manage editorial stories, events, and press releases.</p>
                 </div>
-                <Link
-                    href="/admin/world/new"
-                    className="inline-flex items-center justify-center gap-2 bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                    <Plus className="w-4 h-4" />
-                    Create Story
-                </Link>
+                <div className="flex gap-2">
+                    <Link
+                        href="/admin/world/mosaic"
+                        className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                        <Globe className="w-4 h-4" />
+                        Mosaic Grid
+                    </Link>
+                    <Link
+                        href="/admin/world/new"
+                        className="inline-flex items-center justify-center gap-2 bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Create Story
+                    </Link>
+                </div>
             </div>
 
             {/* Quick Stats */}

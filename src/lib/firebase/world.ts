@@ -18,6 +18,15 @@ export interface WorldContent {
   updatedAt: Date;
 }
 
+export interface WorldMosaicImage {
+  id: string;
+  src: string;
+  alt: string;
+  className: string;
+  socialLink?: string;
+  sortOrder: number;
+}
+
 // Subscribe to all world content (real-time)
 export const subscribeToWorldContent = (
   callback: (data: WorldContent[]) => void
@@ -90,6 +99,45 @@ export const addWorldContent = async (data: Omit<WorldContent, 'id' | 'createdAt
 export const updateWorldContent = async (id: string, data: Partial<WorldContent>): Promise<void> => {
   const docRef = doc(db, 'world_content', id);
   await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
+};
+
+// Mosaic Images Management
+export const subscribeToWorldMosaic = (
+  callback: (data: WorldMosaicImage[]) => void
+): Unsubscribe => {
+  const q = query(collection(db, 'world_mosaic'), orderBy('sortOrder', 'asc'));
+  return onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      src: doc.data().src || '',
+      alt: doc.data().alt || '',
+      className: doc.data().className || 'col-span-4 row-span-2',
+      socialLink: doc.data().socialLink || '',
+      sortOrder: doc.data().sortOrder || 0,
+    }));
+    callback(data);
+  }, (error) => {
+    console.error('Error subscribing to world mosaic:', error);
+    callback([]);
+  });
+};
+
+export const addWorldMosaicImage = async (data: Omit<WorldMosaicImage, 'id' | 'sortOrder'>): Promise<string> => {
+  const docRef = await addDoc(collection(db, 'world_mosaic'), {
+    ...data,
+    sortOrder: 0,
+  });
+  return docRef.id;
+};
+
+export const updateWorldMosaicImage = async (id: string, data: Partial<WorldMosaicImage>): Promise<void> => {
+  const docRef = doc(db, 'world_mosaic', id);
+  await updateDoc(docRef, data);
+};
+
+export const deleteWorldMosaicImage = async (id: string): Promise<void> => {
+  const docRef = doc(db, 'world_mosaic', id);
+  await deleteDoc(docRef);
 };
 
 // Delete world content

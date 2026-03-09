@@ -72,6 +72,15 @@ export interface Campaign {
     updatedAt: Date;
 }
 
+export interface WorldMosaicImage {
+    id: string;
+    src: string;
+    alt: string;
+    className: string;
+    socialLink?: string;
+    sortOrder: number;
+}
+
 export interface User {
     id: string;
     email: string;

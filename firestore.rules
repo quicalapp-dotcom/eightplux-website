@@ -96,6 +96,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // World Mosaic (Public Read, Admin Write)
+    match /world_mosaic/{contentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Banners (Public Read, Admin Write)
     match /banners/{bannerId} {
       allow read: if true;
