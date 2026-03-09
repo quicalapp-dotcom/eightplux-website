@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, Loader2, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { addProduct } from '@/lib/firebase/products';
-import { uploadAdminImage } from '@/lib/firebase/storage';
 import { subscribeToCollections } from '@/lib/firebase/collections';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Collection } from '@/types';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 interface CategoryOption {
     value: string;
@@ -19,7 +19,7 @@ interface CategoryOption {
 export default function NewProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [images, setImages] = useState<File[]>([]);
+    const [images, setImages] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
     const [collections, setCollections] = useState<Collection[]>([]);
 
@@ -53,10 +53,9 @@ export default function NewProductPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setImages([...images, ...Array.from(e.target.files)]);
-        }
+    const handleImageUpload = (result: any) => {
+        console.log('Image uploaded successfully:', result);
+        setImages([...images, result.secure_url]);
     };
 
     const removeImage = (index: number) => {
@@ -68,16 +67,8 @@ export default function NewProductPage() {
         setLoading(true);
 
         try {
-            // 1. Upload Images using our admin service
-            const imageUrls: string[] = [];
-            // In a real app we'd parallelize this carefully, for now sequential is safer to debug
-            for (const file of images) {
-                const url = await uploadAdminImage(file, 'products');
-                imageUrls.push(url);
-            }
-
-            // 2. Prepare Data
-             const productData = {
+            // Prepare Data
+            const productData = {
                 name: formData.name,
                 slug: formData.name.toLowerCase().replace(/ /g, '-'),
                 description: formData.description,
@@ -85,7 +76,7 @@ export default function NewProductPage() {
                 category: selectedCollection?.category || 'women',
                 inventory: parseInt(formData.inventory),
                 currency: 'USD' as const,
-                images: imageUrls,
+                images: images,
                 gender: selectedCollection?.category || 'women',
                 sizes: formData.sizes.split(',').map(s => s.trim()),
                 colors: formData.colors.split(',').map(c => ({ name: c.trim(), hex: '#000000' })), // Simplification
@@ -95,7 +86,9 @@ export default function NewProductPage() {
                 sizeFit: formData.sizeFit
             };
 
-            // 3. Save to Firestore
+            console.log('Product data to save:', productData);
+
+            // Save to Firestore
             await addProduct(productData);
 
             router.push('/admin/products');
@@ -172,9 +165,9 @@ export default function NewProductPage() {
                     <h2 className="text-lg font-medium mb-4 text-black">Media</h2>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {images.map((file, i) => (
+                        {images.map((url, i) => (
                             <div key={i} className="aspect-square relative rounded-md overflow-hidden bg-gray-100">
-                                <img src={URL.createObjectURL(file)} alt="preview" className="w-full h-full object-cover" />
+                                <img src={url} alt="preview" className="w-full h-full object-cover" />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(i)}
@@ -185,11 +178,13 @@ export default function NewProductPage() {
                             </div>
                         ))}
 
-                        <label className="aspect-square border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-black transition-colors">
-                            <Upload className="w-6 h-6 text-gray-400 mb-2" />
-                            <span className="text-xs text-gray-500">Upload Image</span>
-                            <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
-                        </label>
+                        <CloudinaryUploader
+                            onUpload={handleImageUpload}
+                            onRemove={() => {}}
+                            accept="image/*"
+                            maxSize={10}
+                            label="Upload Image"
+                        />
                     </div>
                 </div>
 

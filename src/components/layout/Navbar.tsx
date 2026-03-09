@@ -18,10 +18,7 @@ const baseNavLinks = [
         { name: 'New Releases', href: '/shop?filter=new' },
         { name: 'Women', href: '/shop/women' },
         { name: 'Men', href: '/shop/men' },
-        { name: 'Hoodies', href: '/shop?category=hoodies' },
-        { name: 'Shirts', href: '/shop?category=shirts' },
-        { name: 'Pants', href: '/shop?category=pants' },
-        { name: 'Accessories', href: '/shop?category=accessories' },
+        
     ]},
     { name: 'lookbooks', href: '/campaigns' },
     { name: 'The World Of 8+', href: '/world', dropdown: [
