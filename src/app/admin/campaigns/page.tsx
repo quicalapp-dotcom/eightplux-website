@@ -14,7 +14,6 @@ import {
     updateCampaignBanner,
     initializeAllCampaignSections
 } from '@/lib/firebase/campaign-sections';
-import { uploadAdminImage } from '@/lib/firebase/storage';
 import { subscribeToCollections } from '@/lib/firebase/collections';
 import { Collection, CampaignFeatureItem } from '@/types';
 import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
@@ -134,10 +133,9 @@ export default function CampaignManagementPage() {
         }
     };
 
-    const handleUploadHeroMedia = async (file: File) => {
+    const handleUploadHeroMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'campaign/hero');
-            setHeroSection({ ...heroSection, mediaUrl: url });
+            setHeroSection({ ...heroSection, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -198,10 +196,9 @@ export default function CampaignManagementPage() {
         });
     };
 
-    const handleUploadFeatureItemMedia = async (rowId: string, itemId: string, file: File, setData: any) => {
+    const handleUploadFeatureItemMedia = (rowId: string, itemId: string, result: any, setData: any) => {
         try {
-            const url = await uploadAdminImage(file, `campaign/${rowId}`);
-            handleUpdateFeatureItem(rowId, itemId, 'mediaUrl', url, setData);
+            handleUpdateFeatureItem(rowId, itemId, 'mediaUrl', result.secure_url, setData);
         } catch (error) {
             alert('Upload failed');
         }
@@ -221,10 +218,9 @@ export default function CampaignManagementPage() {
         }
     };
 
-    const handleUploadInteractiveMedia = async (file: File) => {
+    const handleUploadInteractiveMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'campaign/interactive');
-            setInteractiveHero({ ...interactiveHero, mediaUrl: url });
+            setInteractiveHero({ ...interactiveHero, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -244,10 +240,9 @@ export default function CampaignManagementPage() {
         }
     };
 
-    const handleUploadBannerMedia = async (file: File) => {
+    const handleUploadBannerMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'campaign/banner');
-            setBanner({ ...banner, mediaUrl: url });
+            setBanner({ ...banner, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -358,11 +353,14 @@ export default function CampaignManagementPage() {
                                         onChange={(e) => setHeroSection({ ...heroSection, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadHeroMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadHeroMedia}
+                                        currentUrl={heroSection.mediaUrl}
+                                        onRemove={() => setHeroSection({ ...heroSection, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {heroSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -496,11 +494,14 @@ export default function CampaignManagementPage() {
                                         onChange={(e) => setInteractiveHero({ ...interactiveHero, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadInteractiveMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadInteractiveMedia}
+                                        currentUrl={interactiveHero.mediaUrl}
+                                        onRemove={() => setInteractiveHero({ ...interactiveHero, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {interactiveHero.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -671,11 +672,14 @@ export default function CampaignManagementPage() {
                                         onChange={(e) => setBanner({ ...banner, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadBannerMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadBannerMedia}
+                                        currentUrl={banner.mediaUrl}
+                                        onRemove={() => setBanner({ ...banner, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {banner.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">

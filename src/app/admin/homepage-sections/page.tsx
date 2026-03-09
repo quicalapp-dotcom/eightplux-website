@@ -20,9 +20,9 @@ import {
     updateStyleCards,
     initializeAllHomepageSections
 } from '@/lib/firebase/homepage-sections';
-import { uploadAdminImage } from '@/lib/firebase/storage';
 import { subscribeToCollections } from '@/lib/firebase/collections';
 import { HeroSlide, StyleCard, Collection } from '@/types';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 export default function HomepageManagementPage() {
     const [saving, setSaving] = useState(false);
@@ -192,10 +192,9 @@ export default function HomepageManagementPage() {
         setHeroSlides(newSlides);
     };
 
-    const handleUploadSlideMedia = async (id: string, file: File) => {
+    const handleUploadSlideMedia = (id: string, result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/hero');
-            handleUpdateSlide(id, 'src', url);
+            handleUpdateSlide(id, 'src', result.secure_url);
         } catch (error) {
             alert('Upload failed');
         }
@@ -215,10 +214,9 @@ export default function HomepageManagementPage() {
         }
     };
 
-    const handleUploadSportMedia = async (file: File) => {
+    const handleUploadSportMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/sport');
-            setSportSection({ ...sportSection, mediaUrl: url });
+            setSportSection({ ...sportSection, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -238,10 +236,9 @@ export default function HomepageManagementPage() {
         }
     };
 
-    const handleUploadCasualMedia = async (file: File) => {
+    const handleUploadCasualMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/casual');
-            setCasualSection({ ...casualSection, mediaUrl: url });
+            setCasualSection({ ...casualSection, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -285,10 +282,9 @@ export default function HomepageManagementPage() {
         setStyleCards(styleCards.filter(card => card.id !== id));
     };
 
-    const handleUploadCardMedia = async (id: string, file: File) => {
+    const handleUploadCardMedia = (id: string, result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/style');
-            handleUpdateCard(id, 'mediaUrl', url);
+            handleUpdateCard(id, 'mediaUrl', result.secure_url);
         } catch (error) {
             alert('Upload failed');
         }
@@ -308,10 +304,9 @@ export default function HomepageManagementPage() {
         }
     };
 
-    const handleUploadWorldMedia = async (file: File) => {
+    const handleUploadWorldMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/world');
-            setWorldSection({ ...worldSection, mediaUrl: url });
+            setWorldSection({ ...worldSection, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -331,10 +326,9 @@ export default function HomepageManagementPage() {
         }
     };
 
-    const handleUploadStageMedia = async (file: File) => {
+    const handleUploadStageMedia = (result: any) => {
         try {
-            const url = await uploadAdminImage(file, 'homepage/stage');
-            setStageSection({ ...stageSection, mediaUrl: url });
+            setStageSection({ ...stageSection, mediaUrl: result.secure_url });
         } catch (error) {
             alert('Upload failed');
         }
@@ -625,11 +619,14 @@ export default function HomepageManagementPage() {
                                         onChange={(e) => setSportSection({ ...sportSection, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadSportMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadSportMedia}
+                                        currentUrl={sportSection.mediaUrl}
+                                        onRemove={() => setSportSection({ ...sportSection, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {sportSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -730,11 +727,14 @@ export default function HomepageManagementPage() {
                                         onChange={(e) => setCasualSection({ ...casualSection, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadCasualMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadCasualMedia}
+                                        currentUrl={casualSection.mediaUrl}
+                                        onRemove={() => setCasualSection({ ...casualSection, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {casualSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -877,10 +877,14 @@ export default function HomepageManagementPage() {
                                                         onChange={(e) => handleUpdateCard(card.id, 'mediaUrl', e.target.value)}
                                                         className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black text-sm"
                                                     />
-                                                    <label className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                                        <ImageIcon className="w-4 h-4" />
-                                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadCardMedia(card.id, e.target.files[0])} />
-                                                    </label>
+                                            <CloudinaryUploader
+                                                label="Upload"
+                                                onUpload={(result) => handleUploadCardMedia(card.id, result)}
+                                                currentUrl={card.mediaUrl}
+                                                onRemove={() => handleUpdateCard(card.id, 'mediaUrl', '')}
+                                                accept="image/*"
+                                                maxSize={20}
+                                            />
                                                 </div>
                                                 {card.mediaUrl && (
                                                     <div className="mt-2 aspect-[3/4] relative rounded overflow-hidden bg-gray-100">
@@ -936,11 +940,14 @@ export default function HomepageManagementPage() {
                                         onChange={(e) => setWorldSection({ ...worldSection, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadWorldMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadWorldMedia}
+                                        currentUrl={worldSection.mediaUrl}
+                                        onRemove={() => setWorldSection({ ...worldSection, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {worldSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -1016,11 +1023,14 @@ export default function HomepageManagementPage() {
                                         onChange={(e) => setStageSection({ ...stageSection, mediaUrl: e.target.value })}
                                         className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-black"
                                     />
-                                    <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                        <Upload className="w-4 h-4" />
-                                        <span className="text-xs font-bold uppercase">Upload</span>
-                                        <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadStageMedia(e.target.files[0])} />
-                                    </label>
+                                    <CloudinaryUploader
+                                        label="Upload"
+                                        onUpload={handleUploadStageMedia}
+                                        currentUrl={stageSection.mediaUrl}
+                                        onRemove={() => setStageSection({ ...stageSection, mediaUrl: '' })}
+                                        accept="image/*,video/*"
+                                        maxSize={20}
+                                    />
                                 </div>
                                 {stageSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
@@ -1068,3 +1078,4 @@ export default function HomepageManagementPage() {
         </div>
     );
 }
+

@@ -1,0 +1,114 @@
+    const handleUploadHeroMedia = (result: any) => {
+        try {
+            setHeroSection({ ...heroSection, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Feature Row Handlers
+    const handleSaveFeatureRow = async (rowId: string, data: any) => {
+        setSaving(true);
+        try {
+            await updateCampaignFeatureRow(rowId, data);
+            alert('Feature row saved!');
+        } catch (error) {
+            alert('Failed to save feature row');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddFeatureItem = (rowId: string, setData: any) => {
+        setData((prev: any) => {
+            const newItem: CampaignFeatureItem = {
+                id: Date.now().toString(),
+                mediaUrl: '',
+                mediaType: 'image',
+                collectionId: '',
+                sortOrder: prev.items?.length || 0,
+                isActive: true
+            };
+            return { ...prev, items: [...(prev.items || []), newItem] };
+        });
+    };
+
+    const handleRemoveFeatureItem = (rowId: string, itemId: string, setData: any) => {
+        setData((prev: any) => ({
+            ...prev,
+            items: prev.items?.filter((item: CampaignFeatureItem) => item.id !== itemId) || []
+        }));
+    };
+
+    const handleUpdateFeatureItem = (rowId: string, itemId: string, field: keyof CampaignFeatureItem, value: any, setData: any) => {
+        setData((prev: any) => ({
+            ...prev,
+            items: prev.items?.map((item: CampaignFeatureItem) => 
+                item.id === itemId ? { ...item, [field]: value } : item
+            ) || []
+        }));
+    };
+
+    const handleMoveFeatureItem = (rowId: string, index: number, direction: 'up' | 'down', setData: any) => {
+        setData((prev: any) => {
+            const newItems = [...(prev.items || [])];
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            if (newIndex < 0 || newIndex >= newItems.length) return prev;
+            [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+            newItems.forEach((item, i) => item.sortOrder = i);
+            return { ...prev, items: newItems };
+        });
+    };
+
+    const handleUploadFeatureItemMedia = (rowId: string, itemId: string, result: any, setData: any) => {
+        try {
+            handleUpdateFeatureItem(rowId, itemId, 'mediaUrl', result.secure_url, setData);
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Interactive Hero Handlers
+    const handleSaveInteractiveHero = async () => {
+        setSaving(true);
+        try {
+            await updateCampaignInteractiveHero(interactiveHero);
+            alert('Interactive hero saved!');
+        } catch (error) {
+            alert('Failed to save interactive hero');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadInteractiveMedia = (result: any) => {
+        try {
+            setInteractiveHero({ ...interactiveHero, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Banner Handlers
+    const handleSaveBanner = async () => {
+        setSaving(true);
+        try {
+            await updateCampaignBanner(banner);
+            alert('Banner saved!');
+        } catch (error) {
+            alert('Failed to save banner');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadBannerMedia = (result: any) => {
+        try {
+            setBanner({ ...banner, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };

@@ -1,0 +1,120 @@
+    const handleUploadSportMedia = (result: any) => {
+        try {
+            setSportSection({ ...sportSection, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Casual Section Handlers
+    const handleSaveCasual = async () => {
+        setSaving(true);
+        try {
+            await updateCasualSection(casualSection);
+            alert('Casual section saved!');
+        } catch (error) {
+            alert('Failed to save casual section');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadCasualMedia = (result: any) => {
+        try {
+            setCasualSection({ ...casualSection, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Style Section Handlers
+    const handleSaveStyle = async () => {
+        setSaving(true);
+        try {
+            await updateStyleSection({
+                badgeText: styleSection?.badgeText,
+                title: styleSection?.title,
+            });
+            await updateStyleCards(styleCards);
+            alert('Style section saved!');
+        } catch (error) {
+            alert('Failed to save style section');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddCard = () => {
+        const newCard: StyleCard = {
+            id: Date.now().toString(),
+            mediaUrl: '',
+            title: '',
+            description: '',
+            buttonText: '',
+            buttonLink: '',
+            sortOrder: styleCards.length
+        };
+        setStyleCards([...styleCards, newCard]);
+    };
+
+    const handleUpdateCard = (id: string, field: keyof StyleCard, value: any) => {
+        setStyleCards(styleCards.map(card => card.id === id ? { ...card, [field]: value } : card));
+    };
+
+    const handleRemoveCard = (id: string) => {
+        setStyleCards(styleCards.filter(card => card.id !== id));
+    };
+
+    const handleUploadCardMedia = (id: string, result: any) => {
+        try {
+            handleUpdateCard(id, 'mediaUrl', result.secure_url);
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // World Section Handlers
+    const handleSaveWorld = async () => {
+        setSaving(true);
+        try {
+            await updateWorldSection(worldSection);
+            alert('World section saved!');
+        } catch (error) {
+            alert('Failed to save world section');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadWorldMedia = (result: any) => {
+        try {
+            setWorldSection({ ...worldSection, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };
+
+    // Stage Section Handlers
+    const handleSaveStage = async () => {
+        setSaving(true);
+        try {
+            await updateStageSection(stageSection);
+            alert('Stage section saved!');
+        } catch (error) {
+            alert('Failed to save stage section');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUploadStageMedia = (result: any) => {
+        try {
+            setStageSection({ ...stageSection, mediaUrl: result.secure_url });
+        } catch (error) {
+            alert('Upload failed');
+        }
+    };

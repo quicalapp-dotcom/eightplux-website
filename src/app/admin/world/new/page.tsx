@@ -6,7 +6,7 @@ import { ChevronLeft, Save, Loader2, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { addWorldContent } from '@/lib/firebase/world';
-import { uploadAdminImage } from '@/lib/firebase/storage';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 export default function NewWorldStoryPage() {
     const router = useRouter();
@@ -28,18 +28,8 @@ export default function NewWorldStoryPage() {
         setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setUploading(true);
-        try {
-            const url = await uploadAdminImage(file, 'world');
-            setImage(url);
-        } catch (error) {
-            alert('Upload failed');
-        } finally {
-            setUploading(false);
-        }
+    const handleImageUpload = (result: any) => {
+        setImage(result.secure_url);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
