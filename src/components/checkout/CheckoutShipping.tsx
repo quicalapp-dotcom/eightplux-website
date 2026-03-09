@@ -73,14 +73,7 @@ export default function CheckoutShipping({
               <input type="radio" name="shippingMethod" value="standard" checked={formData.shippingMethod === 'standard'} onChange={handleInputChange}/>
               <span className="text-[10px] uppercase tracking-[0.1em] font-bold">standard shipping</span>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">free</span>
-          </label>
-          <label className={`flex items-center justify-between p-5 border transition-all cursor-pointer ${formData.shippingMethod === 'express' ? 'border-black' : 'border-gray-50 opacity-40 hover:opacity-100'}`}>
-            <div className="flex items-center gap-4">
-              <input type="radio" name="shippingMethod" value="express" checked={formData.shippingMethod === 'express'} onChange={handleInputChange}/>
-              <span className="text-[10px] uppercase tracking-[0.1em] font-bold">express delivery</span>
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">{formatPrice(25)}</span>
+    
           </label>
         </div>
       </div>

@@ -40,6 +40,11 @@ export default function CheckoutPage() {
         code: string;
     } | null>(null);
 
+    // Shipping Settings
+    const [shippingSettings, setShippingSettings] = useState({
+        standard: 0
+    });
+
     // Form State
     const [formData, setFormData] = useState({
         email: '',
@@ -54,6 +59,25 @@ export default function CheckoutPage() {
         shippingMethod: 'standard',
         paymentMethod: 'paystack',
     });
+
+    // Fetch shipping settings from Firestore
+    useEffect(() => {
+        const fetchShippingSettings = async () => {
+            const settingsDoc = await getDoc(doc(db, 'settings', 'global'));
+            if (settingsDoc.exists()) {
+                const settings = settingsDoc.data();
+                // Shipping fee is stored as a string, parse to number
+                const shippingFee = parseFloat(settings.shippingFee || '0');
+                // If currency is USD, use shipping fee as is; if NGN, use as is (since prices are in NGN)
+                const standardShipping = shippingFee;
+                setShippingSettings({
+                    standard: standardShipping
+                });
+            }
+        };
+
+        fetchShippingSettings();
+    }, []);
 
     // Sync email if user is logged in
     useEffect(() => {
@@ -71,13 +95,14 @@ export default function CheckoutPage() {
     //     document.body.appendChild(script);
     //     return () => { if (document.body.contains(script)) document.body.removeChild(script); };
     // }, []);
+
     useEffect(() => { setMounted(true); }, []);
 
     if (!mounted) return null;
 
     // Totals
     const subtotal = getSubtotal();
-    const shippingCostUSD = formData.shippingMethod === 'express' ? 25 : 0;
+    const shippingCostUSD = shippingSettings.standard;
     const totalWithDiscount = discountData ? discountData.finalTotal : subtotal + shippingCostUSD;
 
     // Handlers

@@ -38,7 +38,7 @@ export default function CampaignHero() {
                 <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center text-center px-4">
                     <div className="max-w-4xl space-y-6">
                         <h1 className="text-white text-3xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] font-tt lowercase flex flex-wrap justify-center gap-x-2">
-                            {title.split(' ').map((word, i) => (
+                            {title.split('  ').map((word, i) => (
                                 <span key={i} className={word.toLowerCase() === 'statement' ? 'text-[#C72f32]' : ''}>
                                     {word}{' '}
                                 </span>

@@ -6,9 +6,9 @@ import { ChevronLeft, Save, Loader2, Upload, X, Search, Grid } from 'lucide-reac
 import Link from 'next/link';
 import Image from 'next/image';
 import { createCollection } from '@/lib/firebase/collections';
-import { uploadAdminImage } from '@/lib/firebase/storage';
 import { subscribeToProducts } from '@/lib/firebase/products';
 import { Product } from '@/types';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 export default function NewCollectionPage() {
     const router = useRouter();
@@ -38,18 +38,8 @@ export default function NewCollectionPage() {
         }
     }, [name]);
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setUploading(true);
-        try {
-            const url = await uploadAdminImage(file, 'collections');
-            setImage(url);
-        } catch (error) {
-            alert('Upload failed');
-        } finally {
-            setUploading(false);
-        }
+    const handleImageUpload = (result: any) => {
+        setImage(result.secure_url);
     };
 
     const toggleProduct = (id: string) => {
@@ -138,11 +128,11 @@ export default function NewCollectionPage() {
                                 <button type="button" onClick={() => setImage('')} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100"><X className="w-4 h-4" /></button>
                             </>
                         ) : (
-                            <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
-                                {uploading ? <Loader2 className="w-8 h-8 animate-spin text-gray-300" /> : <Upload className="w-8 h-8 text-gray-300" />}
-                                <span className="text-xs text-gray-500 mt-2">Upload collection banner</span>
-                                <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
-                            </label>
+                            <CloudinaryUploader
+                                onUpload={handleImageUpload}
+                                label="Upload collection banner"
+                                accept="image/*"
+                            />
                         )}
                     </div>
                 </div>

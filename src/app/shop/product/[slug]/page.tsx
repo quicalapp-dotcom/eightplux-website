@@ -247,6 +247,16 @@ export default function ProductDetailPage() {
                             </div>
                         </div>
 
+                        {/* Size & Fit */}
+                        {product.sizeFit && (
+                            <div className="border-t border-gray-100 pt-8 pb-4">
+                                <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-4">Size & Fit</h4>
+                                <p className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60">
+                                    {product.sizeFit}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Size Selection */}
                         <div className="space-y-6 relative" ref={dropdownRef}>
                             <div

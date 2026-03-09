@@ -146,6 +146,18 @@ export default function OrderSummary({
             <span className="text-black font-tt tracking-normal lowercase">{shippingCostUSD === 0 ? 'free' : formatPrice(shippingCostUSD)}</span>
           </div>
 
+          {/* Shipping & Returns Info */}
+          <div className="pt-4 border-t border-gray-200/50">
+            <h3 className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mb-4">Shipping & Returns</h3>
+            <div className="text-[10px] font-bold text-gray-500 space-y-2">
+              <p>Shipping:</p>
+              <p className="ml-4">Ships within 4-6 business days from the order date.</p>
+              <p className="ml-4">Worldwide shipping: Duties & taxes included.</p>
+              <p className="mt-2">Returns & Exchanges:</p>
+              <p className="ml-4">Refunds available within 14 days of delivery.</p>
+            </div>
+          </div>
+
           {/* Discount Code Input */}
           <div className="pt-4 border-t border-gray-200/50">
             {appliedDiscount ? (

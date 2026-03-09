@@ -20,6 +20,7 @@ export interface Product {
     campaignId?: string;
     fabric?: string;
     care?: string;
+    sizeFit?: string;
     isNew?: boolean;
     isBestSeller?: boolean;
     isSale?: boolean;

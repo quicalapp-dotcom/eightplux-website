@@ -68,7 +68,7 @@ export default function EditProductPage() {
 
             // 2. Prepare data
             const finalImages = [...existingImages, ...uploadedUrls];
-            const updatedData: Partial<Product> = {
+             const updatedData: Partial<Product> = {
                 name: product.name,
                 description: product.description,
                 price: parseFloat(product.price as any),
@@ -76,6 +76,7 @@ export default function EditProductPage() {
                 inventory: parseInt(product.inventory as any),
                 images: finalImages,
                 sizes: typeof product.sizes === 'string' ? (product.sizes as any).split(',').map((s: string) => s.trim()) : product.sizes,
+                sizeFit: product.sizeFit,
                 // Handle colors similarly if needed
             };
 
@@ -187,16 +188,30 @@ export default function EditProductPage() {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg border border-gray-200 grid grid-cols-2 gap-4 text-black">
-                    <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Price</label>
-                        <input type="number" step="0.01" value={product.price} onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Inventory</label>
-                        <input type="number" value={product.inventory} onChange={(e) => setProduct({ ...product, inventory: parseInt(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
-                    </div>
-                </div>
+                 <div className="bg-white p-6 rounded-lg border border-gray-200 grid grid-cols-2 gap-4 text-black">
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Price</label>
+                         <input type="number" step="0.01" value={product.price} onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
+                     </div>
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Inventory</label>
+                         <input type="number" value={product.inventory} onChange={(e) => setProduct({ ...product, inventory: parseInt(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
+                     </div>
+                 </div>
+
+                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
+                     <h2 className="text-lg font-medium mb-4 text-black">Size & Fit</h2>
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Size & Fit Information</label>
+                         <textarea
+                             rows={4}
+                             value={product.sizeFit || ''}
+                             onChange={(e) => setProduct({ ...product, sizeFit: e.target.value })}
+                             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                             placeholder="e.g. Take your usual size. Our studio model is 5'9&quot; / 178 cm and wears a size S. Our campaign model is 5'9&quot; / 176 cm and wears a size S."
+                         />
+                     </div>
+                 </div>
 
                 <div className="flex justify-end gap-4">
                     <Link href="/admin/products" className="px-6 py-3 border border-gray-200 rounded-md text-sm font-medium text-black">Cancel</Link>

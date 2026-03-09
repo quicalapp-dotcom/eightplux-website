@@ -6,9 +6,9 @@ import { ChevronLeft, Save, Loader2, Upload, X, Search, Grid } from 'lucide-reac
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCollectionById, updateCollection } from '@/lib/firebase/collections';
-import { uploadAdminImage } from '@/lib/firebase/storage';
 import { subscribeToProducts } from '@/lib/firebase/products';
 import { Product, Collection } from '@/types';
+import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 export default function EditCollectionPage() {
     const router = useRouter();
@@ -31,18 +31,9 @@ export default function EditCollectionPage() {
         return () => unsubscribe();
     }, [id]);
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !collection) return;
-        setUploading(true);
-        try {
-            const url = await uploadAdminImage(file, 'collections');
-            setCollection({ ...collection, image: url });
-        } catch (error) {
-            alert('Upload failed');
-        } finally {
-            setUploading(false);
-        }
+    const handleImageUpload = (result: any) => {
+        if (!collection) return;
+        setCollection({ ...collection, image: result.secure_url });
     };
 
     const toggleProduct = (pid: string) => {
@@ -133,10 +124,11 @@ export default function EditCollectionPage() {
                                 <button type="button" onClick={() => setCollection({ ...collection, image: '' })} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100"><X className="w-4 h-4" /></button>
                             </>
                         ) : (
-                            <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
-                                {uploading ? <Loader2 className="w-8 h-8 animate-spin text-gray-300" /> : <Upload className="w-8 h-8 text-gray-300" />}
-                                <input type="file" onChange={handleImageUpload} className="hidden" />
-                            </label>
+                            <CloudinaryUploader
+                                onUpload={handleImageUpload}
+                                label="Upload collection banner"
+                                accept="image/*"
+                            />
                         )}
                     </div>
                 </div>

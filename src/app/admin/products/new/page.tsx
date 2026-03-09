@@ -32,6 +32,7 @@ export default function NewProductPage() {
         inventory: '',
         colors: '', // Comma separated for MVP
         sizes: '', // Comma separated for MVP
+        sizeFit: '', // Size and fit information
     });
 
     useEffect(() => {
@@ -76,7 +77,7 @@ export default function NewProductPage() {
             }
 
             // 2. Prepare Data
-            const productData = {
+             const productData = {
                 name: formData.name,
                 slug: formData.name.toLowerCase().replace(/ /g, '-'),
                 description: formData.description,
@@ -90,7 +91,8 @@ export default function NewProductPage() {
                 colors: formData.colors.split(',').map(c => ({ name: c.trim(), hex: '#000000' })), // Simplification
                 tags: [],
                 collectionId: formData.collectionId,
-                isActive: true
+                isActive: true,
+                sizeFit: formData.sizeFit
             };
 
             // 3. Save to Firestore
@@ -222,30 +224,46 @@ export default function NewProductPage() {
                     </div>
                 </div>
 
-                {/* Variants */}
-                <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
-                    <h2 className="text-lg font-medium mb-4 text-black">Variants</h2>
-                    <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Sizes (Comma separated)</label>
-                        <input
-                            name="sizes"
-                            value={formData.sizes}
-                            onChange={handleChange}
-                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
-                            placeholder="S, M, L, XL"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Colors (Comma separated)</label>
-                        <input
-                            name="colors"
-                            value={formData.colors}
-                            onChange={handleChange}
-                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
-                            placeholder="Black, White, Olive"
-                        />
-                    </div>
-                </div>
+                 {/* Variants */}
+                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
+                     <h2 className="text-lg font-medium mb-4 text-black">Variants</h2>
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Sizes (Comma separated)</label>
+                         <input
+                             name="sizes"
+                             value={formData.sizes}
+                             onChange={handleChange}
+                             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                             placeholder="S, M, L, XL"
+                         />
+                     </div>
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Colors (Comma separated)</label>
+                         <input
+                             name="colors"
+                             value={formData.colors}
+                             onChange={handleChange}
+                             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                             placeholder="Black, White, Olive"
+                         />
+                     </div>
+                 </div>
+
+                 {/* Size & Fit */}
+                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
+                     <h2 className="text-lg font-medium mb-4 text-black">Size & Fit</h2>
+                     <div className="space-y-2">
+                         <label className="text-xs uppercase font-bold text-gray-500">Size & Fit Information</label>
+                         <textarea
+                             name="sizeFit"
+                             rows={4}
+                             value={formData.sizeFit}
+                             onChange={handleChange}
+                             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                             placeholder="e.g. Take your usual size. Our studio model is 5'9&quot; / 178 cm and wears a size S. Our campaign model is 5'9&quot; / 176 cm and wears a size S."
+                         />
+                     </div>
+                 </div>
 
                 <div className="flex justify-end gap-4">
                     <Link
