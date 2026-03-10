@@ -19,9 +19,15 @@ export function ShopContent() {
     const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
     const [tempSelectedCollections, setTempSelectedCollections] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<'all' | 'male' | 'female'>('all');
-    const [selectedSuperCollection, setSelectedSuperCollection] = useState<'all' | 'casual' | 'sport'>(
+     const [selectedSuperCollection, setSelectedSuperCollection] = useState<'all' | 'casual' | 'sport'>(
         searchParams.get('superCollection') as 'casual' | 'sport' || 'all'
     );
+
+    // Clear selected collections when super collection changes
+    useEffect(() => {
+        setSelectedCollections([]);
+        setTempSelectedCollections([]);
+    }, [selectedSuperCollection]);
     const [priceRange, setPriceRange] = useState(2000);
     const [tempPriceRange, setTempPriceRange] = useState(2000);
     const [products, setProducts] = useState<Product[]>([]);
@@ -214,26 +220,28 @@ export function ShopContent() {
                                 </button>
                             </div>
 
-                            {/* Collections Filter */}
-                            <div className="border-t border-gray-100 pt-10">
-                                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Collections</h4>
-                                <div className="space-y-4">
-                                    {collections.map((col) => (
-                                        <label key={col.id} className="flex items-center gap-3 cursor-pointer group">
-                                            <div className="relative flex items-center justify-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedCollections.includes(col.id)}
-                                                    onChange={() => toggleCollection(col.id)}
-                                                    className="peer appearance-none w-4 h-4 border border-gray-300 checked:bg-black checked:text-white transition-all cursor-pointer"
-                                                />
-                                                <X className="absolute w-2 h-2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
-                                            </div>
-                                            <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 group-hover:text-black transition-colors">{col.name}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
+                             {/* Collections Filter */}
+                             <div className="border-t border-gray-100 pt-10">
+                                 <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Collections</h4>
+                                 <div className="space-y-4">
+                                     {collections
+                                         .filter(col => selectedSuperCollection === 'all' || col.superCollection === selectedSuperCollection)
+                                         .map((col) => (
+                                             <label key={col.id} className="flex items-center gap-3 cursor-pointer group">
+                                                 <div className="relative flex items-center justify-center">
+                                                     <input
+                                                         type="checkbox"
+                                                         checked={selectedCollections.includes(col.id)}
+                                                         onChange={() => toggleCollection(col.id)}
+                                                         className="peer appearance-none w-4 h-4 border border-gray-300 checked:bg-black checked:text-white transition-all cursor-pointer"
+                                                     />
+                                                     <X className="absolute w-2 h-2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                                                 </div>
+                                                 <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 group-hover:text-black transition-colors">{col.name}</span>
+                                             </label>
+                                         ))}
+                                 </div>
+                             </div>
 
                             {/* Price Filter - Desktop */}
                             <div className="border-t border-gray-100 pt-10">
