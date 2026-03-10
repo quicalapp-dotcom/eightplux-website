@@ -73,7 +73,7 @@ export default function CheckoutShipping({
               <input type="radio" name="shippingMethod" value="standard" checked={formData.shippingMethod === 'standard'} onChange={handleInputChange}/>
               <span className="text-[10px] uppercase tracking-[0.1em] font-bold">standard shipping</span>
             </div>
-    
+
           </label>
         </div>
       </div>

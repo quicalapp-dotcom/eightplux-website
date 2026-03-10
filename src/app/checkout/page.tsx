@@ -100,10 +100,10 @@ export default function CheckoutPage() {
 
     if (!mounted) return null;
 
-    // Totals
-    const subtotal = getSubtotal();
-    const shippingCostUSD = shippingSettings.standard;
-    const totalWithDiscount = discountData ? discountData.finalTotal : subtotal + shippingCostUSD;
+     // Totals
+     const subtotal = getSubtotal();
+     const shippingCostUSD = formData.country === 'Nigeria' ? 0 : shippingSettings.standard;
+     const totalWithDiscount = discountData ? discountData.finalTotal : subtotal + shippingCostUSD;
 
     // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
                         )}
 
                         {currentStep === 1 && (
-                            <CheckoutShipping 
+                            <CheckoutShipping
                                 formData={formData}
                                 handleInputChange={handleInputChange}
                                 setCurrentStep={setCurrentStep}

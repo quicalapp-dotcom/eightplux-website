@@ -33,10 +33,15 @@ export default function CategoryPage() {
     // Fetch real-time data
     useEffect(() => {
         const unsubscribeProducts = subscribeToProducts((prods) => {
+            console.log('All products:', prods);
+            console.log('Filtering for category:', category);
+            
             // Filter products by category (including unisex products in male/female categories)
             const filtered = prods.filter(p => 
                 p.category === category || (category !== 'all' && p.category === 'unisex')
             );
+            
+            console.log('Filtered products:', filtered);
             setProducts(filtered);
             setLoading(false);
         });
