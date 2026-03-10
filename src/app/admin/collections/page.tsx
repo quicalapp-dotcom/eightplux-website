@@ -83,11 +83,11 @@ export default function CollectionsManagementPage() {
                             <h3 className="font-bold text-base sm:text-lg mb-1 text-black">{collection.name}</h3>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                                    collection.category === 'women' 
+                                    collection.superCollection === 'casual' 
                                         ? 'bg-pink-50 text-pink-600 border border-pink-100' 
                                         : 'bg-blue-50 text-blue-600 border border-blue-100'
                                 }`}>
-                                    {collection.category === 'women' ? 'Women' : 'Men'}
+                                    {collection.superCollection === 'casual' ? 'Eightplux Casual' : 'Eightplux Sport'}
                                 </span>
                                 <span className="text-xs text-gray-600">{collection.products?.length || 0} Products</span>
                             </div>

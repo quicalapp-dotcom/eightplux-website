@@ -27,21 +27,23 @@ export default function CategoryPage() {
     const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const categoryLabel = category === 'women' ? 'Women' : 'Men';
-    const categoryTitle = category === 'women' ? 'Shop XX' : 'Shop XY';
+    const categoryLabel = category === 'female' ? 'Female' : category === 'male' ? 'Male' : 'All';
+    const categoryTitle = category === 'female' ? 'Shop XX' : category === 'male' ? 'Shop XY' : 'All Products';
 
     // Fetch real-time data
     useEffect(() => {
         const unsubscribeProducts = subscribeToProducts((prods) => {
-            // Filter products by category
-            const filtered = prods.filter(p => p.category === category);
+            // Filter products by category (including unisex products in male/female categories)
+            const filtered = prods.filter(p => 
+                p.category === category || (category !== 'all' && p.category === 'unisex')
+            );
             setProducts(filtered);
             setLoading(false);
         });
         
         const unsubscribeCollections = subscribeToCollections((cols) => {
-            // Filter collections by category
-            const filtered = cols.filter(c => c.category === category && c.isActive);
+            // Filter collections (we'll show all active collections since super collections are now used)
+            const filtered = cols.filter(c => c.isActive);
             setCollections(filtered);
         });
 

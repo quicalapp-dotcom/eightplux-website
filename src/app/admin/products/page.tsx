@@ -128,11 +128,13 @@ export default function ProductsPage() {
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
                                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                                            product.category === 'women' 
+                                            product.category === 'female' 
                                                 ? 'bg-pink-50 text-pink-600 border border-pink-100' 
-                                                : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                                : product.category === 'male'
+                                                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                                : 'bg-gray-50 text-gray-600 border border-gray-100'
                                         }`}>
-                                            {product.category === 'women' ? 'Women' : 'Men'}
+                                            {product.category === 'female' ? 'Female' : product.category === 'male' ? 'Male' : 'Unisex'}
                                         </span>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-black">

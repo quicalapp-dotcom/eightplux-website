@@ -138,7 +138,7 @@ export default function HomepageManagementPage() {
     const getCollectionCategory = (collectionId: string) => {
         if (!collectionId) return '';
         const collection = collections.find(c => c.id === collectionId);
-        return collection ? (collection.category === 'women' ? 'Women' : 'Men') : '';
+        return collection ? (collection.superCollection === 'casual' ? 'Eightplux Casual' : 'Eightplux Sport') : '';
     };
 
     // Hero Section Handlers

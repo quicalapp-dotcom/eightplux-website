@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToSportSection } from '@/lib/firebase/homepage-sections';
 import { SportSectionData } from '@/types';
+import VideoModal from './VideoModal';
 
 interface SportSectionProps {
   image?: string; // Keep for backwards compatibility
@@ -13,11 +14,12 @@ interface SportSectionProps {
 const DEFAULT_IMAGE = '/sporttt.gif';
 const DEFAULT_BADGE = 'Eightplux Sport';
 const DEFAULT_TITLE = 'play beyond limit';
-const DEFAULT_PRIMARY_BUTTON = { text: 'explore', href: '/shop' };
-const DEFAULT_SECONDARY_BUTTON = { text: 'watch', href: '/shop' };
+const DEFAULT_PRIMARY_BUTTON = { text: 'explore', href: '/shop?superCollection=sport' };
+const DEFAULT_SECONDARY_BUTTON = { text: 'watch', href: '/eightplus.mp4' };
 
 export default function SportSection({ image }: SportSectionProps) {
   const [sportData, setSportData] = useState<SportSectionData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToSportSection((data) => {
@@ -32,11 +34,16 @@ export default function SportSection({ image }: SportSectionProps) {
   
   const primaryButton = sportData?.primaryButtonCollectionId
     ? { text: sportData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${sportData.primaryButtonCollectionId}` }
-    : { text: sportData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: '/shop' };
+    : { text: sportData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: '/shop?superCollection=sport' };
   
   const secondaryButton = sportData?.secondaryButtonCollectionId
     ? { text: sportData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${sportData.secondaryButtonCollectionId}` }
-    : { text: sportData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: '/shop' };
+    : { text: sportData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: '/eightplus.mp4' };
+
+  const handleWatchClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="relative w-full overflow-hidden bg-black">
@@ -65,14 +72,22 @@ export default function SportSection({ image }: SportSectionProps) {
           >
             {primaryButton.text}
           </Link>
-          <Link
-            href={secondaryButton.href}
+          <button
+            onClick={handleWatchClick}
             className="bg-white text-black px-10 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-40"
           >
             {secondaryButton.text}
-          </Link>
+          </button>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        videoUrl="/sporttt.gif"
+        title="Eightplux Sport Collection"
+      />
     </section>
   );
 }

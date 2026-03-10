@@ -21,7 +21,7 @@ export default function NewCollectionPage() {
     const [slug, setSlug] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
-    const [category, setCategory] = useState<'men' | 'women'>('women');
+    const [superCollection, setSuperCollection] = useState<'casual' | 'sport'>('casual');
     const [isActive, setIsActive] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
@@ -52,12 +52,17 @@ export default function NewCollectionPage() {
         e.preventDefault();
         setLoading(true);
         try {
+            console.log('Creating collection with data:', {
+                name, slug, description, image, superCollection, isActive,
+                products: selectedProducts,
+            });
             await createCollection({
-                name, slug, description, image, category, isActive,
+                name, slug, description, image, superCollection, isActive,
                 products: selectedProducts,
             });
             router.push('/admin/collections');
         } catch (error) {
+            console.error('Error creating collection:', error);
             alert('Failed to create collection');
         } finally {
             setLoading(false);
@@ -91,29 +96,29 @@ export default function NewCollectionPage() {
                         <textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md text-black" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-gray-500">Category</label>
+                        <label className="text-xs font-bold uppercase text-gray-500">Super Collection</label>
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 type="button"
-                                onClick={() => setCategory('women')}
+                                onClick={() => setSuperCollection('casual')}
                                 className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
-                                    category === 'women'
+                                    superCollection === 'casual'
                                         ? 'border-red-500 bg-red-50 text-red-600'
                                         : 'border-gray-200 text-gray-400 hover:border-gray-300'
                                 }`}
                             >
-                                Shop XX (Women)
+                                Eightplux Casual
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setCategory('men')}
+                                onClick={() => setSuperCollection('sport')}
                                 className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
-                                    category === 'men'
+                                    superCollection === 'sport'
                                         ? 'border-red-500 bg-red-50 text-red-600'
                                         : 'border-gray-200 text-gray-400 hover:border-gray-300'
                                 }`}
                             >
-                                Shop XY (Men)
+                                Eightplux Sport
                             </button>
                         </div>
                     </div>

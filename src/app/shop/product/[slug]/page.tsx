@@ -39,14 +39,14 @@ const mockProduct: Product = {
     isNew: true,
     isBestSeller: false,
     isSale: false,
-    category: 'women',
+    category: 'female',
     collectionId: 'mock-collection',
     currency: 'USD',
     description: 'Round neck waistcoat featuring front welt pockets, contrast trims, a pleat in the back and metal appliqué fastening in the front.',
     inventory: 10,
     sizes: ['S', 'M', 'L'],
     tags: [],
-    gender: 'women',
+    gender: 'female',
     createdAt: new Date(),
     updatedAt: new Date()
 };
@@ -176,7 +176,7 @@ export default function ProductDetailPage() {
         );
     }
 
-    const categoryLink = product.category === 'women' ? '/shop/women' : '/shop/men';
+    const categoryLink = product.category === 'female' ? '/shop/female' : product.category === 'male' ? '/shop/male' : '/shop';
 
     return (
         <>
@@ -216,7 +216,7 @@ export default function ProductDetailPage() {
                     <div className="w-full lg:w-[450px] shrink-0 space-y-10">
                         {/* Breadcrumbs */}
                         <nav className="text-[10px] uppercase font-bold tracking-widest text-gray-400">
-                            <Link href="/shop" className="hover:text-black">Shop</Link> / <Link href={categoryLink} className="hover:text-black">{product.category === 'women' ? 'Women' : 'Men'}</Link> / {product.category}
+                            <Link href="/shop" className="hover:text-black">Shop</Link> / <Link href={categoryLink} className="hover:text-black">{product.category === 'female' ? 'Women' : product.category === 'male' ? 'Men' : 'Unisex'}</Link> / {product.category}
                         </nav>
 
                         {/* Title & Price */}

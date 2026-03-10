@@ -9,9 +9,9 @@ export interface Product {
     compareAtPrice?: number;
     currency: 'NGN' | 'USD';
     images: string[];
-    category: 'men' | 'women';
+    category: 'male' | 'female' | 'unisex';
     subcategory?: string;
-    gender: 'men' | 'women' | 'unisex';
+    gender: 'male' | 'female' | 'unisex';
     sizes: string[];
     colors: ProductColor[];
     tags: string[];
@@ -44,7 +44,7 @@ export interface Collection {
     heroImage?: string;
     tagline?: string;
     products: string[]; // Product IDs
-    category: 'men' | 'women';
+    superCollection: 'casual' | 'sport';
     isActive: boolean;
     publishedAt?: Date;
     createdAt: Date;
@@ -164,17 +164,24 @@ export interface CategoryDisplay {
 // Predefined category constants
 export const CATEGORIES: CategoryDisplay[] = [
     {
-        id: 'men',
-        name: 'Men',
-        slug: 'men',
-        description: 'Men\'s collection',
+        id: 'male',
+        name: 'Male',
+        slug: 'male',
+        description: 'Male collection',
         isActive: true
     },
     {
-        id: 'women',
-        name: 'Women',
-        slug: 'women',
-        description: 'Women\'s collection',
+        id: 'female',
+        name: 'Female',
+        slug: 'female',
+        description: 'Female collection',
+        isActive: true
+    },
+    {
+        id: 'unisex',
+        name: 'Unisex',
+        slug: 'unisex',
+        description: 'Unisex collection',
         isActive: true
     }
 ];

@@ -29,6 +29,7 @@ export default function NewProductPage() {
         description: '',
         price: '',
         collectionId: '',
+        category: 'unisex', // Default to unisex
         inventory: '',
         colors: '', // Comma separated for MVP
         sizes: '', // Comma separated for MVP
@@ -45,8 +46,9 @@ export default function NewProductPage() {
 
     const selectedCollection = collections.find(c => c.id === formData.collectionId);
     const categoryOptions: CategoryOption[] = [
-        { value: 'men', label: 'Men' },
-        { value: 'women', label: 'Women' }
+        { value: 'male', label: 'Male' },
+        { value: 'female', label: 'Female' },
+        { value: 'unisex', label: 'Unisex' }
     ];
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -73,11 +75,11 @@ export default function NewProductPage() {
                 slug: formData.name.toLowerCase().replace(/ /g, '-'),
                 description: formData.description,
                 price: parseFloat(formData.price),
-                category: selectedCollection?.category || 'women',
+                category: formData.category as 'male' | 'female' | 'unisex',
                 inventory: parseInt(formData.inventory),
                 currency: 'USD' as const,
                 images: images,
-                gender: selectedCollection?.category || 'women',
+                gender: formData.category as 'male' | 'female' | 'unisex',
                 sizes: formData.sizes.split(',').map(s => s.trim()),
                 colors: formData.colors.split(',').map(c => ({ name: c.trim(), hex: '#000000' })), // Simplification
                 tags: [],
@@ -115,7 +117,7 @@ export default function NewProductPage() {
                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
                     <h2 className="text-lg font-medium mb-4 text-black">Basic Information</h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <label className="text-xs uppercase font-bold text-gray-500">Product Name</label>
                             <input
@@ -139,7 +141,23 @@ export default function NewProductPage() {
                                 <option value="">Select Collection</option>
                                 {collections.map((col) => (
                                     <option key={col.id} value={col.id}>
-                                        {col.name} ({col.category === 'women' ? 'Women' : 'Men'})
+                                        {col.name} ({col.superCollection === 'casual' ? 'Casual' : 'Sport'})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs uppercase font-bold text-gray-500">Category</label>
+                            <select
+                                name="category"
+                                required
+                                value={formData.category}
+                                onChange={handleChange}
+                                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                            >
+                                {categoryOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
                                     </option>
                                 ))}
                             </select>

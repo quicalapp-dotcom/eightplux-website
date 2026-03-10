@@ -87,29 +87,29 @@ export default function EditCollectionPage() {
                         <textarea required value={collection.description} onChange={(e) => setCollection({ ...collection, description: e.target.value })} rows={3} className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-md" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-gray-400">Category</label>
+                        <label className="text-xs font-bold uppercase text-gray-400">Super Collection</label>
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 type="button"
-                                onClick={() => setCollection({ ...collection, category: 'women' } as any)}
+                                onClick={() => setCollection({ ...collection, superCollection: 'casual' } as any)}
                                 className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
-                                    collection.category === 'women'
+                                    collection.superCollection === 'casual'
                                         ? 'border-pink-500 bg-pink-50 text-pink-600'
                                         : 'border-gray-200 dark:border-gray-800 text-gray-400 hover:border-gray-300'
                                 }`}
                             >
-                                Shop XX (Women)
+                                Eightplux Casual
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setCollection({ ...collection, category: 'men' } as any)}
+                                onClick={() => setCollection({ ...collection, superCollection: 'sport' } as any)}
                                 className={`p-4 border-2 rounded-md font-bold uppercase tracking-widest transition-all ${
-                                    collection.category === 'men'
+                                    collection.superCollection === 'sport'
                                         ? 'border-blue-500 bg-blue-50 text-blue-600'
                                         : 'border-gray-200 dark:border-gray-800 text-gray-400 hover:border-gray-300'
                                 }`}
                             >
-                                Shop XY (Men)
+                                Eightplux Sport
                             </button>
                         </div>
                     </div>

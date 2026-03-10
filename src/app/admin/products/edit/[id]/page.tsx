@@ -138,9 +138,7 @@ export default function EditProductPage() {
                                     const collection = collections.find(c => c.id === e.target.value);
                                     setProduct({ 
                                         ...product, 
-                                        collectionId: e.target.value,
-                                        category: collection?.category || 'women',
-                                        gender: collection?.category || 'women'
+                                        collectionId: e.target.value
                                     });
                                 }}
                                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
@@ -148,9 +146,22 @@ export default function EditProductPage() {
                                 <option value="">Select Collection</option>
                                 {collections.map((col) => (
                                     <option key={col.id} value={col.id}>
-                                        {col.name} ({col.category === 'women' ? 'Women' : 'Men'})
+                                        {col.name} ({col.superCollection === 'casual' ? 'Casual' : 'Sport'})
                                     </option>
                                 ))}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs uppercase font-bold text-gray-500">Category</label>
+                            <select
+                                required
+                                value={product.category}
+                                onChange={(e) => setProduct({ ...product, category: e.target.value as 'male' | 'female' | 'unisex', gender: e.target.value as 'male' | 'female' | 'unisex' })}
+                                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                            >
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="unisex">Unisex</option>
                             </select>
                         </div>
                     </div>

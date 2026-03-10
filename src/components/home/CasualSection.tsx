@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToCasualSection } from '@/lib/firebase/homepage-sections';
 import { CasualSectionData } from '@/types';
+import VideoModal from './VideoModal';
 
 interface CasualSectionProps {
   image?: string; // Keep for backwards compatibility
@@ -13,11 +14,12 @@ interface CasualSectionProps {
 const DEFAULT_IMAGE = '/casualbg.gif';
 const DEFAULT_BADGE = 'Eightplux Casual';
 const DEFAULT_TITLE = 'dress easy, live bold';
-const DEFAULT_PRIMARY_BUTTON = { text: 'explore', href: '/shop' };
-const DEFAULT_SECONDARY_BUTTON = { text: 'watch', href: '/shop' };
+const DEFAULT_PRIMARY_BUTTON = { text: 'explore', href: '/shop?superCollection=casual' };
+const DEFAULT_SECONDARY_BUTTON = { text: 'watch', href: '/eightplus.mp4' };
 
 export default function CasualSection({ image }: CasualSectionProps) {
   const [casualData, setCasualData] = useState<CasualSectionData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToCasualSection((data) => {
@@ -32,11 +34,16 @@ export default function CasualSection({ image }: CasualSectionProps) {
   
   const primaryButton = casualData?.primaryButtonCollectionId
     ? { text: casualData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${casualData.primaryButtonCollectionId}` }
-    : { text: casualData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: '/shop' };
+    : { text: casualData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: '/shop?superCollection=casual' };
   
   const secondaryButton = casualData?.secondaryButtonCollectionId
     ? { text: casualData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${casualData.secondaryButtonCollectionId}` }
-    : { text: casualData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: '/shop' };
+    : { text: casualData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: '/eightplus.mp4' };
+
+  const handleWatchClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="relative w-full overflow-hidden bg-[#4A2C2A]">
@@ -70,14 +77,22 @@ export default function CasualSection({ image }: CasualSectionProps) {
           >
             {primaryButton.text}
           </Link>
-          <Link
-            href={secondaryButton.href}
+          <button
+            onClick={handleWatchClick}
             className="bg-white text-black px-10 py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#C72f32] hover:text-white transition-all duration-300 w-full sm:w-40"
           >
             {secondaryButton.text}
-          </Link>
+          </button>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        videoUrl="/casualbg.gif"
+        title="Eightplux Casual Collection"
+      />
     </section>
   );
 }

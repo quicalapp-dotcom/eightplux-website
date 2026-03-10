@@ -39,12 +39,16 @@ service cloud.firestore {
     }
 
     // Validation Helpers
+    function isValidSuperCollection() {
+      return request.resource.data.superCollection in ['casual', 'sport'];
+    }
+
     function isValidCategory() {
-      return request.resource.data.category in ['men', 'women'];
+      return request.resource.data.category in ['male', 'female', 'unisex'];
     }
 
     function isValidGender() {
-      return request.resource.data.gender in ['men', 'women', 'unisex'];
+      return request.resource.data.gender in ['male', 'female', 'unisex'];
     }
 
     // --- Collection Rules ---
@@ -64,23 +68,23 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
-     // Products (Public Read, Admin Write, Allow Inventory Updates)
-     match /products/{productId} {
-        allow read: if true;
-        allow create: if isAdmin() 
-          && (request.resource.data.category in ['men', 'women'] || true)
-          && request.resource.data.collectionId is string
-          && request.resource.data.name is string
-          && request.resource.data.price is number;
-        allow update: if isAdmin()
-          && (request.resource.data.category in ['men', 'women'] || request.resource.data.category == resource.data.category)
-          || (
-            // Allow updating inventory field even if not admin (for order processing)
-            (request.resource.data.keys().hasOnly(['inventory', 'updatedAt']) || 
-             request.resource.data.keys().hasOnly(['inventory']))
-          );
-        allow delete: if isAdmin();
-      }
+      // Products (Public Read, Admin Write, Allow Inventory Updates)
+      match /products/{productId} {
+         allow read: if true;
+         allow create: if isAdmin() 
+           && isValidCategory()
+           && request.resource.data.collectionId is string
+           && request.resource.data.name is string
+           && request.resource.data.price is number;
+         allow update: if isAdmin()
+           && (isValidCategory() || request.resource.data.category == resource.data.category)
+           || (
+             // Allow updating inventory field even if not admin (for order processing)
+             (request.resource.data.keys().hasOnly(['inventory', 'updatedAt']) || 
+              request.resource.data.keys().hasOnly(['inventory']))
+           );
+         allow delete: if isAdmin();
+       }
 
     // Categories Collection - DEPRECATED
     // Categories are now hardcoded (Men/Women) and not stored in Firestore
@@ -152,19 +156,19 @@ service cloud.firestore {
        allow write: if isAdmin();
      }
 
-     // Collections (Public Read, Admin Write)
-     // Collections must have a category field (men/women)
-     match /collections/{collectionId} {
-       allow read: if true;
-       allow create: if isAdmin()
-        && isValidCategory()
-        && request.resource.data.name is string
-        && request.resource.data.slug is string
-        && request.resource.data.image is string;
-       allow update: if isAdmin()
-        && (request.resource.data.category in ['men', 'women'] || request.resource.data.category == resource.data.category);
-       allow delete: if isAdmin();
-     }
+      // Collections (Public Read, Admin Write)
+      // Collections must have a superCollection field (casual/sport)
+      match /collections/{collectionId} {
+        allow read: if true;
+        allow create: if isAdmin()
+         && isValidSuperCollection()
+         && request.resource.data.name is string
+         && request.resource.data.slug is string
+         && request.resource.data.image is string;
+        allow update: if isAdmin()
+         && (request.resource.data.superCollection in ['casual', 'sport'] || request.resource.data.superCollection == resource.data.superCollection);
+        allow delete: if isAdmin();
+      }
 
     // Campaigns (Public Read, Admin Write)
     match /campaigns/{campaignId} {
