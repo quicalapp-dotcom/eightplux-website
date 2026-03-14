@@ -30,13 +30,29 @@ export default function OrderDetailPage() {
         fetchOrder();
     }, [id]);
 
-    const handleStatusUpdate = async (newStatus: Order['orderStatus']) => {
+     const handleStatusUpdate = async (newStatus: Order['orderStatus']) => {
         if (!order) return;
         setUpdating(true);
         try {
             await updateOrderStatus(order.id, newStatus);
             // Update the local state to reflect the change immediately
             setOrder(prevOrder => prevOrder ? { ...prevOrder, orderStatus: newStatus, updatedAt: new Date() } : null);
+
+            // Send order status email via API route
+            try {
+                await fetch(`/api/orders/${order.id}/notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        trackingNumber: order.trackingNumber
+                    }),
+                });
+            } catch (emailError) {
+                console.error('Failed to send order status email:', emailError);
+            }
         } catch (error) {
             console.error('Failed to update status', error);
         } finally {

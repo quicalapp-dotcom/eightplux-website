@@ -10,6 +10,7 @@ import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrencyStore } from '@/stores/currencyStore';
 import { getProductBySlug } from '@/lib/firebase/products';
+import { addNotifyMeRequest } from '@/lib/firebase/notifyMe';
 import { Product, ProductColor } from '@/types';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
@@ -125,6 +126,38 @@ export default function ProductDetailPage() {
         showNotification(newItem);
     };
 
+    const handleNotifyMe = async () => {
+        if (!product) return;
+
+        let email = '';
+
+        if (user) {
+            // For signed in users, use their stored email
+            email = user.email || '';
+        } else {
+            // For guest users, ask for email
+            const inputEmail = prompt('Please enter your email address to be notified when this product is available:');
+            if (!inputEmail || !inputEmail.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            email = inputEmail;
+        }
+
+        try {
+            await addNotifyMeRequest({
+                productId: product.id,
+                productName: product.name,
+                email,
+                userId: user?.uid,
+            });
+            alert('Thank you! You will be notified when this product is available.');
+        } catch (error) {
+            console.error('Error adding notify me request:', error);
+            alert('Failed to add notification. Please try again.');
+        }
+    };
+
     const handleWishlistToggle = () => {
         if (!product || !user) return;
 
@@ -224,6 +257,11 @@ export default function ProductDetailPage() {
                             <h1 className="text-3xl md:text-4xl font-bold uppercase tracking-[0.1em] leading-[1.1]">
                                 {product.name}
                             </h1>
+                            {product.isComingSoon && (
+                                <div className="inline-block bg-[#C72f32] text-white px-4 py-1 text-xs font-bold uppercase tracking-widest">
+                                    Coming Soon
+                                </div>
+                            )}
                             <p className="text-2xl font-bold tracking-widest">
                                 {formatPrice(product.price)}
                             </p>
@@ -295,18 +333,27 @@ export default function ProductDetailPage() {
                                 </p>
                             )}
 
-                            <button
-                                onClick={handleAddToBag}
-                                disabled={product.inventory <= 0}
-                                className={`w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-between px-8 items-center transition-colors ${
-                                    product.inventory <= 0 
-                                        ? 'bg-gray-400 text-white cursor-not-allowed' 
-                                        : 'bg-[#333] text-white hover:bg-black'
-                                }`}
-                            >
-                                {product.inventory <= 0 ? 'Sold Out' : 'Add to cart'} 
-                                {product.inventory > 0 && <span className="text-xl">+</span>}
-                            </button>
+                            {product.isComingSoon ? (
+                                <button
+                                    onClick={handleNotifyMe}
+                                    className="w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-center px-8 items-center transition-colors bg-[#333] text-white hover:bg-black"
+                                >
+                                    Notify Me When Ready
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleAddToBag}
+                                    disabled={product.inventory <= 0}
+                                    className={`w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-between px-8 items-center transition-colors ${
+                                        product.inventory <= 0 
+                                            ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                            : 'bg-[#333] text-white hover:bg-black'
+                                    }`}
+                                >
+                                    {product.inventory <= 0 ? 'Sold Out' : 'Add to cart'} 
+                                    {product.inventory > 0 && <span className="text-xl">+</span>}
+                                </button>
+                            )}
                         </div>
 
                         {/* Match With Section - Mock fallbacks */}

@@ -53,7 +53,7 @@ export default function EditProductPage() {
         setExistingImages(existingImages.filter(img => img !== url));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!product) return;
 
@@ -77,10 +77,22 @@ export default function EditProductPage() {
                 images: finalImages,
                 sizes: typeof product.sizes === 'string' ? (product.sizes as any).split(',').map((s: string) => s.trim()) : product.sizes,
                 sizeFit: product.sizeFit,
+                isComingSoon: product.isComingSoon,
                 // Handle colors similarly if needed
             };
 
+            // Check if we're marking the product as available
+            const isMarkingAsAvailable = product.isComingSoon === true && updatedData.isComingSoon === false;
+
             await updateProduct(id, updatedData);
+
+            // If product is being marked as available, send notifications
+            if (isMarkingAsAvailable) {
+                await fetch(`/api/products/${id}/notify`, {
+                    method: 'POST',
+                });
+            }
+
             router.push('/admin/products');
         } catch (error) {
             console.error('Error updating product:', error);
@@ -200,15 +212,35 @@ export default function EditProductPage() {
                 </div>
 
                  <div className="bg-white p-6 rounded-lg border border-gray-200 grid grid-cols-2 gap-4 text-black">
-                     <div className="space-y-2">
-                         <label className="text-xs uppercase font-bold text-gray-500">Price</label>
-                         <input type="number" step="0.01" value={product.price} onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
-                     </div>
-                     <div className="space-y-2">
-                         <label className="text-xs uppercase font-bold text-gray-500">Inventory</label>
-                         <input type="number" value={product.inventory} onChange={(e) => setProduct({ ...product, inventory: parseInt(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
-                     </div>
-                 </div>
+                      <div className="space-y-2">
+                          <label className="text-xs uppercase font-bold text-gray-500">Price</label>
+                          <input type="number" step="0.01" value={product.price} onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-xs uppercase font-bold text-gray-500">Inventory</label>
+                          <input type="number" value={product.inventory} onChange={(e) => setProduct({ ...product, inventory: parseInt(e.target.value) })} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black" />
+                      </div>
+                  </div>
+
+                  {/* Product Status */}
+                  <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
+                      <h2 className="text-lg font-medium mb-4 text-black">Product Status</h2>
+                      <div className="flex items-center gap-3">
+                          <input
+                              type="checkbox"
+                              id="isComingSoon"
+                              checked={product.isComingSoon || false}
+                              onChange={(e) => setProduct({ ...product, isComingSoon: e.target.checked })}
+                              className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                          />
+                          <label htmlFor="isComingSoon" className="text-sm font-medium text-black">
+                              Mark as Coming Soon
+                          </label>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                          When checked, the product will be visible in the shop with a "Coming Soon" badge and customers can sign up for notifications when it's available.
+                      </p>
+                  </div>
 
                  <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
                      <h2 className="text-lg font-medium mb-4 text-black">Size & Fit</h2>

@@ -277,3 +277,199 @@ export async function sendOrderConfirmationEmail({
   }
 }
 
+/**
+ * Send product available notification email
+ */
+export async function sendProductAvailableEmail({
+  to,
+  productName,
+  productSlug
+}: {
+  to: string;
+  productName: string;
+  productSlug: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+
+  const mailOptions = {
+    from: `"Eightplux" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+    to,
+    subject: `${productName} is now available! 🎉`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #1C1C1C; color: #fff; padding: 30px; text-align: center; }
+            .content { padding: 30px; background: #fff; }
+            .product-info { background: #f5f5f5; padding: 20px; margin: 20px 0; }
+            .cta-button { display: inline-block; background: #C72f32; color: #fff; padding: 15px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; }
+            .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>${productName} is available! 🎉</h1>
+            </div>
+            <div class="content">
+              <p>Hi there,</p>
+              <p>Great news! ${productName} is now available for purchase!</p>
+              <div class="product-info">
+                <p><strong>Product:</strong> ${productName}</p>
+                <p><strong>Availability:</strong> In stock</p>
+              </div>
+              <p style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/shop/product/${productSlug}" class="cta-button">Shop Now</a>
+              </p>
+              <p>Don't miss out - this product is now available for purchase!</p>
+              <p><strong>The Eightplux Team</strong></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Eightplux. All rights reserved.</p>
+              <p>You're receiving this email because you requested notifications for this product.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      ${productName} is now available! 🎉
+
+      Hi there,
+
+      Great news! ${productName} is now available for purchase!
+
+      Product: ${productName}
+      Availability: In stock
+
+      Shop now: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/shop/product/${productSlug}
+
+      Don't miss out - this product is now available for purchase!
+
+      The Eightplux Team
+
+      © ${new Date().getFullYear()} Eightplux. All rights reserved.
+      You're receiving this email because you requested notifications for this product.
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Product available email sent to: ${to}`);
+  } catch (error) {
+    console.error('Failed to send product available email:', error);
+  }
+}
+
+/**
+ * Send order status update email
+ */
+export async function sendOrderStatusEmail({
+  to,
+  orderId,
+  status,
+  trackingNumber
+}: {
+  to: string;
+  orderId: string;
+  status: 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  trackingNumber?: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+
+  let subject = '';
+  let statusText = '';
+  let statusIcon = '';
+
+  switch (status) {
+    case 'confirmed':
+      subject = `Order Confirmed - #${orderId}`;
+      statusText = 'Order Confirmed! ✓';
+      statusIcon = '✓';
+      break;
+    case 'shipped':
+      subject = `Order Shipped - #${orderId}`;
+      statusText = 'Order Shipped! 🚚';
+      statusIcon = '🚚';
+      break;
+    case 'delivered':
+      subject = `Order Delivered - #${orderId}`;
+      statusText = 'Order Delivered! 📦';
+      statusIcon = '📦';
+      break;
+    case 'cancelled':
+      subject = `Order Cancelled - #${orderId}`;
+      statusText = 'Order Cancelled! ❌';
+      statusIcon = '❌';
+      break;
+  }
+
+  const mailOptions = {
+    from: `"Eightplux" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+    to,
+    subject,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #1C1C1C; color: #fff; padding: 30px; text-align: center; }
+            .content { padding: 30px; background: #fff; }
+            .order-details { background: #f5f5f5; padding: 20px; margin: 20px 0; }
+            .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>${statusText}</h1>
+            </div>
+            <div class="content">
+              <p>Your order status has been updated!</p>
+              <div class="order-details">
+                <p><strong>Order Number:</strong> #${orderId}</p>
+                <p><strong>Status:</strong> ${status.charAt(0).toUpperCase() + status.slice(1)}</p>
+                ${trackingNumber ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>` : ''}
+              </div>
+              <p>Thank you for shopping with Eightplux!</p>
+              <p><strong>The Eightplux Team</strong></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Eightplux. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      ${statusText}
+
+      Your order status has been updated!
+
+      Order Number: #${orderId}
+      Status: ${status.charAt(0).toUpperCase() + status.slice(1)}
+      ${trackingNumber ? `Tracking Number: ${trackingNumber}` : ''}
+
+      Thank you for shopping with Eightplux!
+
+      The Eightplux Team
+
+      © ${new Date().getFullYear()} Eightplux. All rights reserved.
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Order status email sent to: ${to}`);
+  } catch (error) {
+    console.error('Failed to send order status email:', error);
+  }
+}
+

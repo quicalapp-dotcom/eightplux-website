@@ -24,6 +24,7 @@ export interface Product {
     isNew?: boolean;
     isBestSeller?: boolean;
     isSale?: boolean;
+    isComingSoon?: boolean;
     inventory: number;
     createdAt: Date;
     updatedAt: Date;

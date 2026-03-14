@@ -159,9 +159,14 @@ export function ShopContent() {
                                                     Sale
                                                 </div>
                                             )}
-                                            {product.inventory <= 0 && (
+                                            {product.inventory <= 0 && !product.isSale && (
                                                 <div className="absolute top-4 left-4 z-10 bg-gray-400 text-white px-3 py-1 text-[10px] uppercase font-bold tracking-widest">
                                                     Sold Out
+                                                </div>
+                                            )}
+                                            {product.isComingSoon && (
+                                                <div className="absolute top-4 left-4 z-10 bg-[#C72f32] text-white px-3 py-1 text-[10px] uppercase font-bold tracking-widest">
+                                                    Coming Soon
                                                 </div>
                                             )}
                                         </div>

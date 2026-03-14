@@ -226,11 +226,23 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Discount Codes
-    match /discounts/{discountId} {
-      // Admins can manage all discounts
-      allow read: if isAdmin();
-      allow create, update, delete: if isAdmin();
-    }
+     // Discount Codes
+     match /discounts/{discountId} {
+       // Admins can manage all discounts
+       allow read: if isAdmin();
+       allow create, update, delete: if isAdmin();
+     }
+
+     // Notify Me Requests
+     match /notifyMeRequests/{requestId} {
+       // All authenticated users can create requests
+       allow create: if true;
+       // Admins can read all requests
+       allow read: if isAdmin();
+       // Admins can update requests (mark as notified)
+       allow update: if isAdmin();
+       // Admins can delete requests
+       allow delete: if isAdmin();
+     }
   }
 }

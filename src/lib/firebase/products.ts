@@ -3,6 +3,7 @@ import { db } from './config';
 import { collection, doc, getDoc, getDocs, query, where, onSnapshot, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Product } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
+import { getNotifyMeRequestsByProduct, markNotifyMeRequestsAsNotified } from './notifyMe';
 
 /**
  * Subscribe to all products (real-time)

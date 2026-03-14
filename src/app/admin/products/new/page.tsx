@@ -34,6 +34,7 @@ export default function NewProductPage() {
         colors: '', // Comma separated for MVP
         sizes: '', // Comma separated for MVP
         sizeFit: '', // Size and fit information
+        isComingSoon: false,
     });
 
     useEffect(() => {
@@ -85,7 +86,8 @@ export default function NewProductPage() {
                 tags: [],
                 collectionId: formData.collectionId,
                 isActive: true,
-                sizeFit: formData.sizeFit
+                sizeFit: formData.sizeFit,
+                isComingSoon: formData.isComingSoon
             };
 
             console.log('Product data to save:', productData);
@@ -277,6 +279,27 @@ export default function NewProductPage() {
                          />
                      </div>
                  </div>
+
+                {/* Product Status */}
+                <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 text-black">
+                    <h2 className="text-lg font-medium mb-4 text-black">Product Status</h2>
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            id="isComingSoon"
+                            name="isComingSoon"
+                            checked={formData.isComingSoon}
+                            onChange={(e) => setFormData({ ...formData, isComingSoon: e.target.checked })}
+                            className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                        />
+                        <label htmlFor="isComingSoon" className="text-sm font-medium text-black">
+                            Mark as Coming Soon
+                        </label>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                        When checked, the product will be visible in the shop with a "Coming Soon" badge and customers can sign up for notifications when it's available.
+                    </p>
+                </div>
 
                 <div className="flex justify-end gap-4">
                     <Link
