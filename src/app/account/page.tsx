@@ -201,7 +201,7 @@ export default function AccountPage() {
                       <div className="flex justify-between items-center">
                         <p className="font-bold text-black">{order.currency}{order.total.toLocaleString()}</p>
                         <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span>{order.items.length} items</span>
+                          <span>{(order.items || []).length} items</span>
                           <ChevronRight className="w-3 h-3" />
                         </div>
                       </div>

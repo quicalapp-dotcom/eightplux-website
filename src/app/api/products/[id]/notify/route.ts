@@ -1,20 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProductById } from '@/lib/firebase/products';
-import { getNotifyMeRequestsByProduct, markNotifyMeRequestsAsNotified } from '@/lib/firebase/notifyMe';
+import admin from 'firebase-admin';
+import { getApps, initializeApp, cert } from 'firebase-admin/app';
 import { sendProductAvailableEmail } from '@/lib/email';
+
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: productId } = await params;
     
     // Get product details
-    const product = await getProductById(productId);
-    if (!product) {
+    const productDoc = await admin.firestore().doc(`products/${productId}`).get();
+    if (!productDoc.exists) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
+    const product = productDoc.data() as any;
 
     // Get all notify me requests for this product
-    const notifyMeRequests = await getNotifyMeRequestsByProduct(productId);
+    const notifyMeQuery = admin.firestore().collection('notifyMeRequests')
+      .where('productId', '==', productId)
+      .where('notified', '==', false);
+    const notifyMeSnapshot = await notifyMeQuery.get();
+    const notifyMeRequests = notifyMeSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as any[];
 
     // Send emails to all notified users
     for (const request of notifyMeRequests) {
@@ -26,7 +45,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Mark all requests as notified
-    await markNotifyMeRequestsAsNotified(notifyMeRequests.map(request => request.id!));
+    const updatePromises = notifyMeRequests.map(request => 
+      admin.firestore().doc(`notifyMeRequests/${request.id}`).update({ notified: true })
+    );
+    await Promise.all(updatePromises);
 
     return NextResponse.json({
       success: true,

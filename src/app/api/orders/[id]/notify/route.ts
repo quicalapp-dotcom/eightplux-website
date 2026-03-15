@@ -15,17 +15,35 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    // Get user email
-    if (order.userId) {
+    // Get user email (from user document or order document if guest)
+    let email = '';
+    
+    console.log('Order details:', order);
+    
+    if (order.userId && order.userId !== 'guest') {
+      console.log('Fetching user with ID:', order.userId);
       const user = await getUserById(order.userId);
+      console.log('User details:', user);
       if (user?.email) {
-        await sendOrderStatusEmail({
-          to: user.email,
-          orderId: order.id,
-          status,
-          trackingNumber
-        });
+        email = user.email;
       }
+    } else if (order.email) {
+      // For guest orders, use email from order
+      email = order.email;
+    }
+    
+    console.log('Final email:', email);
+    
+    if (email) {
+      console.log('Sending order status email to:', email);
+      await sendOrderStatusEmail({
+        to: email,
+        orderId: order.id,
+        status,
+        trackingNumber
+      });
+    } else {
+      console.error('No email found for order:', orderId);
     }
 
     return NextResponse.json({

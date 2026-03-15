@@ -208,11 +208,11 @@ export default function OrdersPage() {
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="font-bold text-sm uppercase tracking-widest text-black">Items</h4>
-                        <span className="text-sm text-black">{order.items.length} items</span>
+                        <span className="text-sm text-black">{(order.items || []).length} items</span>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {order.items.slice(0, 3).map((item, index) => (
+                        {(order.items || []).slice(0, 3).map((item, index) => (
                           <div key={index} className="flex items-center gap-4">
                             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden">
                               {item.image ? (

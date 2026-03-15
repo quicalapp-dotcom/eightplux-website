@@ -213,7 +213,7 @@ export default function OrderDetailPage() {
               <div className="p-6">
                 <h4 className="font-bold text-black uppercase tracking-widest text-gray-500 mb-4">Items</h4>
                 <div className="space-y-4">
-                  {order.items.map((item, index) => (
+                  {(order.items || []).map((item, index) => (
                     <div key={index} className="flex items-center gap-6 py-4 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div className="w-20 h-20 flex-shrink-0">
                         {item.image ? (

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { subscribeToProducts } from '@/lib/firebase/products';
+import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, CheckCircle } from 'lucide-react';
+import { subscribeToProducts, updateProduct } from '@/lib/firebase/products';
 import { deleteProduct } from '@/lib/firebase/products';
 import { subscribeToCollections } from '@/lib/firebase/collections';
 import { Product, Collection } from '@/types';
@@ -46,6 +46,25 @@ export default function ProductsPage() {
                 await deleteProduct(id);
             } catch (error) {
                 alert('Error deleting product');
+            }
+        }
+    };
+
+    const handleMarkAsAvailable = async (product: Product) => {
+        if (confirm(`Are you sure you want to mark "${product.name}" as available? This will send notifications to all users who requested to be notified.`)) {
+            try {
+                // Mark product as available
+                await updateProduct(product.id, { isComingSoon: false });
+                
+                // Send notifications
+                await fetch(`/api/products/${product.id}/notify`, {
+                    method: 'POST',
+                });
+                
+                alert('Product marked as available and notifications sent');
+            } catch (error) {
+                console.error('Error marking product as available:', error);
+                alert('Error marking product as available');
             }
         }
     };
@@ -141,11 +160,14 @@ export default function ProductsPage() {
                                         {useCurrencyStore.getState().formatPrice(product.price)}
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
-                                        <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${product.inventory > 0
-                                            ? 'bg-green-50 text-green-600 border border-green-100'
-                                            : 'bg-red-50 text-red-600 border border-red-100'
-                                            }`}>
-                                            {product.inventory > 0 ? 'In Stock' : 'Out of Stock'}
+                                        <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${
+                                            product.isComingSoon 
+                                                ? 'bg-yellow-50 text-yellow-600 border border-yellow-100'
+                                                : product.inventory > 0 
+                                                    ? 'bg-green-50 text-green-600 border border-green-100'
+                                                    : 'bg-red-50 text-red-600 border border-red-100'
+                                        }`}>
+                                            {product.isComingSoon ? 'Coming Soon' : (product.inventory > 0 ? 'In Stock' : 'Out of Stock')}
                                         </span>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 font-medium text-xs">
@@ -153,6 +175,15 @@ export default function ProductsPage() {
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
+                                            {product.isComingSoon && (
+                                                <button
+                                                    onClick={() => handleMarkAsAvailable(product)}
+                                                    className="p-2 hover:bg-green-50 rounded-full transition-colors"
+                                                    title="Mark as available"
+                                                >
+                                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                                </button>
+                                            )}
                                             <Link
                                                 href={`/admin/products/edit/${product.id}`}
                                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"

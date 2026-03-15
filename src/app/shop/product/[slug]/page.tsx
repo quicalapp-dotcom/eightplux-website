@@ -126,31 +126,80 @@ export default function ProductDetailPage() {
         showNotification(newItem);
     };
 
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [emailInput, setEmailInput] = useState('');
+
     const handleNotifyMe = async () => {
         if (!product) return;
 
-        let email = '';
-
         if (user) {
             // For signed in users, use their stored email
-            email = user.email || '';
-        } else {
-            // For guest users, ask for email
-            const inputEmail = prompt('Please enter your email address to be notified when this product is available:');
-            if (!inputEmail || !inputEmail.includes('@')) {
-                alert('Please enter a valid email address');
-                return;
+            try {
+                await addNotifyMeRequest({
+                    productId: product.id,
+                    productName: product.name,
+                    email: user.email || '',
+                    userId: user.uid,
+                });
+
+                // Send confirmation email
+                await fetch('/api/notify-me/confirm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: user.email,
+                        productName: product.name
+                    }),
+                });
+
+                alert('Thank you! You will be notified when this product is available.');
+            } catch (error) {
+                console.error('Error adding notify me request:', error);
+                alert('Failed to add notification. Please try again.');
             }
-            email = inputEmail;
+        } else {
+            // For guest users, show email input form
+            setShowEmailForm(true);
+        }
+    };
+
+    const handleEmailSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!product) {
+            alert('Product not found');
+            return;
+        }
+        
+        if (!emailInput.includes('@')) {
+            alert('Please enter a valid email address');
+            return;
         }
 
         try {
             await addNotifyMeRequest({
-                productId: product.id,
-                productName: product.name,
-                email,
-                userId: user?.uid,
+                    productId: product.id,
+                    productName: product.name,
+                    email: emailInput,
+                    userId: user?.uid || undefined,
+                });
+
+            // Send confirmation email
+            await fetch('/api/notify-me/confirm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: emailInput,
+                    productName: product.name
+                }),
             });
+
+            setShowEmailForm(false);
+            setEmailInput('');
             alert('Thank you! You will be notified when this product is available.');
         } catch (error) {
             console.error('Error adding notify me request:', error);
@@ -334,12 +383,43 @@ export default function ProductDetailPage() {
                             )}
 
                             {product.isComingSoon ? (
-                                <button
-                                    onClick={handleNotifyMe}
-                                    className="w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-center px-8 items-center transition-colors bg-[#333] text-white hover:bg-black"
-                                >
-                                    Notify Me When Ready
-                                </button>
+                                showEmailForm ? (
+                                    <form onSubmit={handleEmailSubmit} className="space-y-4">
+                                        <input
+                                            type="email"
+                                            value={emailInput}
+                                            onChange={(e) => setEmailInput(e.target.value)}
+                                            placeholder="Enter your email address"
+                                            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                                            required
+                                        />
+                                        <div className="flex gap-3">
+                                            <button
+                                                type="submit"
+                                                className="flex-1 py-3 uppercase font-bold tracking-[0.2em] text-[10px] bg-[#333] text-white hover:bg-black transition-colors"
+                                            >
+                                                Notify Me
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowEmailForm(false);
+                                                    setEmailInput('');
+                                                }}
+                                                className="px-4 py-3 uppercase font-bold tracking-[0.2em] text-[10px] bg-gray-200 text-black hover:bg-gray-300 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <button
+                                        onClick={handleNotifyMe}
+                                        className="w-full py-4 uppercase font-bold tracking-[0.2em] text-[10px] flex justify-center px-8 items-center transition-colors bg-[#333] text-white hover:bg-black"
+                                    >
+                                        Notify Me When Ready
+                                    </button>
+                                )
                             ) : (
                                 <button
                                     onClick={handleAddToBag}
@@ -421,4 +501,5 @@ export default function ProductDetailPage() {
         </>
     );
 }
+
 

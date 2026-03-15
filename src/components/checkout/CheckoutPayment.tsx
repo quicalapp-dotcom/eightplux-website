@@ -19,6 +19,8 @@ interface CheckoutPaymentProps {
   email: string;
   orderId: string;
   userId: string;
+  shippingCostUSD: number;
+  discountData: any;
 }
 
 export default function CheckoutPayment({
@@ -31,6 +33,8 @@ export default function CheckoutPayment({
   email,
   orderId,
   userId,
+  shippingCostUSD,
+  discountData,
 }: CheckoutPaymentProps) {
   const { formatPrice } = useCurrencyStore();
   return (
@@ -136,6 +140,9 @@ export default function CheckoutPayment({
             amount={total}
             orderId={orderId}
             userId={userId}
+            formData={formData}
+            shippingCostUSD={shippingCostUSD}
+            discountData={discountData}
           />
           
           <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest leading-relaxed">

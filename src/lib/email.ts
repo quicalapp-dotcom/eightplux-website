@@ -278,6 +278,86 @@ export async function sendOrderConfirmationEmail({
 }
 
 /**
+ * Send notification confirmation email
+ */
+export async function sendNotificationConfirmationEmail({
+  to,
+  productName
+}: {
+  to: string;
+  productName: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+
+  const mailOptions = {
+    from: `"Eightplux" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+    to,
+    subject: `Thanks for your interest in ${productName}!`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #1C1C1C; color: #fff; padding: 30px; text-align: center; }
+            .content { padding: 30px; background: #fff; }
+            .product-info { background: #f5f5f5; padding: 20px; margin: 20px 0; }
+            .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Thanks for your interest! 🎉</h1>
+            </div>
+            <div class="content">
+              <p>Hi there,</p>
+              <p>Thank you for expressing interest in ${productName}!</p>
+              <div class="product-info">
+                <p><strong>Product:</strong> ${productName}</p>
+                <p><strong>Status:</strong> Coming Soon</p>
+              </div>
+              <p>We'll notify you as soon as this product becomes available for purchase. You won't want to miss it!</p>
+              <p><strong>The Eightplux Team</strong></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Eightplux. All rights reserved.</p>
+              <p>You're receiving this email because you requested notifications for this product.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      Thanks for your interest in ${productName}!
+
+      Hi there,
+
+      Thank you for expressing interest in ${productName}!
+
+      Product: ${productName}
+      Status: Coming Soon
+
+      We'll notify you as soon as this product becomes available for purchase. You won't want to miss it!
+
+      The Eightplux Team
+
+      © ${new Date().getFullYear()} Eightplux. All rights reserved.
+      You're receiving this email because you requested notifications for this product.
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Notification confirmation email sent to: ${to}`);
+  } catch (error) {
+    console.error('Failed to send notification confirmation email:', error);
+  }
+}
+
+/**
  * Send product available notification email
  */
 export async function sendProductAvailableEmail({

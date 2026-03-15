@@ -120,6 +120,7 @@ export interface CartItem {
 export interface Order {
     id: string;
     userId: string;
+    email?: string; // Email for guest orders
     items: CartItem[];
     subtotal: number;
     shipping: number;

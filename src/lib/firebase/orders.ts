@@ -12,6 +12,7 @@ export const subscribeToOrders = (
     const orders = snapshot.docs.map(doc => ({
       id: doc.id,
       userId: doc.data().userId || '',
+      email: doc.data().email || '',
       items: doc.data().items || [],
       subtotal: doc.data().subtotal || 0,
       shipping: doc.data().shipping || 0,
@@ -45,6 +46,7 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
       return {
         id: docSnap.id,
         userId: data.userId || '',
+        email: data.email || '',
         items: data.items || [],
         subtotal: data.subtotal || 0,
         shipping: data.shipping || 0,

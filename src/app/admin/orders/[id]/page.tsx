@@ -158,7 +158,7 @@ export default function OrderDetailPage() {
                             <h2 className="font-bold text-sm uppercase tracking-wide">Order Items</h2>
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                            {order.items.map((item, index) => (
+                            {(order.items || []).map((item, index) => (
                                 <div key={index} className="p-6 flex items-center gap-4">
                                     <div className="w-16 h-20 bg-gray-100 dark:bg-grey-400 rounded-md overflow-hidden relative flex-shrink-0">
                                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
@@ -179,15 +179,15 @@ export default function OrderDetailPage() {
                         <div className="px-6 py-4 bg-gray-50 dark:bg-grey-400 border-t border-gray-100 dark:border-gray-800 space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">Subtotal</span>
-                                <span>{order.currency === 'USD' ? '$' : '₦'}{order.subtotal.toLocaleString()}</span>
+                                <span>{order.currency === 'USD' ? '$' : '₦'}{(order.subtotal || 0).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">Shipping</span>
-                                <span>{order.currency === 'USD' ? '$' : '₦'}{order.shipping.toLocaleString()}</span>
+                                <span>{order.currency === 'USD' ? '$' : '₦'}{(order.shipping || 0).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 dark:border-gray-800">
                                 <span>Total</span>
-                                <span>{order.currency === 'USD' ? '$' : '₦'}{order.total.toLocaleString()}</span>
+                                <span>{order.currency === 'USD' ? '$' : '₦'}{(order.total || 0).toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
@@ -202,8 +202,8 @@ export default function OrderDetailPage() {
                             <div>
                                 <p className="text-xs uppercase font-bold text-gray-500 mb-1">Payment Method</p>
                                 <p className="font-medium capitalize flex items-center gap-2">
-                                    {order.paymentMethod.replace('_', ' ')}
-                                    {order.paymentMethod.includes('crypto') && <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full">Blockchain</span>}
+                                    {(order.paymentMethod || '').replace('_', ' ')}
+                                    {(order.paymentMethod || '').includes('crypto') && <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full">Blockchain</span>}
                                 </p>
                             </div>
                             <div>
@@ -237,14 +237,14 @@ export default function OrderDetailPage() {
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <h3 className="font-bold">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</h3>
-                                <p className="text-sm text-gray-500">{order.shippingAddress.phone}</p>
+                                <h3 className="font-bold">{(order.shippingAddress?.firstName || '')} {(order.shippingAddress?.lastName || '')}</h3>
+                                <p className="text-sm text-gray-500">{order.shippingAddress?.phone || ''}</p>
                             </div>
                             <div className="text-sm text-gray-400 dark:text-gray-300">
-                                <p>{order.shippingAddress.address1}</p>
-                                {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
-                                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
-                                <p>{order.shippingAddress.country}</p>
+                                <p>{order.shippingAddress?.address1 || ''}</p>
+                                {order.shippingAddress?.address2 && <p>{order.shippingAddress.address2}</p>}
+                                <p>{[order.shippingAddress?.city, order.shippingAddress?.state, order.shippingAddress?.postalCode].filter(Boolean).join(' ')}</p>
+                                <p>{order.shippingAddress?.country || ''}</p>
                             </div>
                         </div>
                     </div>

@@ -18,6 +18,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Paystack initialization request body:', body);
     const { email, orderId, amount } = body;
+    
+    // Validate required fields
+    if (!email || !orderId || !amount) {
+      console.error('Missing required fields:', { email, orderId, amount });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
     // Fetch order from database to get the actual amount
     // Get user from Firebase Auth (you need to implement your own authentication logic here)
@@ -28,49 +34,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch order from database to get the actual amount
-    const ordersRef = admin.firestore().collection('orders');
-    const orderQuery = ordersRef.where('orderId', '==', orderId).limit(1);
-    const orderSnapshot = await orderQuery.get();
-    
-    let orderData;
-    let orderAmount;
-    let orderRef;
-    if (orderSnapshot.empty) {
-      // If order doesn't exist and user is guest, create a temporary order
-      if (userId === 'guest') {
-        orderRef = admin.firestore().collection('orders').doc();
-        orderData = {
-          id: orderRef.id,
-          orderId,
-          userId: 'guest',
-          total: amount, // Use amount from frontend for guests
-          totalNGN: 0,
-          email,
-          paymentStatus: 'pending',
-          orderStatus: 'pending',
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        };
-        await orderRef.set(orderData);
-        orderAmount = amount;
-      } else {
-        return NextResponse.json({ error: 'Invalid order' }, { status: 400 });
-      }
-    } else {
-      const orderDoc = orderSnapshot.docs[0];
-      orderRef = orderDoc.ref;
-      orderData = orderDoc.data();
-      if (!orderData) {
-        return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
-      }
+     // Fetch order from database to get the actual amount
+     const ordersRef = admin.firestore().collection('orders');
+     const orderQuery = ordersRef.where('orderId', '==', orderId).limit(1);
+     const orderSnapshot = await orderQuery.get();
+     
+     let orderData;
+     let orderAmount;
+     let orderRef;
+     if (orderSnapshot.empty) {
+       // If order doesn't exist, return error instead of creating a temporary one
+       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+     } else {
+       const orderDoc = orderSnapshot.docs[0];
+       orderRef = orderDoc.ref;
+       orderData = orderDoc.data();
+       if (!orderData) {
+         return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
+       }
 
-      // Check if user is the owner of the order
-      if (orderData.userId !== userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      orderAmount = orderData.total;
-    }
+       // Check if user is the owner of the order
+       if (orderData.userId !== userId) {
+         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+       }
+       orderAmount = orderData.total;
+     }
 
     // Amount is always in USD, convert to NGN for Paystack
     const paystackCurrency = 'NGN';

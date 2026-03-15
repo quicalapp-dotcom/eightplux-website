@@ -327,6 +327,8 @@ export default function CheckoutPage() {
                                 email={formData.email}
                                 orderId={`ORDER_${Date.now()}`}
                                 userId={user?.uid || 'guest'}
+                                shippingCostUSD={shippingCostUSD}
+                                discountData={discountData}
                             />
                         )}
                     </div>

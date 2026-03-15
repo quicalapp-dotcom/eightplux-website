@@ -15,11 +15,19 @@ export interface NotifyMeRequest {
  * Add a notify me request
  */
 export const addNotifyMeRequest = async (data: Omit<NotifyMeRequest, 'id' | 'createdAt' | 'notified'>): Promise<string> => {
-  const docRef = await addDoc(collection(db, 'notifyMeRequests'), {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requestData: any = {
     ...data,
     notified: false,
     createdAt: serverTimestamp(),
-  });
+  };
+  
+  // Remove undefined fields to avoid Firestore errors
+  if (requestData.userId === undefined || requestData.userId === null) {
+    delete requestData.userId;
+  }
+  
+  const docRef = await addDoc(collection(db, 'notifyMeRequests'), requestData);
   return docRef.id;
 };
 
