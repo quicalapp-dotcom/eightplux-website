@@ -84,11 +84,12 @@ export default function NewWorldStoryPage() {
                                     <button type="button" onClick={() => setImage('')} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100"><X className="w-4 h-4" /></button>
                                 </>
                             ) : (
-                                <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
-                                    {uploading ? <Loader2 className="w-8 h-8 animate-spin text-gray-300" /> : <Upload className="w-8 h-8 text-gray-300" />}
-                                    <span className="text-xs text-gray-400 mt-2">Upload wide banner (2000x800 recommended)</span>
-                                    <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
-                                </label>
+                                <CloudinaryUploader
+                                    onUpload={(result) => setImage(result.secure_url)}
+                                    accept="image/*"
+                                    maxSize={10}
+                                    label="Upload wide banner"
+                                />
                             )}
                         </div>
                     </div>

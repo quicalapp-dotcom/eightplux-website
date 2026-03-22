@@ -549,19 +549,14 @@ export default function HomepageManagementPage() {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Media URL</label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    value={slide.src}
-                                                    onChange={(e) => handleUpdateSlide(slide.id, 'src', e.target.value)}
-                                                    placeholder="Enter URL or upload"
-                                                    className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
+                                                <CloudinaryUploader
+                                                    onUpload={(result) => handleUpdateSlide(slide.id, 'src', result.secure_url)}
+                                                    currentUrl={slide.src}
+                                                    accept={slide.mediaType === 'image' ? 'image/*' : 'video/*'}
+                                                    maxSize={10}
+                                                    isVideo={slide.mediaType === 'video'}
+                                                    label={slide.mediaType === 'image' ? 'Upload Image' : 'Upload Video'}
                                                 />
-                                                <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
-                                                    {slide.mediaType === 'image' ? <ImageIcon className="w-4 h-4" /> : <Video className="w-4 h-4" />}
-                                                    <span className="text-xs font-bold uppercase">Upload</span>
-                                                    <input type="file" accept={slide.mediaType === 'image' ? 'image/*' : 'video/*'} className="hidden" onChange={(e) => e.target.files?.[0] && handleUploadSlideMedia(slide.id, e.target.files[0])} />
-                                                </label>
-                                            </div>
                                             {slide.src && (
                                                 <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
                                                     {slide.mediaType === 'image' ? (
