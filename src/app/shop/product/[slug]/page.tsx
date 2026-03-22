@@ -9,25 +9,11 @@ import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrencyStore } from '@/stores/currencyStore';
-import { getProductBySlug } from '@/lib/firebase/products';
+import { getProductBySlug, getProducts } from '@/lib/firebase/products';
 import { addNotifyMeRequest } from '@/lib/firebase/notifyMe';
 import { Product, ProductColor } from '@/types';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
-
-// Mock data for fallback
-const fallbackStyledWith = [
-    { name: 'Silk Trouser', price: 110, image: '/lt.jpg', slug: 'silk-trouser' },
-    { name: 'Derby Boot', price: 135, image: '/Model2.jpg', slug: 'derby-boot' },
-    { name: 'Technical Coat', price: 250, image: '/tg.jpg', slug: 'technical-coat' },
-];
-
-const fallbackRecentlyViewed = [
-    { name: 'Cashmere Hoodie', price: 89, image: '/bg.jpg' },
-    { name: 'Calfskin Jacket', price: 245, image: '/bb.jpg' },
-    { name: 'Studio Knit', price: 65, image: '/Model3.jpg' },
-    { name: 'Mist Tee', price: 12, image: '/Model1.jpg' },
-];
 
 const mockProduct: Product = {
     id: 'mock-1',
@@ -68,6 +54,7 @@ export default function ProductDetailPage() {
     const { addItem, showNotification } = useCartStore();
     const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
     const { user } = useAuth();
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -93,6 +80,24 @@ export default function ProductDetailPage() {
         if (slug) {
             fetchProduct();
         }
+    }, [slug]);
+
+    // Fetch related products
+    useEffect(() => {
+        const fetchRelatedProducts = async () => {
+            try {
+                const allProducts = await getProducts();
+                // Filter out current product and take first 4 products as "related"
+                const filtered = allProducts
+                    .filter(p => p.slug !== slug)
+                    .slice(0, 4);
+                setRelatedProducts(filtered);
+            } catch (error) {
+                console.error('Error fetching related products:', error);
+            }
+        };
+
+        fetchRelatedProducts();
     }, [slug]);
 
     const [selectionError, setSelectionError] = useState('');
@@ -436,63 +441,35 @@ export default function ProductDetailPage() {
                             )}
                         </div>
 
-                        {/* Match With Section - Mock fallbacks */}
-                        <div className="border-t border-gray-100 pt-12 mt-12 pb-20">
-                            <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] text-gray-400 mb-10">Match with</h3>
-                            <div className="grid grid-cols-3 gap-4">
-                                {fallbackStyledWith.map((item) => (
-                                    <Link key={item.name} href={`/shop/product/${item.slug}`} className="group space-y-4">
-                                        <div className="aspect-[3/4] bg-[#F6F6F6] relative border border-gray-100 overflow-hidden">
-                                            <Image
-                                                src={item.image}
-                                                alt={item.name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                        <div className="space-y-1 uppercase tracking-widest font-bold">
-                                            <h4 className="text-[9px] leading-tight text-gray-400 group-hover:text-black transition-colors">
-                                                {item.name}
-                                            </h4>
-                                            <div className="flex gap-2 text-[9px]">
-                                                <span>${item.price}</span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-
-                            <Link 
-                                href="/cart"
-                                className="w-full bg-[#333] text-white py-4 uppercase font-bold tracking-[0.2em] text-[10px] mt-10 hover:bg-black transition-colors flex justify-center items-center"
-                            >
-                                Go to cart
-                            </Link>
-                        </div>
+                        {/* End of product info column */}
                     </div>
                 </div>
 
-                {/* You Can Also Check Section - Mock fallbacks */}
+                {/* You Can Also Check Section - Real products from Firebase */}
                 <div className="mt-32 border-t border-gray-100 pt-20">
                     <h1 className="text-lg font-bold uppercase tracking-[0.1em] mb-12 px-2">You can also check</h1>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                        {fallbackRecentlyViewed.map((item, idx) => (
-                            <Link key={idx} href={`/shop/product/${item.name.toLowerCase().replace(/\s+/g, '-')}`} className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] overflow-hidden border border-gray-100">
-                                    <Image
-                                        src={item.image}
-                                        alt={item.name}
-                                        fill
-                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                    />
-                                </div>
-                                <div className="space-y-2 uppercase tracking-widest text-[10px] font-bold px-2">
-                                    <h3 className="leading-tight text-gray-500 group-hover:text-black transition-colors">{item.name}</h3>
-                                    <p>${item.price}</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                    {relatedProducts.length > 0 ? (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                            {relatedProducts.map((item) => (
+                                <Link key={item.id} href={`/shop/product/${item.slug}`} className="group cursor-pointer">
+                                    <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] overflow-hidden border border-gray-100">
+                                        <Image
+                                            src={item.images[0]}
+                                            alt={item.name}
+                                            fill
+                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 uppercase tracking-widest text-[10px] font-bold px-2">
+                                        <h3 className="leading-tight text-gray-500 group-hover:text-black transition-colors">{item.name}</h3>
+                                        <p>{formatPrice(item.price)}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-400 text-sm uppercase tracking-widest">No products available</p>
+                    )}
                 </div>
             </main>
         </div>
