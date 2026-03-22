@@ -3,15 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, CheckCircle } from 'lucide-react';
-import { subscribeToProducts, updateProduct } from '@/lib/firebase/products';
-import { deleteProduct } from '@/lib/firebase/products';
-import { subscribeToCollections } from '@/lib/firebase/collections';
-import { Product, Collection } from '@/types';
+import { subscribeToProducts, updateProduct, deleteProduct } from '@/lib/firebase/products';
+import { subscribeToSubCollections } from '@/lib/firebase/subCollections';
+import { Product, SubCollection } from '@/types';
 import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
-    const [collections, setCollections] = useState<Collection[]>([]);
+    const [subCollections, setSubCollections] = useState<SubCollection[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -20,19 +19,20 @@ export default function ProductsPage() {
             setProducts(data);
             setLoading(false);
         });
-        const unsubscribeCollections = subscribeToCollections((data) => {
-            setCollections(data);
+        const unsubscribeSubCollections = subscribeToSubCollections((data) => {
+            setSubCollections(data);
         });
 
         return () => {
             unsubscribeProducts();
-            unsubscribeCollections();
+            unsubscribeSubCollections();
         };
     }, []);
 
-    const getCollectionName = (collectionId: string) => {
-        const collection = collections.find(c => c.id === collectionId);
-        return collection ? collection.name : 'Unknown';
+    const getSubCollectionName = (subCollectionId?: string) => {
+        if (!subCollectionId) return 'None';
+        const subCollection = subCollections.find(sc => sc.id === subCollectionId);
+        return subCollection ? subCollection.name : 'Unknown';
     };
 
     const filteredProducts = products.filter(product =>
@@ -143,7 +143,7 @@ export default function ProductsPage() {
                                         </div>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
-                                        <span className="text-xs font-bold uppercase tracking-wide text-gray-600">{getCollectionName(product.collectionId)}</span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-gray-600">{getSubCollectionName(product.subCollectionId)}</span>
                                     </td>
                                     <td className="px-3 sm:px-6 py-3 sm:py-4">
                                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${

@@ -68,7 +68,7 @@ export default function CategoryPage() {
     // Filter products based on selections
     const productsToDisplay = products.filter(product => {
         // Collection filter
-        if (selectedCollections.length > 0 && !selectedCollections.includes(product.collectionId)) {
+        if (selectedCollections.length > 0 && !selectedCollections.includes(product.collectionId || '')) {
             return false;
         }
 

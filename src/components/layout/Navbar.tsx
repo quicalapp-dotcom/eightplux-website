@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCartStore } from '@/stores/cartStore';
-import { Collection } from '@/types';
+import { Collection, SubCollection } from '@/types';
 import { subscribeToCollections } from '@/lib/firebase/collections';
+import { subscribeToSubCollections } from '@/lib/firebase/subCollections';
 import CountrySelector from './CountrySelector';
 
 const baseNavLinks = [
@@ -33,6 +34,7 @@ export default function Navbar() {
     const [searchOpen, setSearchOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [collections, setCollections] = useState<Collection[]>([]);
+    const [subCollections, setSubCollections] = useState<SubCollection[]>([]);
 
     const { user, loading, isAdmin } = useAuth();
     const { getItemCount } = useCartStore();
@@ -40,8 +42,12 @@ export default function Navbar() {
 
     useEffect(() => {
         setMounted(true);
-        const unsubscribe = subscribeToCollections(setCollections);
-        return () => unsubscribe();
+        const unsubscribeCol = subscribeToCollections(setCollections);
+        const unsubscribeSubCol = subscribeToSubCollections(setSubCollections);
+        return () => {
+            unsubscribeCol();
+            unsubscribeSubCol();
+        };
     }, []);
 
     const navLinks = baseNavLinks.map(link => {
@@ -50,8 +56,8 @@ export default function Navbar() {
                 ...link,
                 dropdown: [
                     ...link.dropdown,
-                    ...collections
-                        .map(c => ({ name: c.name, href: `/shop/collections/${c.slug}` }))
+                    ...subCollections
+                        .map(sc => ({ name: sc.name, href: `/shop/collections/${sc.slug}` }))
                         .filter(item => !link.dropdown!.some(l => l.name === item.name))
                 ]
             };
@@ -320,3 +326,4 @@ export default function Navbar() {
         </>
     );
 }
+

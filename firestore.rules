@@ -73,18 +73,17 @@ service cloud.firestore {
          allow read: if true;
          allow create: if isAdmin() 
            && isValidCategory()
-           && request.resource.data.collectionId is string
            && request.resource.data.name is string
            && request.resource.data.price is number;
-          allow update: if isAdmin()
-            && (isValidCategory() || request.resource.data.category == resource.data.category)
-            || (
-              // Allow updating inventory field even if not admin (for order processing)
-              (request.resource.data.keys().hasAll(['inventory', 'updatedAt']) && 
-               (request.resource.data.inventory is number && 
-                request.resource.data.updatedAt is timestamp))
-            );
-         allow delete: if isAdmin();
+        allow update: if isAdmin()
+          && (isValidCategory() || request.resource.data.category == resource.data.category)
+          || (
+            // Allow updating inventory field even if not admin (for order processing)
+            (request.resource.data.keys().hasAll(['inventory', 'updatedAt']) && 
+             (request.resource.data.inventory is number && 
+              request.resource.data.updatedAt is timestamp))
+          );
+        allow delete: if isAdmin();
        }
 
     // Categories Collection - DEPRECATED
@@ -168,6 +167,19 @@ service cloud.firestore {
          && request.resource.data.image is string;
         allow update: if isAdmin()
          && (request.resource.data.superCollection in ['casual', 'sport'] || request.resource.data.superCollection == resource.data.superCollection);
+        allow delete: if isAdmin();
+      }
+
+      // Sub-Collections (Public Read, Admin Write)
+      // Sub-collections belong to a parent collection
+      match /subCollections/{subCollectionId} {
+        allow read: if true;
+        allow create: if isAdmin()
+         && request.resource.data.name is string
+         && request.resource.data.slug is string
+         && request.resource.data.collectionId is string
+         && request.resource.data.isActive is bool;
+        allow update: if isAdmin();
         allow delete: if isAdmin();
       }
 

@@ -31,6 +31,7 @@ const adminLinks = [
     { name: 'Products', href: '/admin/products', icon: Package, category: 'core' },
     { name: 'Categories', href: '/admin/categories', icon: Package, category: 'core' },
     { name: 'Collections', href: '/admin/collections', icon: Layers, category: 'core' },
+    { name: 'Sub-Collections', href: '/admin/sub-collections', icon: Layers, category: 'core' },
     { name: 'Customers', href: '/admin/customers', icon: Users, category: 'core' },
 
     // Homepage & Content Management

@@ -333,8 +333,7 @@ export default function ProductDetailPage() {
                                 <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Summary</h4>
                                 <div className="text-[10px] font-bold tracking-widest leading-relaxed opacity-60 space-y-1">
                                     <p>Color: {selectedColor?.name || 'Navy Blue'}</p>
-                                    <p>Height of model: 177 cm. / 5&apos; 9&quot;</p>
-                                    <p className="opacity-40">{product.id}</p>
+                                    <p>Height of model: 177 cm. / 5' 9"</p>
                                 </div>
                             </div>
                         </div>
@@ -478,5 +477,3 @@ export default function ProductDetailPage() {
         </>
     );
 }
-
-

@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Upload, Loader2, Plus, X } from 'lucide-react';
+import { ArrowLeft, Upload, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
 import { addProduct } from '@/lib/firebase/products';
 import { subscribeToCollections } from '@/lib/firebase/collections';
+import { subscribeToSubCollections, getActiveSubCollections } from '@/lib/firebase/subCollections';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Collection } from '@/types';
+import { Collection, SubCollection } from '@/types';
 import CloudinaryUploader from '@/components/ui/CloudinaryUploader';
 
 interface CategoryOption {
@@ -22,13 +23,14 @@ export default function NewProductPage() {
     const [images, setImages] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
     const [collections, setCollections] = useState<Collection[]>([]);
+    const [subCollections, setSubCollections] = useState<SubCollection[]>([]);
 
     // Form Stats
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
-        collectionId: '',
+        subCollectionId: '',
         category: 'unisex', // Default to unisex
         inventory: '',
         colors: '', // Comma separated for MVP
@@ -38,14 +40,21 @@ export default function NewProductPage() {
     });
 
     useEffect(() => {
-        const unsubscribe = subscribeToCollections((data) => {
+        const unsubscribeCol = subscribeToCollections((data) => {
             setCollections(data.filter(c => c.isActive));
         });
 
-        return () => unsubscribe();
+        const unsubscribeSubCol = subscribeToSubCollections((data) => {
+            setSubCollections(data.filter(sc => sc.isActive));
+        });
+
+        return () => {
+            unsubscribeCol();
+            unsubscribeSubCol();
+        };
     }, []);
 
-    const selectedCollection = collections.find(c => c.id === formData.collectionId);
+    const selectedSubCollection = subCollections.find(sc => sc.id === formData.subCollectionId);
     const categoryOptions: CategoryOption[] = [
         { value: 'male', label: 'Male' },
         { value: 'female', label: 'Female' },
@@ -84,7 +93,7 @@ export default function NewProductPage() {
                 sizes: formData.sizes.split(',').map(s => s.trim()),
                 colors: formData.colors.split(',').map(c => ({ name: c.trim(), hex: '#000000' })), // Simplification
                 tags: [],
-                collectionId: formData.collectionId,
+                subCollectionId: formData.subCollectionId,
                 isActive: true,
                 sizeFit: formData.sizeFit,
                 isComingSoon: formData.isComingSoon
@@ -132,20 +141,23 @@ export default function NewProductPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase font-bold text-gray-500">Collection</label>
+                            <label className="text-xs uppercase font-bold text-gray-500">Sub-Collection</label>
                             <select
-                                name="collectionId"
+                                name="subCollectionId"
                                 required
-                                value={formData.collectionId}
+                                value={formData.subCollectionId}
                                 onChange={handleChange}
                                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
                             >
-                                <option value="">Select Collection</option>
-                                {collections.map((col) => (
-                                    <option key={col.id} value={col.id}>
-                                        {col.name} ({col.superCollection === 'casual' ? 'Casual' : 'Sport'})
-                                    </option>
-                                ))}
+                                <option value="">Select Sub-Collection</option>
+                                {subCollections.map((subCol) => {
+                                    const parentCollection = collections.find(c => c.id === subCol.collectionId);
+                                    return (
+                                        <option key={subCol.id} value={subCol.id}>
+                                            {subCol.name} {parentCollection ? `(${parentCollection.name})` : ''}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </div>
                         <div className="space-y-2">

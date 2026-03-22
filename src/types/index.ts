@@ -15,7 +15,8 @@ export interface Product {
     sizes: string[];
     colors: ProductColor[];
     tags: string[];
-    collectionId: string;
+    collectionId?: string;
+    subCollectionId?: string;
     isExclusive?: boolean;
     campaignId?: string;
     fabric?: string;
@@ -49,6 +50,17 @@ export interface Collection {
     isActive: boolean;
     publishedAt?: Date;
     createdAt: Date;
+}
+
+export interface SubCollection {
+    id: string;
+    name: string;
+    slug: string;
+    collectionId: string; // Parent collection ID
+    image?: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt?: Date;
 }
 
 export interface Campaign {

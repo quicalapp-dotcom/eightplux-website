@@ -6,8 +6,8 @@ import { ArrowLeft, Save, Loader2, Upload, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { getProductById, updateProduct } from '@/lib/firebase/products';
 import { uploadAdminImage } from '@/lib/firebase/storage';
-import { subscribeToCollections } from '@/lib/firebase/collections';
-import { Product, Collection } from '@/types';
+import { subscribeToSubCollections } from '@/lib/firebase/subCollections';
+import { Product, SubCollection } from '@/types';
 
 export default function EditProductPage() {
     const router = useRouter();
@@ -17,7 +17,7 @@ export default function EditProductPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
-    const [collections, setCollections] = useState<Collection[]>([]);
+    const [subCollections, setSubCollections] = useState<SubCollection[]>([]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -32,8 +32,8 @@ export default function EditProductPage() {
     }, [id]);
 
     useEffect(() => {
-        const unsubscribe = subscribeToCollections((data) => {
-            setCollections(data.filter(c => c.isActive));
+        const unsubscribe = subscribeToSubCollections((data) => {
+            setSubCollections(data.filter(sc => sc.isActive));
         });
 
         return () => unsubscribe();
@@ -78,6 +78,7 @@ export default function EditProductPage() {
                 sizes: typeof product.sizes === 'string' ? (product.sizes as any).split(',').map((s: string) => s.trim()) : product.sizes,
                 sizeFit: product.sizeFit,
                 isComingSoon: product.isComingSoon,
+                subCollectionId: product.subCollectionId,
                 // Handle colors similarly if needed
             };
 
@@ -142,23 +143,22 @@ export default function EditProductPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase font-bold text-gray-500">Collection</label>
+                            <label className="text-xs uppercase font-bold text-gray-500">Sub-Collection</label>
                             <select
                                 required
-                                value={product.collectionId || ''}
+                                value={product.subCollectionId || ''}
                                 onChange={(e) => {
-                                    const collection = collections.find(c => c.id === e.target.value);
                                     setProduct({ 
                                         ...product, 
-                                        collectionId: e.target.value
+                                        subCollectionId: e.target.value
                                     });
                                 }}
                                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-md text-black"
                             >
-                                <option value="">Select Collection</option>
-                                {collections.map((col) => (
-                                    <option key={col.id} value={col.id}>
-                                        {col.name} ({col.superCollection === 'casual' ? 'Casual' : 'Sport'})
+                                <option value="">Select Sub-Collection</option>
+                                {subCollections.map((subCol) => (
+                                    <option key={subCol.id} value={subCol.id}>
+                                        {subCol.name}
                                     </option>
                                 ))}
                             </select>
