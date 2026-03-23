@@ -28,6 +28,10 @@ export default function CloudinaryUploader({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Auto-detect if currentUrl is a video based on extension
+  const isVideoUrl = currentUrl ? /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(currentUrl) : false;
+  const displayAsVideo = isVideo || isVideoUrl;
+
   const handleFileSelect = async (file: File) => {
     setIsUploading(true);
     setError(null);
@@ -119,7 +123,7 @@ export default function CloudinaryUploader({
         >
           {isUploading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
-          ) : isVideo ? (
+          ) : displayAsVideo ? (
             <Video className="w-4 h-4" />
           ) : (
             <ImageIcon className="w-4 h-4" />
@@ -137,7 +141,7 @@ export default function CloudinaryUploader({
   if (currentUrl) {
     return (
       <div className="space-y-3">
-        {isVideo ? (
+        {displayAsVideo ? (
           <video
             src={currentUrl}
             controls
@@ -193,7 +197,7 @@ export default function CloudinaryUploader({
         ) : (
           <>
             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-              {isVideo ? (
+              {displayAsVideo ? (
                 <Video className="w-6 h-6 text-gray-600" />
               ) : (
                 <ImageIcon className="w-6 h-6 text-gray-600" />

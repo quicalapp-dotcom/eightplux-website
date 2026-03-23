@@ -67,13 +67,24 @@ export default function CollectionPage() {
             {/* Hero Image */}
             {subCollection.image && (
                 <div className="relative w-full h-[300px] md:h-[400px]">
-                    <Image
-                        src={subCollection.image}
-                        alt={subCollection.name}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+                    {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(subCollection.image) ? (
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                            src={subCollection.image}
+                        />
+                    ) : (
+                        <Image
+                            src={subCollection.image}
+                            alt={subCollection.name}
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    )}
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                         <h1 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-[0.2em]">
                             {subCollection.name}

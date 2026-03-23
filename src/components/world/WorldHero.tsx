@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { subscribeToWorldHero } from '@/lib/firebase/world';
 import { WorldHeroData } from '@/types';
@@ -25,18 +24,29 @@ export default function WorldHero({ image }: WorldHeroProps) {
 
   const mediaUrl = worldHeroData?.mediaUrl || image || DEFAULT_IMAGE;
 
+  // Auto-detect if mediaUrl is a video
+  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
   return (
     <section className="relative w-full overflow-hidden bg-black">
       {/* Container wraps the image to determine height naturally */}
       <div className="relative w-full">
-        <Image
-          src={mediaUrl}
-          alt="World of 8+ Hero"
-          width={1920}
-          height={1308}
-          className="w-full h-auto block"
-          priority
-        />
+        {isVideoUrl ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-auto block"
+            src={mediaUrl}
+          />
+        ) : (
+          <img
+            src={mediaUrl}
+            alt="World of 8+ Hero"
+            className="w-full h-auto block"
+          />
+        )}
       </div>
 
       {/* Dark overlay + text at the bottom */}

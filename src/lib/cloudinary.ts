@@ -35,7 +35,8 @@ export const uploadToCloudinary = async (
     let fileToUpload: string;
 
     if (typeof file === 'string') {
-      fileToUpload = file;
+      // Validate and clean the base64 string
+      fileToUpload = validateAndCleanBase64(file);
     } else {
       // Convert File object to base64
       const reader = new FileReader();
@@ -64,11 +65,62 @@ export const uploadToCloudinary = async (
       width: result.width,
       height: result.height,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error uploading to Cloudinary:', error);
+    
+    // Extract more detailed error information
+    if (error && typeof error === 'object' && 'message' in error) {
+      const cloudinaryError = error as { message: string; http_code?: number };
+      if (cloudinaryError.http_code === 400) {
+        throw new Error('Invalid image file. Please ensure the file is a valid image format (JPEG, PNG, GIF, WebP, etc.) and try again.');
+      }
+      throw new Error(`Cloudinary upload failed: ${cloudinaryError.message}`);
+    }
+    
     throw new Error('Failed to upload file');
   }
 };
+
+/**
+ * Validate and clean a base64 string to ensure it's properly formatted for Cloudinary
+ * @param base64String The base64 string to validate
+ * @returns Cleaned base64 string
+ */
+function validateAndCleanBase64(base64String: string): string {
+  // Check if it's a data URI
+  if (base64String.startsWith('data:')) {
+    // Validate the data URI format
+    const dataUriRegex = /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/;
+    const match = base64String.match(dataUriRegex);
+    
+    if (!match) {
+      throw new Error('Invalid data URI format. Expected format: data:image/png;base64,...');
+    }
+    
+    // Check if the base64 content is valid
+    const base64Content = base64String.split(',')[1];
+    if (!base64Content) {
+      throw new Error('Invalid base64 content: missing comma separator');
+    }
+    
+    // Validate base64 characters
+    if (!/^[A-Za-z0-9+/=]+$/.test(base64Content)) {
+      throw new Error('Invalid base64 content: contains invalid characters');
+    }
+    
+    // Check if base64 padding is correct (optional but helpful)
+    const paddingNeeded = (4 - (base64Content.length % 4)) % 4;
+    if (paddingNeeded > 0 && !base64String.endsWith('='.repeat(paddingNeeded))) {
+      // Cloudinary can handle missing padding, but we log a warning
+      console.warn('Base64 string may be missing padding');
+    }
+    
+    return base64String;
+  }
+  
+  // If it's not a data URI, wrap it as a data URI (assuming it's raw base64)
+  throw new Error('Base64 string must be a data URI format (data:image/...;base64,...)');
+}
 
 /**
  * Delete a file from Cloudinary
@@ -107,7 +159,7 @@ export const getCloudinaryUrl = (
 ): string => {
   const { width, height, crop = 'fill', quality = 80, format = 'auto' } = options;
 
-  let transformation = [];
+  const transformation = [];
   
   if (width || height) {
     transformation.push({

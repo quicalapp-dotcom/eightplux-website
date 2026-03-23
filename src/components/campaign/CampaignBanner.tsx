@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { subscribeToCampaignBanner } from '@/lib/firebase/campaign-sections';
 import { CampaignBannerData } from '@/types';
@@ -34,17 +33,28 @@ export default function CampaignBanner() {
         ? { text: bannerData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${bannerData.secondaryButtonCollectionId}` }
         : { text: bannerData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: DEFAULT_SECONDARY_BUTTON.href };
 
+    // Auto-detect if mediaUrl is a video
+    const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
     return (
         <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">
             <div className="relative w-full">
-                <Image
-                    src={mediaUrl}
-                    alt="Banner"
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto block brightness-75"
-                    priority
-                />
+                {isVideoUrl ? (
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-auto block brightness-75"
+                        src={mediaUrl}
+                    />
+                ) : (
+                    <img
+                        src={mediaUrl}
+                        alt="Banner"
+                        className="w-full h-auto block brightness-75"
+                    />
+                )}
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
                     <h1 className="text-white text-5xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] font-tt lowercase mb-8">
                         {title.split(' ').map((word, i) => (

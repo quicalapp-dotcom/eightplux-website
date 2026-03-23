@@ -52,14 +52,28 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
 
             <div className={`grid ${getGridClass(items.length)} gap-4 p-4 md:p-8`}>
                 {items.map((item, index) => {
+                    // Auto-detect if mediaUrl is a video
+                    const isVideoUrl = item.mediaType === 'video' || /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(item.mediaUrl);
+                    
                     const content = (
                         <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-50 overflow-hidden group">
-                            <Image 
-                                src={item.mediaUrl} 
-                                alt={`Feature ${index + 1}`} 
-                                fill 
-                                className="object-cover group-hover:scale-105 transition-transform duration-1000" 
-                            />
+                            {isVideoUrl ? (
+                                <video
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                                    src={item.mediaUrl}
+                                />
+                            ) : (
+                                <Image 
+                                    src={item.mediaUrl} 
+                                    alt={`Feature ${index + 1}`} 
+                                    fill 
+                                    className="object-cover group-hover:scale-105 transition-transform duration-1000" 
+                                />
+                            )}
                             {item.collectionId && (
                                 <Link href={`/shop/collections/${item.collectionId}`} className="absolute inset-0 z-10" />
                             )}

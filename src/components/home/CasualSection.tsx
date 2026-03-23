@@ -45,13 +45,27 @@ export default function CasualSection({ image }: CasualSectionProps) {
     setIsModalOpen(true);
   };
 
+  // Auto-detect if mediaUrl is a video
+  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
   return (
     <section className="relative w-full overflow-hidden bg-[#4A2C2A]">
-      <img
-        alt="Eightplux Casual collection"
-        className="w-full h-auto block opacity-70"
-        src={mediaUrl}
-      />
+      {isVideoUrl ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto block opacity-70"
+          src={mediaUrl}
+        />
+      ) : (
+        <img
+          alt="Eightplux Casual collection"
+          className="w-full h-auto block opacity-70"
+          src={mediaUrl}
+        />
+      )}
       <div className="absolute inset-0 z-[1] opacity-40 mix-blend-multiply bg-amber-900" />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
         <div className="mb-6">
@@ -90,7 +104,7 @@ export default function CasualSection({ image }: CasualSectionProps) {
       <VideoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        videoUrl="/casualbg.gif"
+        videoUrl={mediaUrl}
         title="Eightplux Casual Collection"
       />
     </section>

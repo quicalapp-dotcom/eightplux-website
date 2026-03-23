@@ -625,7 +625,11 @@ export default function HomepageManagementPage() {
                                 </div>
                                 {sportSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={sportSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(sportSection.mediaUrl) ? (
+                                            <video src={sportSection.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={sportSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -733,7 +737,11 @@ export default function HomepageManagementPage() {
                                 </div>
                                 {casualSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={casualSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(casualSection.mediaUrl) ? (
+                                            <video src={casualSection.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={casualSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -946,7 +954,11 @@ export default function HomepageManagementPage() {
                                 </div>
                                 {worldSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={worldSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(worldSection.mediaUrl) ? (
+                                            <video src={worldSection.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={worldSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1029,7 +1041,11 @@ export default function HomepageManagementPage() {
                                 </div>
                                 {stageSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={stageSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(stageSection.mediaUrl) ? (
+                                            <video src={stageSection.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={stageSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1073,4 +1089,5 @@ export default function HomepageManagementPage() {
         </div>
     );
 }
+
 

@@ -33,13 +33,27 @@ export default function WorldSection({ image }: WorldSectionProps) {
     ? { text: worldData.buttonText || DEFAULT_BUTTON.text, href: `/shop/collections/${worldData.buttonCollectionId}` }
     : { text: worldData?.buttonText || DEFAULT_BUTTON.text, href: '/shop' };
 
+  // Auto-detect if mediaUrl is a video
+  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
   return (
     <section className="relative w-full overflow-hidden bg-gray-900">
-      <img
-        alt="Eightplux World – the collective"
-        className="w-full h-auto block opacity-50"
-        src={mediaUrl}
-      />
+      {isVideoUrl ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto block opacity-50"
+          src={mediaUrl}
+        />
+      ) : (
+        <img
+          alt="Eightplux World – the collective"
+          className="w-full h-auto block opacity-50"
+          src={mediaUrl}
+        />
+      )}
       <div className="absolute inset-0  flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto font-tt">
         <h2 className="text-white text-5xl md:text-8xl lg:text-[100px] font-thin tracking-tighter leading-[0.85] mb-4 flex flex-col items-center">
           <span className="flex items-center gap-2 md:gap-4">

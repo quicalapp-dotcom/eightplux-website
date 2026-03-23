@@ -364,7 +364,11 @@ export default function CampaignManagementPage() {
                                 </div>
                                 {heroSection.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={heroSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(heroSection.mediaUrl) ? (
+                                            <video src={heroSection.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={heroSection.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -505,7 +509,11 @@ export default function CampaignManagementPage() {
                                 </div>
                                 {interactiveHero.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={interactiveHero.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(interactiveHero.mediaUrl) ? (
+                                            <video src={interactiveHero.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={interactiveHero.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -683,7 +691,11 @@ export default function CampaignManagementPage() {
                                 </div>
                                 {banner.mediaUrl && (
                                     <div className="mt-2 aspect-video relative rounded overflow-hidden bg-gray-100">
-                                        <img src={banner.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(banner.mediaUrl) ? (
+                                            <video src={banner.mediaUrl} className="w-full h-full object-cover" controls />
+                                        ) : (
+                                            <img src={banner.mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 )}
                             </div>

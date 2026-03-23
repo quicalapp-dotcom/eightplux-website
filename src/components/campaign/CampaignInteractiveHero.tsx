@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { subscribeToCampaignInteractiveHero } from '@/lib/firebase/campaign-sections';
 import { CampaignInteractiveHeroData } from '@/types';
@@ -33,17 +32,28 @@ export default function CampaignInteractiveHero() {
         ? { text: heroData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${heroData.secondaryButtonCollectionId}` }
         : { text: heroData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: DEFAULT_SECONDARY_BUTTON.href };
 
+    // Auto-detect if mediaUrl is a video
+    const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
     return (
         <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">
             <div className="relative w-full">
-                <Image
-                    src={mediaUrl}
-                    alt="Interactive Hero"
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto block brightness-90"
-                    priority
-                />
+                {isVideoUrl ? (
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-auto block brightness-90"
+                        src={mediaUrl}
+                    />
+                ) : (
+                    <img
+                        src={mediaUrl}
+                        alt="Interactive Hero"
+                        className="w-full h-auto block brightness-90"
+                    />
+                )}
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 bg-black/5">
                     <h2 className="text-white text-5xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] mb-16 font-tt lowercase">
                         {title.split(' ').map((word, i) => (

@@ -36,13 +36,27 @@ export default function StageSection({ image }: StageSectionProps) {
   const firstWord = titleParts[0] || '';
   const restOfTitle = titleParts.slice(1).join(' ');
 
+  // Auto-detect if mediaUrl is a video
+  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
   return (
     <section className="relative w-full overflow-hidden bg-[#1a1a1a]">
-      <img
-        alt="Eightplux stage"
-        className="w-full h-auto block brightness-[0.5]"
-        src={mediaUrl}
-      />
+      {isVideoUrl ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto block brightness-[0.5]"
+          src={mediaUrl}
+        />
+      ) : (
+        <img
+          alt="Eightplux stage"
+          className="w-full h-auto block brightness-[0.5]"
+          src={mediaUrl}
+        />
+      )}
       <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4 font-tt">
         <h2 className="text-white text-5xl md:text-8xl lg:text-[100px] font-thin tracking-tighter leading-[0.85] mb-12 flex flex-col items-center">
           <span className="flex items-center gap-2 md:gap-4">

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { subscribeToCampaignHero } from '@/lib/firebase/campaign-sections';
 import { CampaignHeroData } from '@/types';
 
@@ -24,17 +23,28 @@ export default function CampaignHero() {
     const title = heroData?.title || DEFAULT_TITLE;
     const decorativeImage = heroData?.decorativeImage || DEFAULT_DECORATIVE_IMAGE;
 
+    // Auto-detect if mediaUrl is a video
+    const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
     return (
         <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">
             <div className="relative w-full">
-                <Image
-                    src={mediaUrl}
-                    alt="Campaign Hero"
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto block"
-                    priority
-                />
+                {isVideoUrl ? (
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-auto block"
+                        src={mediaUrl}
+                    />
+                ) : (
+                    <img
+                        src={mediaUrl}
+                        alt="Campaign Hero"
+                        className="w-full h-auto block"
+                    />
+                )}
                 <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center text-center px-4">
                     <div className="max-w-4xl space-y-6">
                         <h1 className="text-white text-3xl md:text-[96px] font-normal tracking-[-0.05em] leading-[1.22] font-tt lowercase flex flex-wrap justify-center gap-4">

@@ -45,13 +45,27 @@ export default function SportSection({ image }: SportSectionProps) {
     setIsModalOpen(true);
   };
 
+  // Auto-detect if mediaUrl is a video
+  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+
   return (
     <section className="relative w-full overflow-hidden bg-black">
-      <img
-        alt="Eightplux Sport collection"
-        className="w-full h-auto block opacity-60"
-        src={mediaUrl}
-      />
+      {isVideoUrl ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto block opacity-60"
+          src={mediaUrl}
+        />
+      ) : (
+        <img
+          alt="Eightplux Sport collection"
+          className="w-full h-auto block opacity-60"
+          src={mediaUrl}
+        />
+      )}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
         <div className="mb-6">
           <span className="bg-white/20 backdrop-blur-md text-white px-4 py-1 text-[10px] uppercase tracking-widest">
@@ -85,7 +99,7 @@ export default function SportSection({ image }: SportSectionProps) {
       <VideoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        videoUrl="/sporttt.gif"
+        videoUrl={mediaUrl}
         title="Eightplux Sport Collection"
       />
     </section>

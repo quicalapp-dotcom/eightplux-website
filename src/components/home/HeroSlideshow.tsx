@@ -40,7 +40,7 @@ export default function HeroSlideshow() {
         return () => unsubscribe();
     }, []);
 
-    const slides = heroData?.slides?.filter(s => s.isActive).map(s => s.src) || DEFAULT_SLIDES.map(s => s.src);
+    const slides = heroData?.slides?.filter(s => s.isActive) || DEFAULT_SLIDES;
     const title = heroData?.title || DEFAULT_TITLE;
     const decorativeImage = heroData?.decorativeImage || DEFAULT_DECORATIVE_IMAGE;
     
@@ -56,18 +56,29 @@ export default function HeroSlideshow() {
         <section className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center pt-[60px]">
 
             {/* Slides */}
-            {slides.map((src, i) => (
+            {slides.map((slide, i) => (
                 <div
-                    key={src}
+                    key={slide.src}
                     className={`absolute inset-0 z-0 transition-opacity duration-1000 ${
                         i === current ? 'opacity-100' : 'opacity-0'
                     }`}
                 >
-                    <img
-                        alt={`Hero slide ${i + 1}`}
-                        className="w-full h-full object-cover object-top brightness-[0.7]"
-                        src={src}
-                    />
+                    {slide.mediaType === 'video' || /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(slide.src) ? (
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover object-top brightness-[0.7]"
+                            src={slide.src}
+                        />
+                    ) : (
+                        <img
+                            alt={`Hero slide ${i + 1}`}
+                            className="w-full h-full object-cover object-top brightness-[0.7]"
+                            src={slide.src}
+                        />
+                    )}
                 </div>
             ))}
 
@@ -111,9 +122,9 @@ export default function HeroSlideshow() {
 
             {/* Dot indicators */}
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                {slides.map((_, i) => (
+                {slides.map((slide, i) => (
                     <button
-                        key={i}
+                        key={slide.src}
                         onClick={() => setCurrent(i)}
                         aria-label={`Go to slide ${i + 1}`}
                         className={`rounded-full transition-all duration-500 h-[5px] ${
