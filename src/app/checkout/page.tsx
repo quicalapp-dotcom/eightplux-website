@@ -196,6 +196,18 @@ export default function CheckoutPage() {
         }
         
         await setDoc(orderRef, orderData);
+        
+        // Send admin notification email
+        try {
+          await fetch(`/api/orders/${orderRef.id}/admin-notify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          console.log('Admin notification sent for order:', orderRef.id);
+        } catch (notifyError) {
+          console.error('Failed to send admin notification:', notifyError);
+        }
+        
         return orderRef.id;
     };
 

@@ -553,3 +553,163 @@ export async function sendOrderStatusEmail({
   }
 }
 
+/**
+ * Send admin notification email when a new order is placed
+ */
+export async function sendAdminNewOrderEmail({
+  orderId,
+  orderData
+}: {
+  orderId: string;
+  orderData: any;
+}): Promise<void> {
+  const transporter = getTransporter();
+  const adminEmail = 'eightplux@gmail.com';
+
+  const itemsList = orderData.items
+    .map((item: any, index: number) => 
+      `${index + 1}. ${item.name} (Qty: ${item.quantity}, Size: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}) - $${item.price}`
+    )
+    .join('\n');
+
+  const mailOptions = {
+    from: `"Eightplux Orders" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+    to: adminEmail,
+    subject: `🛒 New Order Received - #${orderId}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #C72f32; color: #fff; padding: 30px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; }
+            .content { padding: 30px; background: #fff; }
+            .order-details { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+            .order-item { padding: 10px 0; border-bottom: 1px solid #eee; }
+            .order-item:last-child { border-bottom: none; }
+            .total { font-size: 20px; font-weight: bold; color: #C72f32; margin-top: 15px; }
+            .customer-info { margin-top: 20px; }
+            .button { display: inline-block; background: #C72f32; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 15px; }
+            .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🛒 New Order Received!</h1>
+            </div>
+            <div class="content">
+              <p>Hello Admin,</p>
+              <p>A new order has been placed on Eightplux. Please review and process it.</p>
+              
+              <div class="order-details">
+                <p><strong>Order ID:</strong> #${orderId}</p>
+                <p><strong>Order Status:</strong> ${orderData.orderStatus || 'pending'}</p>
+                <p><strong>Payment Status:</strong> ${orderData.paymentStatus || 'pending'}</p>
+                <p><strong>Payment Method:</strong> ${orderData.paymentMethod || 'N/A'}</p>
+                <p><strong>Order Date:</strong> ${orderData.createdAt ? new Date(orderData.createdAt.seconds ? orderData.createdAt.seconds * 1000 : orderData.createdAt).toLocaleString() : 'Just now'}</p>
+              </div>
+
+              <h3>📦 Order Items:</h3>
+              <div class="order-details">
+                ${orderData.items.map((item: any) => `
+                  <div class="order-item">
+                    <strong>${item.name}</strong><br/>
+                    Quantity: ${item.quantity} | Size: ${item.size || 'N/A'} | Color: ${item.color || 'N/A'}<br/>
+                    Price: $${item.price}
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="order-details">
+                <p>Subtotal: $${orderData.subtotal?.toFixed(2) || '0.00'}</p>
+                <p>Shipping: $${orderData.shipping?.toFixed(2) || '0.00'}</p>
+                ${orderData.discount > 0 ? `<p>Discount: -$${orderData.discount?.toFixed(2)}</p>` : ''}
+                <p class="total">Total: $${orderData.total?.toFixed(2) || '0.00'}</p>
+              </div>
+
+              <div class="customer-info">
+                <h3>👤 Customer Details:</h3>
+                <div class="order-details">
+                  <p><strong>Name:</strong> ${orderData.shippingAddress?.firstName || ''} ${orderData.shippingAddress?.lastName || ''}</p>
+                  <p><strong>Email:</strong> ${orderData.email || 'N/A'}</p>
+                  <p><strong>Phone:</strong> ${orderData.shippingAddress?.phone || 'N/A'}</p>
+                  <p><strong>Address:</strong> ${orderData.shippingAddress?.address1 || 'N/A'}</p>
+                  <p><strong>City:</strong> ${orderData.shippingAddress?.city || 'N/A'}</p>
+                  <p><strong>Country:</strong> ${orderData.shippingAddress?.country || 'N/A'}</p>
+                  <p><strong>Postal Code:</strong> ${orderData.shippingAddress?.postalCode || 'N/A'}</p>
+                </div>
+              </div>
+
+              <p style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/orders/${orderId}" class="button">View Order Details</a>
+              </p>
+              
+              <p><strong>The Eightplux System</strong></p>
+            </div>
+            <div class="footer">
+              <p>This is an automated notification from Eightplux.</p>
+              <p>© ${new Date().getFullYear()} Eightplux. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+New Order Received - #${orderId}
+
+Hello Admin,
+
+A new order has been placed on Eightplux. Please review and process it.
+
+ORDER DETAILS:
+==============
+Order ID: #${orderId}
+Order Status: ${orderData.orderStatus || 'pending'}
+Payment Status: ${orderData.paymentStatus || 'pending'}
+Payment Method: ${orderData.paymentMethod || 'N/A'}
+Order Date: ${orderData.createdAt ? new Date(orderData.createdAt.seconds ? orderData.createdAt.seconds * 1000 : orderData.createdAt).toLocaleString() : 'Just now'}
+
+ORDER ITEMS:
+============
+${orderData.items.map((item: any) => `
+${item.name}
+Quantity: ${item.quantity} | Size: ${item.size || 'N/A'} | Color: ${item.color || 'N/A'}
+Price: $${item.price}
+`).join('')}
+
+TOTALS:
+=======
+Subtotal: $${orderData.subtotal?.toFixed(2) || '0.00'}
+Shipping: $${orderData.shipping?.toFixed(2) || '0.00'}
+${orderData.discount > 0 ? `Discount: -$${orderData.discount?.toFixed(2)}\n` : ''}
+Total: $${orderData.total?.toFixed(2) || '0.00'}
+
+CUSTOMER DETAILS:
+=================
+Name: ${orderData.shippingAddress?.firstName || ''} ${orderData.shippingAddress?.lastName || ''}
+Email: ${orderData.email || 'N/A'}
+Phone: ${orderData.shippingAddress?.phone || 'N/A'}
+Address: ${orderData.shippingAddress?.address1 || 'N/A'}
+City: ${orderData.shippingAddress?.city || 'N/A'}
+Country: ${orderData.shippingAddress?.country || 'N/A'}
+Postal Code: ${orderData.shippingAddress?.postalCode || 'N/A'}
+
+View Order: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/orders/${orderId}
+
+This is an automated notification from Eightplux.
+© ${new Date().getFullYear()} Eightplux. All rights reserved.
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin new order notification email sent to: ${adminEmail}`);
+  } catch (error) {
+    console.error('Failed to send admin new order notification email:', error);
+  }
+}
+
