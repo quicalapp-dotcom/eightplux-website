@@ -1,12 +1,48 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: '249145777126178',
-  api_secret: 'jnkze2LSAXWgjkDCvMIv50R66b4',
-  secure: true,
-});
+// Configure Cloudinary - support both CLOUDINARY_URL and individual variables
+// The Cloudinary SDK automatically reads CLOUDINARY_URL if set
+// If not, we need to provide individual credentials
+if (!process.env.CLOUDINARY_URL) {
+  // Only set config if CLOUDINARY_URL is not available
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+}
+
+// Validate configuration on module load
+const validateConfig = () => {
+  if (process.env.CLOUDINARY_URL) {
+    console.log('Cloudinary: Using CLOUDINARY_URL');
+    return;
+  }
+  
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  
+  if (!cloudName) {
+    console.error('Cloudinary ERROR: CLOUDINARY_CLOUD_NAME is not set');
+  }
+  if (!apiKey) {
+    console.error('Cloudinary ERROR: CLOUDINARY_API_KEY is not set');
+  }
+  if (!apiSecret) {
+    console.error('Cloudinary ERROR: CLOUDINARY_API_SECRET is not set');
+  }
+  
+  if (cloudName && apiKey && apiSecret) {
+    console.log('Cloudinary: Configured with individual variables');
+  }
+};
+
+// Run validation in non-edge environments
+if (typeof window === 'undefined') {
+  validateConfig();
+}
 
 export interface UploadResult {
   public_id: string;

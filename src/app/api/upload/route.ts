@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 
+// Configure timeout for video uploads (Vercel has a 10s default, video uploads need more)
+export const maxDuration = 60; // Allow up to 60 seconds for large video uploads
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -67,7 +70,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Starting upload:', { mimeType, effectiveResourceType, folder, dataSize: base64Data.length });
+
     const result = await uploadToCloudinary(file, folder, effectiveResourceType as 'image' | 'video');
+
+    console.log('Upload successful:', result.public_id);
 
     return NextResponse.json({
       success: true,
@@ -77,15 +84,32 @@ export async function POST(request: NextRequest) {
     console.error('Upload error:', error);
     
     let errorMessage = 'Upload failed';
+    let errorDetails = '';
+    
     if (error instanceof Error) {
-      // Pass through validation errors from cloudinary.ts
       errorMessage = error.message;
+      errorDetails = error.stack || '';
     }
+    
+    // Check for specific Cloudinary errors
+    if (error && typeof error === 'object') {
+      const err = error as { code?: string; message?: string; http_code?: number };
+      if (err.http_code === 400) {
+        errorMessage = 'Invalid file. Please ensure the video is in a supported format (MP4, WebM, MOV) and try again.';
+      } else if (err.http_code === 401) {
+        errorMessage = 'Cloudinary authentication failed. Please check your API credentials.';
+      } else if (err.http_code === 413) {
+        errorMessage = 'File is too large. Please use a smaller video file.';
+      }
+    }
+    
+    console.error('Upload error details:', errorDetails);
     
     return NextResponse.json(
       { 
         success: false, 
-        error: errorMessage 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
       },
       { status: 500 }
     );
