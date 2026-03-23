@@ -32,6 +32,52 @@ export default function CloudinaryUploader({
   const isVideoUrl = currentUrl ? /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(currentUrl) : false;
   const displayAsVideo = isVideo || isVideoUrl;
 
+  // Upload directly to Cloudinary (bypasses Vercel's payload limit)
+  const uploadDirectToCloudinary = async (file: File, resourceType: 'image' | 'video') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_PRESET || 'eightplux');
+    formData.append('folder', resourceType === 'video' ? 'eightplux/videos' : 'eightplux/images');
+    
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || 'Upload failed');
+    }
+    
+    return await response.json();
+  };
+
+  // Upload via API route (for smaller files like images)
+  const uploadViaApi = async (base64File: string, resourceType: 'image' | 'video') => {
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        file: base64File,
+        folder: resourceType === 'video' ? 'eightplux/videos' : 'eightplux/images',
+        resource_type: resourceType,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || 'Upload failed');
+    }
+    
+    return result.data;
+  };
+
   const handleFileSelect = async (file: File) => {
     setIsUploading(true);
     setError(null);
@@ -43,33 +89,31 @@ export default function CloudinaryUploader({
     }
 
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      const base64File = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // Upload to Cloudinary
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          file: base64File,
-          folder: isVideo ? 'eightplux/videos' : 'eightplux/images',
-          resource_type: isVideo ? 'video' : 'image',
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        onUpload(result.data);
+      const resourceType = displayAsVideo ? 'video' : 'image';
+      
+      // For videos (large files), use direct upload to Cloudinary
+      // For images (smaller files), use the API route
+      let result;
+      if (resourceType === 'video' || file.size > 2 * 1024 * 1024) {
+        // Files > 2MB or videos: upload directly to Cloudinary
+        console.log('Using direct Cloudinary upload for:', file.name, file.size);
+        result = await uploadDirectToCloudinary(file, resourceType);
+        onUpload({
+          secure_url: result.secure_url,
+          public_id: result.public_id,
+          format: result.format,
+        });
       } else {
-        throw new Error(result.error || 'Upload failed');
+        // Smaller files: use API route
+        const reader = new FileReader();
+        const base64File = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        result = await uploadViaApi(base64File, resourceType);
+        onUpload(result);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
