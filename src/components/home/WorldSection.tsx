@@ -13,7 +13,7 @@ interface WorldSectionProps {
 const DEFAULT_IMAGE = '/community.gif';
 const DEFAULT_TITLE = 'the Stage is yours';
 const DEFAULT_SUBTITLE = 'tag us to be featured in the collective';
-const DEFAULT_BUTTON = { text: 'explore', href: '/shop' };
+const DEFAULT_BUTTON = { text: 'explore', href: '/campaigns' };
 
 export default function WorldSection({ image }: WorldSectionProps) {
   const [worldData, setWorldData] = useState<WorldSectionData | null>(null);
@@ -31,7 +31,7 @@ export default function WorldSection({ image }: WorldSectionProps) {
   
   const button = worldData?.buttonCollectionId
     ? { text: worldData.buttonText || DEFAULT_BUTTON.text, href: `/shop/collections/${worldData.buttonCollectionId}` }
-    : { text: worldData?.buttonText || DEFAULT_BUTTON.text, href: '/shop' };
+    : { text: worldData?.buttonText || DEFAULT_BUTTON.text, href: '/campaigns' };
 
   // Auto-detect if mediaUrl is a video
   const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);

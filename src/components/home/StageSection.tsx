@@ -12,7 +12,7 @@ interface StageSectionProps {
 // Default fallback data
 const DEFAULT_IMAGE = '/definend.jpg';
 const DEFAULT_TITLE = 'Define your statement';
-const DEFAULT_BUTTON = { text: 'explore', href: '/shop' };
+const DEFAULT_BUTTON = { text: 'explore', href: '/campaigns' };
 
 export default function StageSection({ image }: StageSectionProps) {
   const [stageData, setStageData] = useState<StageSectionData | null>(null);
