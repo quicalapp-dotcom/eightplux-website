@@ -1,3 +1,4 @@
+// This file is server-side only and should not be imported from client components
 import admin from "firebase-admin";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 

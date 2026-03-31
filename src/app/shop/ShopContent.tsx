@@ -39,7 +39,9 @@ export function ShopContent() {
     useEffect(() => {
         const unsubscribeProducts = subscribeToProducts((prods) => {
             console.log('[ShopContent] Products loaded:', prods.length);
-            console.log('[ShopContent] Sample product:', prods[0]?.id, prods[0]?.name, prods[0]?.collectionId);
+            if (prods.length > 0) {
+                console.log('[ShopContent] Sample product:', prods[0]?.id, prods[0]?.name, 'slug:', prods[0]?.slug, 'subCollectionId:', prods[0]?.subCollectionId);
+            }
             setProducts(prods);
         });
         const unsubscribeSubCollections = subscribeToSubCollections((subs) => {
@@ -48,7 +50,6 @@ export function ShopContent() {
         });
         const unsubscribeCollections = subscribeToCollections((cols) => {
             console.log('[ShopContent] Collections loaded:', cols.length);
-            console.log('[ShopContent] Collections superCollection values:', cols.map(c => ({ name: c.name, superCollection: c.superCollection, id: c.id })));
             setCollections(cols);
         });
 
@@ -79,11 +80,17 @@ export function ShopContent() {
             }
         }
 
-        // Super Collection filter - check product's collection superCollection
+        // Super Collection filter - check product's subCollection -> collection -> superCollection
         if (selectedSuperCollection !== 'all') {
-            const productCollection = collections.find(c => c.id === product.collectionId);
-            console.log('[Shop Filter] Product:', product.name, '| collectionId:', product.collectionId, '| productCollection:', productCollection?.name, '| productCollection.superCollection:', productCollection?.superCollection, '| selectedSuperCollection:', selectedSuperCollection, '| passes:', !!productCollection && productCollection.superCollection === selectedSuperCollection);
-            if (!productCollection || productCollection.superCollection !== selectedSuperCollection) {
+            // Find the subCollection for this product
+            const productSubCollection = subCollections.find(sc => sc.id === product.subCollectionId);
+            if (!productSubCollection) {
+                // Products without subCollection won't show when filtering by superCollection
+                return false;
+            }
+            // Find the parent collection
+            const parentCollection = collections.find(c => c.id === productSubCollection.collectionId);
+            if (!parentCollection || parentCollection.superCollection !== selectedSuperCollection) {
                 return false;
             }
         }
