@@ -208,6 +208,28 @@ export function ShopContent() {
                     {/* Sidebar Filters (Right) */}
                     <aside className="w-full lg:w-72 shrink-0 order-1 lg:order-2">
                         <div className="sticky top-[120px] space-y-12">
+                            {/* Super Collection Filter */}
+                            <div className="space-y-4">
+                                <button
+                                    onClick={() => setSelectedSuperCollection('all')}
+                                    className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'all' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                >
+                                    All <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'all' ? 'rotate-45' : ''}`}>+</span>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedSuperCollection('casual')}
+                                    className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'casual' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                >
+                                    Casual <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'casual' ? 'rotate-45' : ''}`}>+</span>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedSuperCollection('sport')}
+                                    className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'sport' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                >
+                                    Sport <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'sport' ? 'rotate-45' : ''}`}>+</span>
+                                </button>
+                            </div>
+
                             {/* Category / Gender Filter */}
                             <div className="space-y-4">
                                 <button

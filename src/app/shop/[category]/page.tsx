@@ -17,10 +17,11 @@ export default function CategoryPage() {
     const router = useRouter();
     const category = params.category as string;
     const { formatPrice } = useCurrencyStore();
-    
+
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
     const [tempSelectedCollections, setTempSelectedCollections] = useState<string[]>([]);
+    const [selectedSuperCollection, setSelectedSuperCollection] = useState<'all' | 'casual' | 'sport'>('all');
     const [priceRange, setPriceRange] = useState(2000);
     const [tempPriceRange, setTempPriceRange] = useState(2000);
     const [products, setProducts] = useState<Product[]>([]);
@@ -35,17 +36,17 @@ export default function CategoryPage() {
         const unsubscribeProducts = subscribeToProducts((prods) => {
             console.log('All products:', prods);
             console.log('Filtering for category:', category);
-            
+
             // Filter products by category (including unisex products in male/female categories)
-            const filtered = prods.filter(p => 
+            const filtered = prods.filter(p =>
                 p.category === category || (category !== 'all' && p.category === 'unisex')
             );
-            
+
             console.log('Filtered products:', filtered);
             setProducts(filtered);
             setLoading(false);
         });
-        
+
         const unsubscribeCollections = subscribeToCollections((cols) => {
             // Filter collections (we'll show all active collections since super collections are now used)
             const filtered = cols.filter(c => c.isActive);
@@ -61,12 +62,21 @@ export default function CategoryPage() {
     const clearFilters = () => {
         setSelectedCollections([]);
         setTempSelectedCollections([]);
+        setSelectedSuperCollection('all');
         setPriceRange(2000);
         setTempPriceRange(2000);
     };
 
     // Filter products based on selections
     const productsToDisplay = products.filter(product => {
+        // Super Collection filter
+        if (selectedSuperCollection !== 'all') {
+            const productCollection = collections.find(c => c.id === product.collectionId);
+            if (!productCollection || productCollection.superCollection !== selectedSuperCollection) {
+                return false;
+            }
+        }
+
         // Collection filter
         if (selectedCollections.length > 0 && !selectedCollections.includes(product.collectionId || '')) {
             return false;
@@ -103,7 +113,7 @@ export default function CategoryPage() {
                 <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
                     {/* Back Button & Title */}
                     <div className="mb-12">
-                        <button 
+                        <button
                             onClick={() => router.push('/shop')}
                             className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-gray-400 hover:text-black mb-6"
                         >
@@ -146,7 +156,7 @@ export default function CategoryPage() {
                                 ) : productsToDisplay.length > 0 ? (
                                     productsToDisplay.map((product) => (
                                         <div key={product.id} className="group cursor-pointer">
-                                            <Link href={`/shop/${product.slug}`} className="block">
+                                            <Link href={`/shop/product/${product.slug}`} className="block">
                                                 <div className="relative aspect-[3/4] mb-6 bg-[#F6F6F6] overflow-hidden">
                                                     <Image
                                                         src={product.images[0]}
@@ -188,7 +198,7 @@ export default function CategoryPage() {
                                 ) : (
                                     <div className="col-span-full py-20 text-center">
                                         <p className="text-gray-400 uppercase tracking-widest text-xs mb-4">No products found</p>
-                                        <button 
+                                        <button
                                             onClick={clearFilters}
                                             className="text-[10px] uppercase font-bold tracking-widest border-b border-black pb-1 hover:opacity-50"
                                         >
@@ -211,6 +221,28 @@ export default function CategoryPage() {
                         {/* Sidebar Filters */}
                         <aside className="w-full lg:w-72 shrink-0 order-1 lg:order-2">
                             <div className="sticky top-[120px] space-y-12">
+                                {/* Super Collection Filter */}
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => setSelectedSuperCollection('all')}
+                                        className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'all' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                    >
+                                        All <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'all' ? 'rotate-45' : ''}`}>+</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedSuperCollection('casual')}
+                                        className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'casual' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                    >
+                                        Casual <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'casual' ? 'rotate-45' : ''}`}>+</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedSuperCollection('sport')}
+                                        className={`w-full flex justify-between items-center text-xs font-bold uppercase tracking-[0.2em] border-t pt-6 group transition-colors ${selectedSuperCollection === 'sport' ? 'border-black' : 'border-gray-100 text-gray-400'}`}
+                                    >
+                                        Sport <span className={`text-xl font-light transition-transform ${selectedSuperCollection === 'sport' ? 'rotate-45' : ''}`}>+</span>
+                                    </button>
+                                </div>
+
                                 {/* Collections Filter */}
                                 <div className="border-t border-gray-100 pt-10">
                                     <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Collections</h4>
