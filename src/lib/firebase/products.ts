@@ -1,22 +1,29 @@
 
 import { db } from './config';
-import { collection, doc, getDoc, getDocs, query, where, onSnapshot, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Product } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
 import { getNotifyMeRequestsByProduct, markNotifyMeRequestsAsNotified } from './notifyMe';
 
 /**
  * Subscribe to all products (real-time)
+ * Note: Uses unordered query to avoid Firestore index requirements
  */
 export const subscribeToProducts = (
   callback: (products: Product[]) => void
 ): Unsubscribe => {
-  const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+  const q = query(collection(db, 'products'));
   return onSnapshot(q, (snapshot) => {
     const products = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }) as Product);
+    // Sort client-side by createdAt if available
+    products.sort((a, b) => {
+      const aTime = a.createdAt?.seconds ? a.createdAt.seconds : 0;
+      const bTime = b.createdAt?.seconds ? b.createdAt.seconds : 0;
+      return bTime - aTime;
+    });
     callback(products);
   }, (error) => {
     console.error('Error subscribing to products:', error);

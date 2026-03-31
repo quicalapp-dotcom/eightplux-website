@@ -11,8 +11,8 @@ export default function Footer() {
             <ul className="space-y-4 text-[10px] font-medium opacity-80 uppercase tracking-widest">
               <li><Link href="/" className="hover:opacity-100 transition-opacity">Home</Link></li>
               <li><Link href="/shop" className="hover:opacity-100 transition-opacity">Shop</Link></li>
-              <li><Link href="/campaign" className="hover:opacity-100 transition-opacity">Campaign</Link></li>
-              <li><Link href="/world-of-8" className="hover:opacity-100 transition-opacity">The World of 8+</Link></li>
+              <li><Link href="/new-releases" className="hover:opacity-100 transition-opacity">New Releases</Link></li>
+              <li><Link href="/world" className="hover:opacity-100 transition-opacity">The World of 8+</Link></li>
             </ul>
           </div>
 
@@ -20,10 +20,10 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-black uppercase mb-8 tracking-widest">MENU</h3>
             <ul className="space-y-4 text-[10px] font-medium opacity-80 uppercase tracking-widest">
-              <li><Link href="/about" className="hover:opacity-100 transition-opacity">About Us</Link></li>
               <li><Link href="/contact" className="hover:opacity-100 transition-opacity">Contact Us</Link></li>
               <li><Link href="/account" className="hover:opacity-100 transition-opacity">My Account</Link></li>
-              <li><Link href="/login" className="hover:opacity-100 transition-opacity">Login</Link></li>
+              <li><Link href="/signup" className="hover:opacity-100 transition-opacity">Sign Up</Link></li>
+              <li><Link href="/signup" className="hover:opacity-100 transition-opacity">Sign Up</Link></li>
             </ul>
           </div>
 
