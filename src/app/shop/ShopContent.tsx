@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { Product, SubCollection } from '@/types';
+import { Product, SubCollection, Collection } from '@/types';
 import { subscribeToProducts } from '@/lib/firebase/products';
 import { subscribeToSubCollections } from '@/lib/firebase/subCollections';
+import { subscribeToCollections } from '@/lib/firebase/collections';
 import { useCurrencyStore } from '@/stores/currencyStore';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
@@ -19,7 +20,7 @@ export function ShopContent() {
     const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
     const [tempSelectedCollections, setTempSelectedCollections] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<'all' | 'male' | 'female'>('all');
-     const [selectedSuperCollection, setSelectedSuperCollection] = useState<'all' | 'casual' | 'sport'>(
+    const [selectedSuperCollection, setSelectedSuperCollection] = useState<'all' | 'casual' | 'sport'>(
         searchParams.get('superCollection') as 'casual' | 'sport' || 'all'
     );
 
@@ -32,15 +33,18 @@ export function ShopContent() {
     const [tempPriceRange, setTempPriceRange] = useState(2000);
     const [products, setProducts] = useState<Product[]>([]);
     const [subCollections, setSubCollections] = useState<SubCollection[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
 
     // Fetch real-time data
     useEffect(() => {
         const unsubscribeProducts = subscribeToProducts(setProducts);
         const unsubscribeSubCollections = subscribeToSubCollections(setSubCollections);
+        const unsubscribeCollections = subscribeToCollections(setCollections);
 
         return () => {
             unsubscribeProducts();
             unsubscribeSubCollections();
+            unsubscribeCollections();
         };
     }, []);
 
@@ -52,19 +56,8 @@ export function ShopContent() {
         setTempPriceRange(2000);
     };
 
-
-    const fallbackProducts: Product[] = [
-        { id: '1', name: 'Waistcoat with Pockets', slug: 'waistcoat-pockets', price: 49.90, fabric: 'Technical', images: ['/Model1.jpg'], colors: [{name: 'Black', hex: '#000'}], isNew: true, isBestSeller: false, isSale: false, category: 'female', collectionId: '1', currency: 'USD', description: '', inventory: 10, sizes: ['S', 'M', 'L'], tags: [], gender: 'female', createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', name: 'Silk Trouser', slug: 'silk-trouser', price: 110.00, fabric: 'Silk', images: ['/lg.jpg'], colors: [{name: 'Navy', hex: '#1e3a5f'}], isNew: false, isBestSeller: true, isSale: false, category: 'female', collectionId: '1', currency: 'USD', description: '', inventory: 5, sizes: ['M', 'L'], tags: [], gender: 'female', createdAt: new Date(), updatedAt: new Date() },
-        { id: '3', name: 'Derby Boot', slug: 'derby-boot', price: 135.00, fabric: 'Leather', images: ['/Model2.jpg'], colors: [{name: 'Brown', hex: '#4b3621'}], isNew: true, isBestSeller: false, isSale: false, category: 'male', collectionId: '2', currency: 'USD', description: '', inventory: 8, sizes: ['42', '43'], tags: [], gender: 'male', createdAt: new Date(), updatedAt: new Date() },
-        { id: '4', name: 'Unisex Hoodie', slug: 'unisex-hoodie', price: 79.90, fabric: 'Cotton', images: ['/Model3.jpg'], colors: [{name: 'Gray', hex: '#808080'}], isNew: true, isBestSeller: true, isSale: false, category: 'unisex', collectionId: '3', currency: 'USD', description: '', inventory: 15, sizes: ['S', 'M', 'L', 'XL'], tags: [], gender: 'unisex', createdAt: new Date(), updatedAt: new Date() },
-    ];
-
-    // Determine which data to use
-    const baseProducts = products.length > 0 ? products : fallbackProducts;
-
     // Filter products based on selections
-    const productsToDisplay = baseProducts.filter(product => {
+    const productsToDisplay = products.filter(product => {
         // Category filter (Male/Female/Unisex)
         if (selectedCategory !== 'all') {
             // Unisex products appear in both male and female categories
@@ -75,13 +68,11 @@ export function ShopContent() {
             }
         }
 
-        // Super Collection filter - now uses subCollection -> parent collection relationship
+        // Super Collection filter - check product's collection superCollection
         if (selectedSuperCollection !== 'all') {
-            const productSubCollection = subCollections.find(sc => sc.id === product.subCollectionId);
-            if (productSubCollection) {
-                // Need to get the parent collection and check its superCollection
-                // For now, we'll skip this filter since we don't have direct access to collections
-                // In a real implementation, you'd fetch collections and check
+            const productCollection = collections.find(c => c.id === product.collectionId);
+            if (!productCollection || productCollection.superCollection !== selectedSuperCollection) {
+                return false;
             }
         }
 

@@ -6,7 +6,7 @@ import { getApps, initializeApp, cert } from "firebase-admin/app";
 if (!getApps().length) {
   initializeApp({
     credential: cert({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Paystack initialization request body:', body);
     const { email, orderId, amount } = body;
-    
+
     // Validate required fields
     if (!email || !orderId || !amount) {
       console.error('Missing required fields:', { email, orderId, amount });
@@ -26,39 +26,74 @@ export async function POST(request: Request) {
     }
 
     // Fetch order from database to get the actual amount
-    // Get user from Firebase Auth (you need to implement your own authentication logic here)
-    // For now, let's assume we have the user's ID from the request
     const userId = request.headers.get('x-user-id');
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-     // Fetch order from database to get the actual amount
-     const ordersRef = admin.firestore().collection('orders');
-     const orderQuery = ordersRef.where('orderId', '==', orderId).limit(1);
-     const orderSnapshot = await orderQuery.get();
-     
-     let orderData;
-     let orderAmount;
-     let orderRef;
-     if (orderSnapshot.empty) {
-       // If order doesn't exist, return error instead of creating a temporary one
-       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-     } else {
-       const orderDoc = orderSnapshot.docs[0];
-       orderRef = orderDoc.ref;
-       orderData = orderDoc.data();
-       if (!orderData) {
-         return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
-       }
+    // Fetch order from database to get the actual amount
+    console.log('Searching for order with orderId:', orderId);
+    const ordersRef = admin.firestore().collection('orders');
+    
+    // Try querying by orderId field first
+    const orderQuery = ordersRef.where('orderId', '==', orderId).limit(1);
+    const orderSnapshot = await orderQuery.get();
 
-       // Check if user is the owner of the order
-       if (orderData.userId !== userId) {
-         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-       }
-       orderAmount = orderData.total;
-     }
+    console.log('Order snapshot empty:', orderSnapshot.empty);
+    console.log('Order snapshot size:', orderSnapshot.size);
+
+    let orderData;
+    let orderAmount;
+    let orderRef;
+    if (orderSnapshot.empty) {
+      // If not found by orderId, try getting all recent orders and filter manually
+      console.log('orderId query returned empty, trying alternative approach...');
+      
+      // Get all orders and filter client-side (for debugging)
+      const allOrdersQuery = ordersRef.orderBy('createdAt', 'desc').limit(20);
+      const allOrdersSnapshot = await allOrdersQuery.get();
+      
+      console.log('Total recent orders fetched:', allOrdersSnapshot.size);
+      
+      const recentOrders = allOrdersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        orderId: doc.data().orderId,
+        createdAt: doc.data().createdAt,
+        userId: doc.data().userId
+      }));
+      console.log('Recent orders in database:', recentOrders);
+      
+      // Check if any order matches
+      const matchingOrder = allOrdersSnapshot.docs.find(doc => doc.data().orderId === orderId);
+      if (matchingOrder) {
+        console.log('Found matching order via manual search:', matchingOrder.id);
+        orderRef = matchingOrder.ref;
+        orderData = matchingOrder.data();
+        orderAmount = orderData.total;
+      } else {
+        return NextResponse.json({ 
+          error: 'Order not found', 
+          searchedOrderId: orderId,
+          recentOrders 
+        }, { status: 404 });
+      }
+    } else {
+      const orderDoc = orderSnapshot.docs[0];
+      orderRef = orderDoc.ref;
+      orderData = orderDoc.data();
+      console.log('Found order:', { id: orderDoc.id, orderId: orderData.orderId, total: orderData.total });
+      
+      if (!orderData) {
+        return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
+      }
+
+      // Check if user is the owner of the order
+      if (orderData.userId !== userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      orderAmount = orderData.total;
+    }
 
     // Amount is always in USD, convert to NGN for Paystack
     const paystackCurrency = 'NGN';
@@ -156,4 +191,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
 

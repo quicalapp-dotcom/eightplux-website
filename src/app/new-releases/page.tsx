@@ -29,63 +29,8 @@ export default function NewReleasesPage() {
         fetchProducts();
     }, []);
 
-    // Fallback data
-    const fallbackProducts: Product[] = [
-        {
-            id: '1',
-            name: 'Silk Trouser',
-            slug: 'silk-trouser',
-            price: 1100,
-            fabric: 'Relaxed Fit',
-            images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuAjRiiwapBhxLMrAoy6_1_ft9UvkdAm5Mba_9mNSHQ2dITghsQKqOJGc5Yz-k27QHeujR-PMinyiaW6CSzleoGwZOJoc3fxsUuuD5BEQiO3ZbWjUkC5cvGEa70eD68werBr2UNC5IKZZBV1i5J8QCHwAxpORlYCA354Uomh775PyM68nrV7VtZy-kZxAIq1oL6Bln6dGzxVTniWYX0W1nreaXMWHzjFMHpnml2gBnHusI4NZTeVt9aYV3KzKdu5X2fkCPHqu1QxPQ4H',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuArdfgsNIMQMstJ0ysu6C0rVRpYRrwMkx-6YicV9P_Rc4k14KjpvQylNHxYJIMPfvszdg4s1ELWqLmWJVcyv2sDtWLvZLgB9sbEntPDjTmaw60sFSlqkIcJ044MXHGBoRkgcbrJuTJN6aIS0jSLW07_aRI51pmLKPeSHi9IWEQ5EjtwLGaJVhGnYaBItypAETA6DMiBvGP95_8U6WXgaAxReyxnw9vatAYAlXaSRdHtwGsOJlQkGWAIF5nxPkvvaOVCHYOGNEw5ySJL',
-            ],
-            colors: [{ name: 'Black', hex: '#000000' }, { name: 'Gray', hex: '#808080' }],
-            isNew: true,
-            isBestSeller: false,
-            isSale: false,
-            compareAtPrice: undefined,
-            category: 'female',
-            collectionId: '1',
-            currency: 'USD',
-            description: 'Silk relaxed fit trouser',
-            inventory: 15,
-            sizes: ['XS', 'S', 'M', 'L', 'XL'],
-            tags: [],
-            gender: 'female',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
-        {
-            id: '2',
-            name: 'Cashmere Hoodie',
-            slug: 'cashmere-hoodie',
-            price: 890,
-            fabric: 'Heavyweight',
-            images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBNeyDlUVN6w-FKkFf-2zfd-6-LuBw3hDphS9Jye5bUQsP0puwsWV56Xu2dyeeGo2nKpW2Qbt3hMVLd2tG_VNEb9xvelpPtBEOo412-vn-dgYM4tNtGcyQKnGIZTxIiCNHqq6PAwRlX9Yp80cyy1pHGiMzeVKGIxEJHkEGwnpY7AILbfBBb3LUnf-9nfXP540V8AzP0655BRWltZPR6bit3rc1l6AOFKCHU7aaPkxKE9C8VMzD-YyNATgdmnw1ViWbbEsIaVPF98wZf',
-            ],
-            colors: [{ name: 'Gray', hex: '#808080' }],
-            isNew: true,
-            isBestSeller: true,
-            isSale: false,
-            compareAtPrice: undefined,
-            category: 'male',
-            collectionId: '2',
-            currency: 'USD',
-            description: 'Heavyweight cashmere hoodie',
-            inventory: 8,
-            sizes: ['S', 'M', 'L', 'XL'],
-            tags: [],
-            gender: 'unisex',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
-    ];
-
-    const displayProducts = products.length > 0 ? products : fallbackProducts;
+    // Display products from Firebase only
+    const displayProducts = products;
 
     return (
         <div className="bg-white dark:bg-[#0F0F0F] text-black dark:text-gray-100">

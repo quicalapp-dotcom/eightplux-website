@@ -456,7 +456,7 @@ export async function sendOrderStatusEmail({
 }: {
   to: string;
   orderId: string;
-  status: 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   trackingNumber?: string;
 }): Promise<void> {
   const transporter = getTransporter();
@@ -471,6 +471,11 @@ export async function sendOrderStatusEmail({
       statusText = 'Order Confirmed! ✓';
       statusIcon = '✓';
       break;
+    case 'processing':
+      subject = `Order Processing - #${orderId}`;
+      statusText = 'Order is being processed! 📦';
+      statusIcon = '📦';
+      break;
     case 'shipped':
       subject = `Order Shipped - #${orderId}`;
       statusText = 'Order Shipped! 🚚';
@@ -478,8 +483,8 @@ export async function sendOrderStatusEmail({
       break;
     case 'delivered':
       subject = `Order Delivered - #${orderId}`;
-      statusText = 'Order Delivered! 📦';
-      statusIcon = '📦';
+      statusText = 'Order Delivered! 🎉';
+      statusIcon = '🎉';
       break;
     case 'cancelled':
       subject = `Order Cancelled - #${orderId}`;

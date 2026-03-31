@@ -93,14 +93,7 @@ export const useCurrencyStore = create<CurrencyState>()(
             formatPrice: (price: number) => {
                 const { currency, exchangeRate } = get();
                 const convertedPrice = currency === 'NGN' ? price * exchangeRate : price;
-                
-                console.log('Price conversion:', {
-                    originalPrice: price,
-                    currency,
-                    exchangeRate,
-                    convertedPrice,
-                });
-                
+
                 if (currency === 'NGN') {
                     return `₦${convertedPrice.toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                 }
@@ -110,14 +103,7 @@ export const useCurrencyStore = create<CurrencyState>()(
             convertPrice: (price: number) => {
                 const { currency, exchangeRate } = get();
                 const convertedPrice = currency === 'NGN' ? price * exchangeRate : price;
-                
-                console.log('Convert price:', {
-                    originalPrice: price,
-                    currency,
-                    exchangeRate,
-                    convertedPrice,
-                });
-                
+
                 return convertedPrice;
             },
         }),

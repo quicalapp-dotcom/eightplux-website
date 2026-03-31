@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCurrencyStore } from "@/stores/currencyStore";
 import { useCartStore } from "@/stores/cartStore";
-import { collection, doc, setDoc, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 
 interface PaystackButtonProps {
@@ -20,7 +20,7 @@ export default function PaystackButton({ email, amount, orderId, userId, formDat
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrencyStore();
   const { items, getSubtotal, clearCart } = useCartStore();
-  
+
   console.log('PaystackButton props:', {
     email,
     amount,
@@ -69,35 +69,62 @@ export default function PaystackButton({ email, amount, orderId, userId, formDat
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
-    
-    // Update product inventory
-    for (const item of items) {
-      const productRef = doc(db, 'products', item.productId);
-      const productDoc = await getDoc(productRef);
-      
-      if (productDoc.exists()) {
-        const productData = productDoc.data();
-        const newInventory = (productData.inventory || 0) - item.quantity;
-        await updateDoc(productRef, {
-          inventory: newInventory,
-          updatedAt: serverTimestamp()
-        });
+
+    console.log('Creating order with data:', orderData);
+
+    try {
+      // Update product inventory
+      for (const item of items) {
+        const productRef = doc(db, 'products', item.productId);
+        const productDoc = await getDoc(productRef);
+
+        if (productDoc.exists()) {
+          const productData = productDoc.data();
+          const newInventory = (productData.inventory || 0) - item.quantity;
+          await updateDoc(productRef, {
+            inventory: newInventory,
+            updatedAt: serverTimestamp()
+          });
+          console.log(`Updated inventory for product ${item.productId}: ${newInventory}`);
+        } else {
+          console.warn(`Product ${item.productId} not found`);
+        }
       }
+
+      await setDoc(orderRef, orderData);
+      console.log('Order successfully saved to Firestore with ID:', orderRef.id);
+      return { firestoreOrderId: orderRef.id, orderData };
+    } catch (error) {
+      console.error('Failed to create order:', error);
+      throw error;
     }
-    
-    await setDoc(orderRef, orderData);
-    return { firestoreOrderId: orderRef.id, orderData };
   };
 
   const handlePay = async () => {
     setLoading(true);
 
     try {
-      // First, create the order in Firestore using the same method as Now Payments
+      // First, create the order in Firestore
       const ref = 'PAYSTACK-' + Date.now();
       const { firestoreOrderId, orderData } = await finalizeOrder(ref, 'pending');
 
+      console.log('Order created with firestoreOrderId:', firestoreOrderId, 'and orderId:', orderData.orderId);
+
+      // Send admin notification email for new order (even before payment is confirmed)
+      // Don't wait for this to complete - fire and forget
+      fetch(`/api/orders/${firestoreOrderId}/admin-notify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(res => console.log('Admin notify response:', res.status))
+        .catch(err => console.error('Failed to send admin notification:', err));
+
+      // Wait a moment to ensure Firestore has committed the write
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Then, call the Paystack API to initialize payment
+      console.log('Calling Paystack initialize with orderId:', orderData.orderId);
       const res = await fetch("/api/payments/paystack/initialize", {
         method: "POST",
         headers: {
@@ -119,7 +146,7 @@ export default function PaystackButton({ email, amount, orderId, userId, formDat
         window.location.href = data.authorization_url;
       } else {
         console.error('No authorization URL in response:', data);
-        alert('Payment initialization failed. Please try again.');
+        alert('Payment initialization failed. Please try again. Error: ' + (data.error || 'Unknown error'));
       }
 
     } catch (error) {

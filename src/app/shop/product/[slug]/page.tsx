@@ -15,30 +15,6 @@ import { Product, ProductColor } from '@/types';
 import WorldSection from '@/components/home/WorldSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
-const mockProduct: Product = {
-    id: 'mock-1',
-    name: 'Waistcoat with Pockets',
-    slug: 'waistcoat-pockets',
-    price: 49.90,
-    fabric: 'Technical',
-    images: ['/Model1.jpg', '/Model2.jpg', '/Model3.jpg'],
-    colors: [{ name: 'Black', hex: '#000000' }, { name: 'Grey', hex: '#808080' }],
-    isNew: true,
-    isBestSeller: false,
-    isSale: false,
-    category: 'female',
-    collectionId: 'mock-collection',
-    currency: 'USD',
-    description: 'Round neck waistcoat featuring front welt pockets, contrast trims, a pleat in the back and metal appliqué fastening in the front.',
-    inventory: 10,
-    sizes: ['S', 'M', 'L'],
-    tags: [],
-    gender: 'female',
-    createdAt: new Date(),
-    updatedAt: new Date()
-};
-
-
 export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -65,10 +41,6 @@ export default function ProductDetailPage() {
                     if (fetchedProduct.colors.length > 0) {
                         setSelectedColor(fetchedProduct.colors[0]);
                     }
-                } else {
-                    // Use mock product as fallback if not found in DB
-                    setProduct(mockProduct);
-                    setSelectedColor(mockProduct.colors[0]);
                 }
             } catch (error) {
                 console.error('Error fetching product:', error);
