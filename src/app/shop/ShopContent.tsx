@@ -37,9 +37,20 @@ export function ShopContent() {
 
     // Fetch real-time data
     useEffect(() => {
-        const unsubscribeProducts = subscribeToProducts(setProducts);
-        const unsubscribeSubCollections = subscribeToSubCollections(setSubCollections);
-        const unsubscribeCollections = subscribeToCollections(setCollections);
+        const unsubscribeProducts = subscribeToProducts((prods) => {
+            console.log('[ShopContent] Products loaded:', prods.length);
+            console.log('[ShopContent] Sample product:', prods[0]?.id, prods[0]?.name, prods[0]?.collectionId);
+            setProducts(prods);
+        });
+        const unsubscribeSubCollections = subscribeToSubCollections((subs) => {
+            console.log('[ShopContent] Sub-collections loaded:', subs.length);
+            setSubCollections(subs);
+        });
+        const unsubscribeCollections = subscribeToCollections((cols) => {
+            console.log('[ShopContent] Collections loaded:', cols.length);
+            console.log('[ShopContent] Collections superCollection values:', cols.map(c => ({ name: c.name, superCollection: c.superCollection, id: c.id })));
+            setCollections(cols);
+        });
 
         return () => {
             unsubscribeProducts();
@@ -71,6 +82,7 @@ export function ShopContent() {
         // Super Collection filter - check product's collection superCollection
         if (selectedSuperCollection !== 'all') {
             const productCollection = collections.find(c => c.id === product.collectionId);
+            console.log('[Shop Filter] Product:', product.name, '| collectionId:', product.collectionId, '| productCollection:', productCollection?.name, '| productCollection.superCollection:', productCollection?.superCollection, '| selectedSuperCollection:', selectedSuperCollection, '| passes:', !!productCollection && productCollection.superCollection === selectedSuperCollection);
             if (!productCollection || productCollection.superCollection !== selectedSuperCollection) {
                 return false;
             }

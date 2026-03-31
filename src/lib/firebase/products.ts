@@ -1,9 +1,22 @@
-
 import { db } from './config';
-import { collection, doc, getDoc, getDocs, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { Product } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
 import { getNotifyMeRequestsByProduct, markNotifyMeRequestsAsNotified } from './notifyMe';
+
+/**
+ * Get timestamp in milliseconds from a Date or Firestore Timestamp
+ */
+const getTimeMs = (date: Date | Timestamp | undefined | null): number => {
+  if (!date) return 0;
+  if (date instanceof Timestamp) {
+    return date.seconds * 1000 + date.nanoseconds / 1e6;
+  }
+  if (date instanceof Date) {
+    return date.getTime();
+  }
+  return 0;
+};
 
 /**
  * Subscribe to all products (real-time)
@@ -20,9 +33,7 @@ export const subscribeToProducts = (
     }) as Product);
     // Sort client-side by createdAt if available
     products.sort((a, b) => {
-      const aTime = a.createdAt?.seconds ? a.createdAt.seconds : 0;
-      const bTime = b.createdAt?.seconds ? b.createdAt.seconds : 0;
-      return bTime - aTime;
+      return getTimeMs(b.createdAt) - getTimeMs(a.createdAt);
     });
     callback(products);
   }, (error) => {
