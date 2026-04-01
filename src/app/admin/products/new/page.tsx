@@ -79,10 +79,18 @@ export default function NewProductPage() {
         setLoading(true);
 
         try {
+            // Generate slug: lowercase, replace spaces and special chars with hyphens
+            const generateSlug = (name: string) => {
+                return name
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')  // Replace any non-alphanumeric chars with hyphen
+                    .replace(/^-+|-+$/g, '');     // Remove leading/trailing hyphens
+            };
+
             // Prepare Data
             const productData = {
                 name: formData.name,
-                slug: formData.name.toLowerCase().replace(/ /g, '-'),
+                slug: generateSlug(formData.name),
                 description: formData.description,
                 price: parseFloat(formData.price),
                 category: formData.category as 'male' | 'female' | 'unisex',

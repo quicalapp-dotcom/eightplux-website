@@ -18,7 +18,8 @@ import NewsletterSection from '@/components/home/NewsletterSection';
 export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const slug = params.slug as string;
+    // Decode the slug to handle any URL-encoded characters
+    const slug = params.slug ? decodeURIComponent(params.slug as string) : '';
     const { formatPrice } = useCurrencyStore();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);

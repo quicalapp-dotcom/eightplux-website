@@ -113,10 +113,19 @@ export const getProductBySlug = async (slug: string): Promise<Product | null> =>
     const q = query(productsCol, where('slug', '==', slug));
     const snapshot = await getDocs(q);
 
+    console.log('[getProductBySlug] Looking for slug:', slug);
+    console.log('[getProductBySlug] Found:', snapshot.empty ? 'none' : snapshot.docs[0].id);
+    
     if (!snapshot.empty) {
         const doc = snapshot.docs[0];
-        return { id: doc.id, ...doc.data() } as Product;
+        const product = { id: doc.id, ...doc.data() } as Product;
+        console.log('[getProductBySlug] Product found:', product.name, 'slug in DB:', product.slug);
+        return product;
     } else {
+        // Debug: log all slugs in the database
+        const allProductsSnapshot = await getDocs(productsCol);
+        const allSlugs = allProductsSnapshot.docs.map(d => ({ id: d.id, slug: d.data().slug, name: d.data().name }));
+        console.log('[getProductBySlug] All slugs in DB:', allSlugs);
         return null;
     }
 };
