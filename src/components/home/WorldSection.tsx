@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToWorldSection } from '@/lib/firebase/homepage-sections';
-import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
+import { getCollectionSlugById } from '@/lib/firebase/collections';
 import { WorldSectionData } from '@/types';
 
 interface WorldSectionProps {
@@ -27,7 +27,7 @@ export default function WorldSection({ image }: WorldSectionProps) {
     const unsubscribe = subscribeToWorldSection(async (data) => {
       if (data) {
         const buttonSlug = data.buttonCollectionId 
-          ? await getSubCollectionSlugById(data.buttonCollectionId) 
+          ? await getCollectionSlugById(data.buttonCollectionId) 
           : null;
         setWorldData({ ...data, buttonSlug });
       } else {

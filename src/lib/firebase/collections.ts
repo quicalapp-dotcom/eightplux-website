@@ -35,6 +35,18 @@ export const getCollectionById = async (id: string): Promise<Collection | null> 
   }
 };
 
+
+// Get collection slug by ID
+export const getCollectionSlugById = async (id: string): Promise<string | null> => {
+  try {
+    const collection = await getCollectionById(id);
+    return collection?.slug || null;
+  } catch (error) {
+    console.error('Error getting collection slug by ID:', error);
+    return null;
+  }
+};
+
 // Update collection
 export const updateCollection = async (id: string, data: Partial<Collection>): Promise<void> => {
   const docRef = doc(db, 'collections', id);

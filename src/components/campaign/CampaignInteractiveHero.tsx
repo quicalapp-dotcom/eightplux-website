@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToCampaignInteractiveHero } from '@/lib/firebase/campaign-sections';
-import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
+import { getCollectionSlugById } from '@/lib/firebase/collections';
 import { CampaignInteractiveHeroData } from '@/types';
 
 interface InteractiveHeroDataWithSlugs extends CampaignInteractiveHeroData {
@@ -24,10 +24,10 @@ export default function CampaignInteractiveHero() {
         const unsubscribe = subscribeToCampaignInteractiveHero(async (data) => {
             if (data) {
                 const primaryButtonSlug = data.primaryButtonCollectionId 
-                    ? await getSubCollectionSlugById(data.primaryButtonCollectionId) 
+                    ? await getCollectionSlugById(data.primaryButtonCollectionId) 
                     : null;
                 const secondaryButtonSlug = data.secondaryButtonCollectionId 
-                    ? await getSubCollectionSlugById(data.secondaryButtonCollectionId) 
+                    ? await getCollectionSlugById(data.secondaryButtonCollectionId) 
                     : null;
                 setHeroData({ ...data, primaryButtonSlug, secondaryButtonSlug });
             } else {

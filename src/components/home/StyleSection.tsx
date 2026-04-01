@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToStyleSection } from '@/lib/firebase/homepage-sections';
-import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
+import { getCollectionSlugById } from '@/lib/firebase/collections';
 import { StyleSectionData, StyleCard as StyleCardType } from '@/types';
 
 interface StyleCard {
@@ -48,7 +48,7 @@ export default function StyleSection({ cards }: StyleSectionProps) {
 
         const cardsWithSlugPromises = styleCards.map(async (card: any) => {
           if (card.collectionId) {
-            const slug = await getSubCollectionSlugById(card.collectionId);
+            const slug = await getCollectionSlugById(card.collectionId);
             return { ...card, collectionSlug: slug };
           }
           return { ...card, collectionSlug: null };

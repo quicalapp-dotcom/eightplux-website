@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 import { Product, SubCollection, Collection } from '@/types';
 import { getSubCollectionBySlug, getProductsBySubCollection } from '@/lib/firebase/subCollections';
-import { getCollectionById } from '@/lib/firebase/collections';
+import { getCollectionBySlug, getCollectionSlugById, getProductsByCollection, getCollectionById } from '@/lib/firebase/collections';
 import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function CollectionPage() {
@@ -18,25 +18,47 @@ export default function CollectionPage() {
     const [parentCollection, setParentCollection] = useState<Collection | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isParentCollection, setIsParentCollection] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const fetchedSubCollection = await getSubCollectionBySlug(params.slug as string);
-                if (!fetchedSubCollection) {
-                    router.push('/shop');
-                    return;
+                setLoading(true);
+                
+                // First, try to find as sub-collection
+                let fetchedSubCollection = await getSubCollectionBySlug(params.slug as string);
+                
+                if (fetchedSubCollection) {
+                    // It's a sub-collection
+                    setSubCollection(fetchedSubCollection);
+                    setIsParentCollection(false);
+
+                    // Get parent collection info
+                    const parentCol = await getCollectionById(fetchedSubCollection.collectionId);
+                    setParentCollection(parentCol);
+
+                    const fetchedProducts = await getProductsBySubCollection(fetchedSubCollection.id);
+                    setProducts(fetchedProducts);
+                } else {
+                    // Try to find as parent collection
+                    const fetchedParentCollection = await getCollectionBySlug(params.slug as string);
+                    
+                    if (fetchedParentCollection) {
+                        // It's a parent collection
+                        setParentCollection(fetchedParentCollection);
+                        setIsParentCollection(true);
+
+                        // Get all products for this parent collection
+                        const fetchedProducts = await getProductsByCollection(fetchedParentCollection.id);
+                        setProducts(fetchedProducts);
+                    } else {
+                        // Not found, redirect to shop
+                        router.push('/shop');
+                        return;
+                    }
                 }
-                setSubCollection(fetchedSubCollection);
-                
-                // Get parent collection info
-                const parentCol = await getCollectionById(fetchedSubCollection.collectionId);
-                setParentCollection(parentCol);
-                
-                const fetchedProducts = await getProductsBySubCollection(fetchedSubCollection.id);
-                setProducts(fetchedProducts);
             } catch (error) {
-                console.error('Error fetching sub-collection data:', error);
+                console.error('Error fetching collection data:', error);
                 router.push('/shop');
             } finally {
                 setLoading(false);
@@ -49,6 +71,8 @@ export default function CollectionPage() {
     }, [params.slug, router]);
 
     const filteredProducts = products;
+    const displayName = isParentCollection ? parentCollection?.name : subCollection?.name;
+    const displayImage = isParentCollection ? parentCollection?.image : subCollection?.image;
 
     if (loading) {
         return (
@@ -58,28 +82,28 @@ export default function CollectionPage() {
         );
     }
 
-    if (!subCollection) {
+    if (!subCollection && !parentCollection) {
         return null;
     }
 
     return (
         <div className="bg-white min-h-screen pt-[81px]">
             {/* Hero Image */}
-            {subCollection.image && (
+            {displayImage && (
                 <div className="relative w-full h-[300px] md:h-[400px]">
-                    {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(subCollection.image) ? (
+                    {/\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(displayImage) ? (
                         <video
                             autoPlay
                             loop
                             muted
                             playsInline
                             className="w-full h-full object-cover"
-                            src={subCollection.image}
+                            src={displayImage}
                         />
                     ) : (
                         <Image
-                            src={subCollection.image}
-                            alt={subCollection.name}
+                            src={displayImage}
+                            alt={displayName || 'Collection'}
                             fill
                             className="object-cover"
                             priority
@@ -87,7 +111,7 @@ export default function CollectionPage() {
                     )}
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                         <h1 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-[0.2em]">
-                            {subCollection.name}
+                            {displayName}
                         </h1>
                     </div>
                 </div>
@@ -95,16 +119,11 @@ export default function CollectionPage() {
 
             <main className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
                 {/* Collection Info (if no hero image) */}
-                {!subCollection.image && (
+                {!displayImage && (
                     <div className="mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-[0.1em] mb-4">
-                            {subCollection.name}
+                            {displayName}
                         </h1>
-                        {parentCollection && (
-                            <p className="text-gray-500 text-sm uppercase tracking-widest">
-                                Part of {parentCollection.name}
-                            </p>
-                        )}
                     </div>
                 )}
 
@@ -112,8 +131,8 @@ export default function CollectionPage() {
                 {filteredProducts.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
                         {filteredProducts.map((product) => (
-                            <Link 
-                                key={product.id} 
+                            <Link
+                                key={product.id}
                                 href={`/shop/product/${product.slug}`}
                                 className="group"
                             >
@@ -150,8 +169,8 @@ export default function CollectionPage() {
                                     {product.colors.length > 1 && (
                                         <div className="flex gap-1">
                                             {product.colors.slice(0, 4).map((color, i) => (
-                                                <div 
-                                                    key={i} 
+                                                <div
+                                                    key={i}
                                                     className="w-3 h-3 rounded-full border border-gray-200"
                                                     style={{ backgroundColor: color.hex }}
                                                 />
@@ -167,8 +186,8 @@ export default function CollectionPage() {
                         <p className="text-gray-500 text-sm uppercase tracking-widest">
                             No products found in this collection
                         </p>
-                        <Link 
-                            href="/shop" 
+                        <Link
+                            href="/shop"
                             className="inline-block mt-4 px-8 py-3 bg-black text-white text-xs font-bold uppercase tracking-widest"
                         >
                             Continue Shopping

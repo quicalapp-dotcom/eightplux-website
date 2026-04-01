@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { subscribeToCampaignFeatureRow } from '@/lib/firebase/campaign-sections';
-import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
+import { getCollectionSlugById } from '@/lib/firebase/collections';
 import { CampaignFeatureRowData, CampaignFeatureItem } from '@/types';
 
 interface CampaignFeatureRowProps {
@@ -42,7 +42,7 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
 
             const itemsWithSlugPromises = items.map(async (item) => {
                 if (item.collectionId) {
-                    const slug = await getSubCollectionSlugById(item.collectionId);
+                    const slug = await getCollectionSlugById(item.collectionId);
                     return { ...item, collectionSlug: slug };
                 }
                 return { ...item, collectionSlug: null };
