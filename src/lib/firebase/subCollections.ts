@@ -89,6 +89,23 @@ export const createSubCollection = async (data: Omit<SubCollection, 'id' | 'crea
   return docRef.id;
 };
 
+
+// Get sub-collections by parent collection ID
+export const getSubCollectionsByCollection = async (collectionId: string): Promise<SubCollection[]> => {
+  try {
+    const q = query(collection(db, 'subCollections'), where('collectionId', '==', collectionId));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as SubCollection[];
+  } catch (error) {
+    console.error('Error getting sub-collections by collection:', error);
+    return [];
+  }
+};
+
 // Get sub-collection by slug
 export const getSubCollectionBySlug = async (slug: string): Promise<SubCollection | null> => {
   try {

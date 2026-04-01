@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 import { Product, SubCollection, Collection } from '@/types';
-import { getSubCollectionBySlug, getProductsBySubCollection } from '@/lib/firebase/subCollections';
-import { getCollectionBySlug, getCollectionSlugById, getProductsByCollection, getCollectionById } from '@/lib/firebase/collections';
+import { getSubCollectionBySlug, getProductsBySubCollection, getSubCollectionsByCollection } from '@/lib/firebase/subCollections';
+import { getCollectionBySlug, getCollectionById } from '@/lib/firebase/collections';
 import { useCurrencyStore } from '@/stores/currencyStore';
 
 export default function CollectionPage() {
@@ -24,10 +24,10 @@ export default function CollectionPage() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                
+
                 // First, try to find as sub-collection
                 let fetchedSubCollection = await getSubCollectionBySlug(params.slug as string);
-                
+
                 if (fetchedSubCollection) {
                     // It's a sub-collection
                     setSubCollection(fetchedSubCollection);
@@ -37,20 +37,28 @@ export default function CollectionPage() {
                     const parentCol = await getCollectionById(fetchedSubCollection.collectionId);
                     setParentCollection(parentCol);
 
+                    // Get products for this sub-collection
                     const fetchedProducts = await getProductsBySubCollection(fetchedSubCollection.id);
                     setProducts(fetchedProducts);
                 } else {
                     // Try to find as parent collection
                     const fetchedParentCollection = await getCollectionBySlug(params.slug as string);
-                    
+
                     if (fetchedParentCollection) {
                         // It's a parent collection
                         setParentCollection(fetchedParentCollection);
                         setIsParentCollection(true);
 
-                        // Get all products for this parent collection
-                        const fetchedProducts = await getProductsByCollection(fetchedParentCollection.id);
-                        setProducts(fetchedProducts);
+                        // Get all sub-collections for this parent collection
+                        const subCollections = await getSubCollectionsByCollection(fetchedParentCollection.id);
+
+                        // Get all products from all sub-collections
+                        const allProductsPromises = subCollections.map(sc => getProductsBySubCollection(sc.id));
+                        const allProductsResults = await Promise.all(allProductsPromises);
+
+                        // Flatten the array of arrays
+                        const allProducts = allProductsResults.flat();
+                        setProducts(allProducts);
                     } else {
                         // Not found, redirect to shop
                         router.push('/shop');
@@ -124,6 +132,11 @@ export default function CollectionPage() {
                         <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-[0.1em] mb-4">
                             {displayName}
                         </h1>
+                        {isParentCollection && (
+                            <p className="text-gray-500 text-sm uppercase tracking-widest">
+                                {products.length} products
+                            </p>
+                        )}
                     </div>
                 )}
 
