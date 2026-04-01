@@ -10,6 +10,7 @@ interface StyleCard {
   src: string;
   label: string;
   collectionId?: string;
+  mediaUrl?: string;
 }
 
 interface StyleCardWithSlug extends StyleCard {
@@ -40,7 +41,7 @@ export default function StyleSection({ cards }: StyleSectionProps) {
       if (data) {
         setBadgeText(data.badgeText || DEFAULT_BADGE);
         setTitle(data.title || DEFAULT_TITLE);
-        
+
         const styleCards = data.cards?.filter(c => c.isActive)
           || cards
           || DEFAULT_CARDS.map((c) => ({ mediaUrl: c.src, label: c.label }));
