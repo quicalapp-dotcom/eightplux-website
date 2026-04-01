@@ -3,7 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToCampaignInteractiveHero } from '@/lib/firebase/campaign-sections';
+import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
 import { CampaignInteractiveHeroData } from '@/types';
+
+interface InteractiveHeroDataWithSlugs extends CampaignInteractiveHeroData {
+    primaryButtonSlug?: string | null;
+    secondaryButtonSlug?: string | null;
+}
 
 // Default fallback data
 const DEFAULT_IMAGE = '/sportbg.gif';
@@ -12,28 +18,38 @@ const DEFAULT_PRIMARY_BUTTON = { text: 'shop XX', href: '/shop' };
 const DEFAULT_SECONDARY_BUTTON = { text: 'shop XY', href: '/shop' };
 
 export default function CampaignInteractiveHero() {
-    const [heroData, setHeroData] = useState<CampaignInteractiveHeroData | null>(null);
+    const [heroData, setHeroData] = useState<InteractiveHeroDataWithSlugs | null>(null);
 
     useEffect(() => {
-        const unsubscribe = subscribeToCampaignInteractiveHero((data) => {
-            setHeroData(data);
+        const unsubscribe = subscribeToCampaignInteractiveHero(async (data) => {
+            if (data) {
+                const primaryButtonSlug = data.primaryButtonCollectionId 
+                    ? await getSubCollectionSlugById(data.primaryButtonCollectionId) 
+                    : null;
+                const secondaryButtonSlug = data.secondaryButtonCollectionId 
+                    ? await getSubCollectionSlugById(data.secondaryButtonCollectionId) 
+                    : null;
+                setHeroData({ ...data, primaryButtonSlug, secondaryButtonSlug });
+            } else {
+                setHeroData(null);
+            }
         });
         return () => unsubscribe();
     }, []);
 
     const mediaUrl = heroData?.mediaUrl || DEFAULT_IMAGE;
     const title = heroData?.title || DEFAULT_TITLE;
-    
-    const primaryButton = heroData?.primaryButtonCollectionId
-        ? { text: heroData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${heroData.primaryButtonCollectionId}` }
+
+    const primaryButton = heroData?.primaryButtonSlug
+        ? { text: heroData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${heroData.primaryButtonSlug}` }
         : { text: heroData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: DEFAULT_PRIMARY_BUTTON.href };
-    
-    const secondaryButton = heroData?.secondaryButtonCollectionId
-        ? { text: heroData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${heroData.secondaryButtonCollectionId}` }
+
+    const secondaryButton = heroData?.secondaryButtonSlug
+        ? { text: heroData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${heroData.secondaryButtonSlug}` }
         : { text: heroData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: DEFAULT_SECONDARY_BUTTON.href };
 
     // Auto-detect if mediaUrl is a video
-    const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+    const isVideoUrl = /.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
 
     return (
         <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">

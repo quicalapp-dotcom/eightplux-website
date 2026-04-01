@@ -3,12 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToStyleSection } from '@/lib/firebase/homepage-sections';
+import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
 import { StyleSectionData, StyleCard as StyleCardType } from '@/types';
 
 interface StyleCard {
   src: string;
   label: string;
   collectionId?: string;
+}
+
+interface StyleCardWithSlug extends StyleCard {
+  collectionSlug?: string | null;
 }
 
 interface StyleSectionProps {
@@ -26,22 +31,38 @@ const DEFAULT_CARDS: StyleCard[] = [
 ];
 
 export default function StyleSection({ cards }: StyleSectionProps) {
-  const [styleData, setStyleData] = useState<StyleSectionData | null>(null);
+  const [styleCards, setStyleCards] = useState<StyleCardWithSlug[]>([]);
+  const [badgeText, setBadgeText] = useState<string>(DEFAULT_BADGE);
+  const [title, setTitle] = useState<string>(DEFAULT_TITLE);
 
   useEffect(() => {
-    const unsubscribe = subscribeToStyleSection((data) => {
-      setStyleData(data);
+    const unsubscribe = subscribeToStyleSection(async (data) => {
+      if (data) {
+        setBadgeText(data.badgeText || DEFAULT_BADGE);
+        setTitle(data.title || DEFAULT_TITLE);
+        
+        const styleCards = data.cards?.filter(c => c.isActive)
+          || cards
+          || DEFAULT_CARDS.map((c) => ({ mediaUrl: c.src, label: c.label }));
+
+        const cardsWithSlugPromises = styleCards.map(async (card: any) => {
+          if (card.collectionId) {
+            const slug = await getSubCollectionSlugById(card.collectionId);
+            return { ...card, collectionSlug: slug };
+          }
+          return { ...card, collectionSlug: null };
+        });
+
+        const cardsWithSlug = await Promise.all(cardsWithSlugPromises);
+        setStyleCards(cardsWithSlug);
+      } else {
+        setBadgeText(DEFAULT_BADGE);
+        setTitle(DEFAULT_TITLE);
+        setStyleCards(cards || DEFAULT_CARDS);
+      }
     });
     return () => unsubscribe();
-  }, []);
-
-  const badgeText = styleData?.badgeText || DEFAULT_BADGE;
-  const title = styleData?.title || DEFAULT_TITLE;
-  
-  // Get style cards from Firestore or fallback to props or defaults
-  const styleCards = styleData?.cards?.filter(c => c.isActive) 
-    || cards 
-    || DEFAULT_CARDS.map((c) => ({ mediaUrl: c.src, label: c.label }));
+  }, [cards]);
 
   return (
     <section className="py-20 bg-white">
@@ -62,10 +83,10 @@ export default function StyleSection({ cards }: StyleSectionProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {styleCards.map((card: any, index: number) => {
+          {styleCards.map((card: StyleCardWithSlug, index: number) => {
             const src = card.mediaUrl || card.src;
             const label = card.label;
-            const collectionId = card.collectionId;
+            const collectionSlug = card.collectionSlug;
 
             const content = (
               <>
@@ -82,8 +103,8 @@ export default function StyleSection({ cards }: StyleSectionProps) {
               </>
             );
 
-            return collectionId ? (
-              <Link key={index} href={`/shop/collections/${collectionId}`} className="group relative overflow-hidden aspect-[3/4] cursor-pointer">
+            return collectionSlug ? (
+              <Link key={index} href={`/shop/collections/${collectionSlug}`} className="group relative overflow-hidden aspect-[3/4] cursor-pointer">
                 {content}
               </Link>
             ) : (

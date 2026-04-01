@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToCampaignBanner } from '@/lib/firebase/campaign-sections';
+import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
 import { CampaignBannerData } from '@/types';
 
 // Default fallback data
@@ -11,12 +12,27 @@ const DEFAULT_TITLE = 'dress easy live bold';
 const DEFAULT_PRIMARY_BUTTON = { text: 'Shop XX', href: '/shop' };
 const DEFAULT_SECONDARY_BUTTON = { text: 'Shop XY', href: '/shop' };
 
+interface BannerDataWithSlugs extends CampaignBannerData {
+    primaryButtonSlug?: string | null;
+    secondaryButtonSlug?: string | null;
+}
+
 export default function CampaignBanner() {
-    const [bannerData, setBannerData] = useState<CampaignBannerData | null>(null);
+    const [bannerData, setBannerData] = useState<BannerDataWithSlugs | null>(null);
 
     useEffect(() => {
-        const unsubscribe = subscribeToCampaignBanner((data) => {
-            setBannerData(data);
+        const unsubscribe = subscribeToCampaignBanner(async (data) => {
+            if (data) {
+                const primaryButtonSlug = data.primaryButtonCollectionId 
+                    ? await getSubCollectionSlugById(data.primaryButtonCollectionId) 
+                    : null;
+                const secondaryButtonSlug = data.secondaryButtonCollectionId 
+                    ? await getSubCollectionSlugById(data.secondaryButtonCollectionId) 
+                    : null;
+                setBannerData({ ...data, primaryButtonSlug, secondaryButtonSlug });
+            } else {
+                setBannerData(null);
+            }
         });
         return () => unsubscribe();
     }, []);
@@ -24,17 +40,17 @@ export default function CampaignBanner() {
     const mediaUrl = bannerData?.mediaUrl || DEFAULT_IMAGE;
     const title = bannerData?.title || DEFAULT_TITLE;
     const showButtons = bannerData?.showButtons ?? true;
-    
-    const primaryButton = bannerData?.primaryButtonCollectionId
-        ? { text: bannerData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${bannerData.primaryButtonCollectionId}` }
+
+    const primaryButton = bannerData?.primaryButtonSlug
+        ? { text: bannerData.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: `/shop/collections/${bannerData.primaryButtonSlug}` }
         : { text: bannerData?.primaryButtonText || DEFAULT_PRIMARY_BUTTON.text, href: DEFAULT_PRIMARY_BUTTON.href };
-    
-    const secondaryButton = bannerData?.secondaryButtonCollectionId
-        ? { text: bannerData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${bannerData.secondaryButtonCollectionId}` }
+
+    const secondaryButton = bannerData?.secondaryButtonSlug
+        ? { text: bannerData.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: `/shop/collections/${bannerData.secondaryButtonSlug}` }
         : { text: bannerData?.secondaryButtonText || DEFAULT_SECONDARY_BUTTON.text, href: DEFAULT_SECONDARY_BUTTON.href };
 
     // Auto-detect if mediaUrl is a video
-    const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+    const isVideoUrl = /.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
 
     return (
         <section className="relative w-full overflow-hidden bg-black flex items-center justify-center">

@@ -3,10 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscribeToWorldSection } from '@/lib/firebase/homepage-sections';
+import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
 import { WorldSectionData } from '@/types';
 
 interface WorldSectionProps {
   image?: string; // Keep for backwards compatibility
+}
+
+interface WorldSectionDataWithSlug extends WorldSectionData {
+  buttonSlug?: string | null;
 }
 
 // Default fallback data
@@ -16,11 +21,18 @@ const DEFAULT_SUBTITLE = 'tag us to be featured in the collective';
 const DEFAULT_BUTTON = { text: 'explore', href: '/world' };
 
 export default function WorldSection({ image }: WorldSectionProps) {
-  const [worldData, setWorldData] = useState<WorldSectionData | null>(null);
+  const [worldData, setWorldData] = useState<WorldSectionDataWithSlug | null>(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeToWorldSection((data) => {
-      setWorldData(data);
+    const unsubscribe = subscribeToWorldSection(async (data) => {
+      if (data) {
+        const buttonSlug = data.buttonCollectionId 
+          ? await getSubCollectionSlugById(data.buttonCollectionId) 
+          : null;
+        setWorldData({ ...data, buttonSlug });
+      } else {
+        setWorldData(null);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -28,13 +40,13 @@ export default function WorldSection({ image }: WorldSectionProps) {
   const mediaUrl = worldData?.mediaUrl || image || DEFAULT_IMAGE;
   const title = worldData?.title || DEFAULT_TITLE;
   const subtitle = worldData?.subtitle || DEFAULT_SUBTITLE;
-  
-  const button = worldData?.buttonCollectionId
-    ? { text: worldData.buttonText || DEFAULT_BUTTON.text, href: `/shop/collections/${worldData.buttonCollectionId}` }
+
+  const button = worldData?.buttonSlug
+    ? { text: worldData.buttonText || DEFAULT_BUTTON.text, href: `/shop/collections/${worldData.buttonSlug}` }
     : { text: worldData?.buttonText || DEFAULT_BUTTON.text, href: '/world' };
 
   // Auto-detect if mediaUrl is a video
-  const isVideoUrl = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
+  const isVideoUrl = /.(mp4|webm|ogg|mov|avi|mkv)$/i.test(mediaUrl);
 
   return (
     <section className="relative w-full overflow-hidden bg-gray-900">

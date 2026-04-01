@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { subscribeToCampaignFeatureRow } from '@/lib/firebase/campaign-sections';
-import { CampaignFeatureRowData } from '@/types';
+import { getSubCollectionSlugById } from '@/lib/firebase/subCollections';
+import { CampaignFeatureRowData, CampaignFeatureItem } from '@/types';
 
 interface CampaignFeatureRowProps {
     rowId: string;
@@ -12,11 +13,16 @@ interface CampaignFeatureRowProps {
     defaultRightImage: string;
 }
 
+interface FeatureItemWithSlug extends CampaignFeatureItem {
+    collectionSlug?: string | null;
+}
+
 // Default fallback
 const DEFAULT_LOGO = '/Copy of 8+ red logo.png';
 
 export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRightImage }: CampaignFeatureRowProps) {
     const [rowData, setRowData] = useState<CampaignFeatureRowData | null>(null);
+    const [itemsWithSlugs, setItemsWithSlugs] = useState<FeatureItemWithSlug[]>([]);
 
     useEffect(() => {
         const unsubscribe = subscribeToCampaignFeatureRow(rowId, (data) => {
@@ -25,12 +31,31 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
         return () => unsubscribe();
     }, [rowId]);
 
-    // Use items from Firestore or fallback to default 2 images
-    const items = rowData?.items?.filter(item => item.isActive).sort((a, b) => a.sortOrder - b.sortOrder) 
-        || [
-            { id: 'fallback-1', mediaUrl: defaultLeftImage, collectionId: '', mediaType: 'image' as const, sortOrder: 0, isActive: true },
-            { id: 'fallback-2', mediaUrl: defaultRightImage, collectionId: '', mediaType: 'image' as const, sortOrder: 1, isActive: true }
-        ];
+    // Fetch slugs for all items with collectionId
+    useEffect(() => {
+        const fetchSlugs = async () => {
+            const items = rowData?.items?.filter(item => item.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
+                || [
+                    { id: 'fallback-1', mediaUrl: defaultLeftImage, collectionId: '', mediaType: 'image' as const, sortOrder: 0, isActive: true },
+                    { id: 'fallback-2', mediaUrl: defaultRightImage, collectionId: '', mediaType: 'image' as const, sortOrder: 1, isActive: true }
+                ];
+
+            const itemsWithSlugPromises = items.map(async (item) => {
+                if (item.collectionId) {
+                    const slug = await getSubCollectionSlugById(item.collectionId);
+                    return { ...item, collectionSlug: slug };
+                }
+                return { ...item, collectionSlug: null };
+            });
+
+            const itemsWithSlug = await Promise.all(itemsWithSlugPromises);
+            setItemsWithSlugs(itemsWithSlug);
+        };
+
+        if (rowData) {
+            fetchSlugs();
+        }
+    }, [rowData, defaultLeftImage, defaultRightImage]);
 
     // Determine grid class based on number of items
     const getGridClass = (count: number) => {
@@ -50,11 +75,11 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
                 </div>
             </div>
 
-            <div className={`grid ${getGridClass(items.length)} gap-4 p-4 md:p-8`}>
-                {items.map((item, index) => {
+            <div className={`grid ${getGridClass(itemsWithSlugs.length)} gap-4 p-4 md:p-8`}>
+                {itemsWithSlugs.map((item, index) => {
                     // Auto-detect if mediaUrl is a video
                     const isVideoUrl = item.mediaType === 'video' || /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(item.mediaUrl);
-                    
+
                     const content = (
                         <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-50 overflow-hidden group">
                             {isVideoUrl ? (
@@ -67,21 +92,21 @@ export default function CampaignFeatureRow({ rowId, defaultLeftImage, defaultRig
                                     src={item.mediaUrl}
                                 />
                             ) : (
-                                <Image 
-                                    src={item.mediaUrl} 
-                                    alt={`Feature ${index + 1}`} 
-                                    fill 
-                                    className="object-cover group-hover:scale-105 transition-transform duration-1000" 
+                                <Image
+                                    src={item.mediaUrl}
+                                    alt={`Feature ${index + 1}`}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-1000"
                                 />
                             )}
-                            {item.collectionId && (
-                                <Link href={`/shop/collections/${item.collectionId}`} className="absolute inset-0 z-10" />
+                            {item.collectionSlug && (
+                                <Link href={`/shop/collections/${item.collectionSlug}`} className="absolute inset-0 z-10" />
                             )}
                         </div>
                     );
 
-                    return item.collectionId ? (
-                        <Link key={item.id || index} href={`/shop/collections/${item.collectionId}`} className="relative">
+                    return item.collectionSlug ? (
+                        <Link key={item.id || index} href={`/shop/collections/${item.collectionSlug}`} className="relative">
                             {content}
                         </Link>
                     ) : (

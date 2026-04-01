@@ -57,6 +57,17 @@ export const getSubCollectionById = async (id: string): Promise<SubCollection | 
   }
 };
 
+// Get sub-collection slug by ID
+export const getSubCollectionSlugById = async (id: string): Promise<string | null> => {
+  try {
+    const subCollection = await getSubCollectionById(id);
+    return subCollection?.slug || null;
+  } catch (error) {
+    console.error('Error getting sub-collection slug by ID:', error);
+    return null;
+  }
+};
+
 // Update sub-collection
 export const updateSubCollection = async (id: string, data: Partial<SubCollection>): Promise<void> => {
   const docRef = doc(db, 'subCollections', id);
