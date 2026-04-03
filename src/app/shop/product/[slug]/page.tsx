@@ -28,6 +28,80 @@ export default function ProductDetailPage() {
     const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [dragOffset, setDragOffset] = useState(0);
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    // Auto-sliding functionality
+    useEffect(() => {
+        if (!product || product.images.length <= 1) return;
+        
+        const interval = setInterval(() => {
+            if (!isDragging) {
+                setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+            }
+        }, 3000); // Change image every 3 seconds
+
+        return () => clearInterval(interval);
+    }, [product, isDragging]);
+
+    // Touch/Mouse event handlers for manual sliding
+    const handleDragStart = (clientX: number) => {
+        setIsDragging(true);
+        setStartX(clientX);
+        setDragOffset(0);
+    };
+
+    const handleDragMove = (clientX: number) => {
+        if (!isDragging) return;
+        setDragOffset(clientX - startX);
+    };
+
+    const handleDragEnd = () => {
+        if (!isDragging) return;
+        setIsDragging(false);
+
+        if (Math.abs(dragOffset) > 50) {
+            if (dragOffset > 0 && currentImageIndex > 0) {
+                setCurrentImageIndex((prev) => prev - 1);
+            } else if (dragOffset < 0 && currentImageIndex < (product?.images.length || 1) - 1) {
+                setCurrentImageIndex((prev) => prev + 1);
+            }
+        }
+        setDragOffset(0);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        handleDragStart(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        handleDragMove(e.touches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        handleDragEnd();
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        handleDragStart(e.clientX);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        handleDragMove(e.clientX);
+    };
+
+    const handleMouseUp = () => {
+        handleDragEnd();
+    };
+
+    const handleMouseLeave = () => {
+        if (isDragging) {
+            handleDragEnd();
+        }
+    };
+
     const { addItem, showNotification } = useCartStore();
     const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
     const { user } = useAuth();
@@ -247,7 +321,7 @@ export default function ProductDetailPage() {
 
                     {/* Image Gallery (Left) */}
                     <div className="flex-1 flex gap-4 h-fit">
-                        {/* Thumbnails (Vertical) */}
+                        {/* Thumbnails (Vertical) - Desktop Only */}
                         <div className="hidden md:flex flex-col gap-4 w-24">
                             {product.images.map((img, idx) => (
                                 <button
@@ -260,15 +334,71 @@ export default function ProductDetailPage() {
                             ))}
                         </div>
 
-                        {/* Main Image */}
-                        <div className="flex-1 aspect-[3/4] relative bg-[#F6F6F6] border border-gray-100 overflow-hidden">
-                            <Image
-                                src={product.images[currentImageIndex]}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                                priority
-                            />
+                        {/* Main Image with Mobile Carousel */}
+                        <div className="flex-1 relative">
+                            <div 
+                                ref={carouselRef}
+                                className="aspect-[3/4] relative bg-[#F6F6F6] border border-gray-100 overflow-hidden cursor-grab active:cursor-grabbing"
+                                onTouchStart={handleTouchStart}
+                                onTouchMove={handleTouchMove}
+                                onTouchEnd={handleTouchEnd}
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseLeave}
+                            >
+                                <Image
+                                    src={product.images[currentImageIndex]}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover transition-transform duration-300"
+                                    style={{ transform: isDragging ? `translateX(${dragOffset * 0.3}px)` : 'none' }}
+                                    priority
+                                    draggable={false}
+                                />
+                                
+                                {/* Previous/Next Arrow Buttons - Desktop */}
+                                {product.images.length > 1 && (
+                                    <>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : product.images.length - 1));
+                                            }}
+                                            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-white/80 hover:bg-white rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                                        >
+                                            ←
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCurrentImageIndex((prev) => (prev < product.images.length - 1 ? prev + 1 : 0));
+                                            }}
+                                            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-white/80 hover:bg-white rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                                        >
+                                            →
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Navigation Dots - Mobile Only */}
+                            {product.images.length > 1 && (
+                                <div className="flex md:hidden justify-center gap-2 mt-4">
+                                    {product.images.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setCurrentImageIndex(idx)}
+                                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                                currentImageIndex === idx 
+                                                    ? 'bg-black w-6' 
+                                                    : 'bg-gray-300'
+                                            }`}
+                                            aria-label={`Go to image ${idx + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 
