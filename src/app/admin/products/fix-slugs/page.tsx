@@ -35,30 +35,101 @@ export default function FixProductSlugsPage() {
 
       log('Fetching all products...');
       const productsSnapshot = await getDocs(collection(db, 'products'));
-      
+
       log(`Found ${productsSnapshot.size} products`);
-      
+
       let updatedCount = 0;
       let failedCount = 0;
+
+      // First pass: collect all slugs and find duplicates
+      const slugCounts = new Map<string, string[]>(); // slug -> [docIds]
       
+      for (const productDoc of productsSnapshot.docs) {
+        const product = productDoc.data();
+        const slug = product.slug;
+        
+        if (slug) {
+          if (!slugCounts.has(slug)) {
+            slugCounts.set(slug, []);
+          }
+          slugCounts.set(slug, [...slugCounts.get(slug)!, productDoc.id]);
+        }
+      }
+
+      // Find duplicate slugs
+      const duplicateSlugs = new Map<string, string[]>();
+      for (const [slug, ids] of slugCounts) {
+        if (ids.length > 1) {
+          duplicateSlugs.set(slug, ids);
+        }
+      }
+
+      if (duplicateSlugs.size > 0) {
+        log(`\n⚠ Found ${duplicateSlugs.size} duplicate slug(s):`);
+        for (const [slug, ids] of duplicateSlugs) {
+          log(`  Slug "${slug}" is used by ${ids.length} products:`);
+          for (const id of ids) {
+            const product = productsSnapshot.docs.find(d => d.id === id)?.data();
+            log(`    - ID: ${id}, Name: "${product?.name}"`);
+          }
+        }
+
+        // Fix duplicates by adding numeric suffixes
+        log('\n🔧 Fixing duplicate slugs...');
+        for (const [slug, ids] of duplicateSlugs) {
+          // Keep the first product's slug as-is, add suffix to the rest
+          for (let i = 1; i < ids.length; i++) {
+            const docId = ids[i];
+            const productDoc = productsSnapshot.docs.find(d => d.id === docId);
+            const product = productDoc?.data();
+            
+            let counter = 1;
+            let newSlug = `${slug}-${counter}`;
+            
+            // Make sure the new slug is also unique from all existing slugs
+            while (slugCounts.has(newSlug) || duplicateSlugs.has(newSlug)) {
+              counter++;
+              newSlug = `${slug}-${counter}`;
+            }
+
+            log(`  Updating "${product?.name}": "${slug}" -> "${newSlug}"`);
+            
+            try {
+              await updateDoc(doc(db, 'products', docId), {
+                slug: newSlug
+              });
+              slugCounts.set(newSlug, [docId]);
+              updatedCount++;
+            } catch (error) {
+              log(`  Error updating "${product?.name}": ${(error as Error).message}`);
+              failedCount++;
+            }
+          }
+        }
+      } else {
+        log('✅ No duplicate slugs found!');
+      }
+
+      // Second pass: clean up slugs (replace special chars, etc.)
+      log('\n🔧 Cleaning up all slugs...');
       for (const productDoc of productsSnapshot.docs) {
         const product = productDoc.data();
         const currentSlug = product.slug;
         const newName = product.name;
-        
+
         if (!newName) {
           log(`Skipping product "${productDoc.id}" - no name`);
           continue;
         }
-        
+
         const newSlug = generateSlug(newName);
-        
-        // Only update if slug is different
-        if (currentSlug !== newSlug) {
-          log(`Updating product "${newName}":`);
+
+        // Only update if slug is different and not already updated
+        if (currentSlug !== newSlug && !slugCounts.has(newSlug)) {
+          log(`Cleaning product "${newName}":`);
           log(`  Old slug: "${currentSlug}"`);
           log(`  New slug: "${newSlug}"`);
-          
+
           try {
             await updateDoc(doc(db, 'products', productDoc.id), {
               slug: newSlug
@@ -68,18 +139,16 @@ export default function FixProductSlugsPage() {
             log(`  Error updating: ${(error as Error).message}`);
             failedCount++;
           }
-        } else {
-          log(`Product "${newName}" slug is already clean: "${currentSlug}"`);
         }
       }
-      
+
       log('\n=== Summary ===');
       log(`Total products: ${productsSnapshot.size}`);
       log(`Updated: ${updatedCount}`);
       log(`Failed: ${failedCount}`);
       log(`No changes needed: ${productsSnapshot.size - updatedCount - failedCount}`);
       setCompleted(true);
-      
+
     } catch (error) {
       setResults(prev => [...prev, 'Error fixing product slugs: ' + (error as Error).message]);
     } finally {
@@ -101,9 +170,18 @@ export default function FixProductSlugsPage() {
         <div className="space-y-4">
           <h2 className="text-lg font-medium">What this does</h2>
           <p className="text-sm text-gray-600">
-            This utility regenerates all product slugs to ensure they only contain lowercase alphanumeric characters and hyphens.
-            This fixes issues where special characters (like en-dashes, em-dashes, etc.) in product names cause "Product Not Found" errors.
+            This utility detects and fixes duplicate product slugs that cause the wrong product to display.
+            It also regenerates all product slugs to ensure they only contain lowercase alphanumeric characters and hyphens.
           </p>
+
+          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
+            <h3 className="text-sm font-bold mb-2 text-yellow-800">⚠ This fixes:</h3>
+            <ul className="text-sm space-y-1 text-yellow-700">
+              <li>• Products with identical slugs (e.g., two "Power Puff Crop Top" products)</li>
+              <li>• Slugs with special characters (e.g., en-dashes, quotes)</li>
+              <li>• Slugs that don't match the product name</li>
+            </ul>
+          </div>
 
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="text-sm font-bold mb-2">Examples:</h3>

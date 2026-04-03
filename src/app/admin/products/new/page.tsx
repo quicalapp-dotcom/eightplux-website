@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
-import { addProduct } from '@/lib/firebase/products';
+import { addProduct, getProducts } from '@/lib/firebase/products';
 import { subscribeToCollections } from '@/lib/firebase/collections';
 import { subscribeToSubCollections, getActiveSubCollections } from '@/lib/firebase/subCollections';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -79,18 +79,38 @@ export default function NewProductPage() {
         setLoading(true);
 
         try {
-            // Generate slug: lowercase, replace spaces and special chars with hyphens
-            const generateSlug = (name: string) => {
-                return name
+            // Generate unique slug: check for duplicates and add numeric suffix if needed
+            const generateUniqueSlug = async (name: string): Promise<string> => {
+                const baseSlug = name
                     .toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')  // Replace any non-alphanumeric chars with hyphen
                     .replace(/^-+|-+$/g, '');     // Remove leading/trailing hyphens
+                
+                // Check if this slug already exists
+                const existingProducts = await getProducts();
+                const existingSlugs = existingProducts.map(p => p.slug);
+                
+                // If slug doesn't exist, use it as-is
+                if (!existingSlugs.includes(baseSlug)) {
+                    return baseSlug;
+                }
+                
+                // If it exists, find a unique suffix
+                let counter = 1;
+                let uniqueSlug = `${baseSlug}-${counter}`;
+                while (existingSlugs.includes(uniqueSlug)) {
+                    counter++;
+                    uniqueSlug = `${baseSlug}-${counter}`;
+                }
+                return uniqueSlug;
             };
+
+            const uniqueSlug = await generateUniqueSlug(formData.name);
 
             // Prepare Data
             const productData = {
                 name: formData.name,
-                slug: generateSlug(formData.name),
+                slug: uniqueSlug,
                 description: formData.description,
                 price: parseFloat(formData.price),
                 category: formData.category as 'male' | 'female' | 'unisex',

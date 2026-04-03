@@ -114,12 +114,20 @@ export const getProductBySlug = async (slug: string): Promise<Product | null> =>
     const snapshot = await getDocs(q);
 
     console.log('[getProductBySlug] Looking for slug:', slug);
-    console.log('[getProductBySlug] Found:', snapshot.empty ? 'none' : snapshot.docs[0].id);
-    
+    console.log('[getProductBySlug] Found:', snapshot.empty ? 'none' : snapshot.docs.length, 'matches');
+
     if (!snapshot.empty) {
+        // If multiple products share the same slug, we need to find the right one
+        // This shouldn't happen with proper slug generation, but handle it gracefully
+        if (snapshot.docs.length > 1) {
+            console.warn('[getProductBySlug] Multiple products share the same slug:', slug, '- returning first match');
+            console.warn('[getProductBySlug] Product IDs:', snapshot.docs.map(d => d.id));
+            console.warn('[getProductBySlug] Product names:', snapshot.docs.map(d => d.data().name));
+        }
+        
         const doc = snapshot.docs[0];
         const product = { id: doc.id, ...doc.data() } as Product;
-        console.log('[getProductBySlug] Product found:', product.name, 'slug in DB:', product.slug);
+        console.log('[getProductBySlug] Product found:', product.name, 'ID:', product.id);
         return product;
     } else {
         // Debug: log all slugs in the database
@@ -128,6 +136,24 @@ export const getProductBySlug = async (slug: string): Promise<Product | null> =>
         console.log('[getProductBySlug] All slugs in DB:', allSlugs);
         return null;
     }
+};
+
+/**
+ * Retrieves a product by its Firestore document ID.
+ * This is the most reliable way to fetch a specific product.
+ * @param id - The Firestore document ID of the product.
+ * @returns The product data.
+ */
+export const getProductByIdForRouting = async (id: string): Promise<Product | null> => {
+    if (!id) return null;
+    
+    const productRef = doc(db, 'products', id);
+    const docSnap = await getDoc(productRef);
+    
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Product;
+    }
+    return null;
 };
 
 /**
