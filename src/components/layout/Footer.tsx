@@ -35,10 +35,7 @@ export default function Footer() {
                 <p className="mb-1 opacity-60">Address:</p>
                 <p>7, Tajudeen Anjorin, Onilekere, Ikeja</p>
               </div>
-              <div>
-                <p className="mb-1 opacity-60">Phone:</p>
-                <p>+234 805 271 8987</p>
-              </div>
+              
               <div>
                 <p className="mb-1 opacity-60">Email:</p>
                 <p>eightplux@gmail.com</p>
